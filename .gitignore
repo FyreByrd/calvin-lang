@@ -1,1 +1,8 @@
 test*
+*.hh
+*.cc
+*.o
+parser.output
+.*
+*.s
+calc

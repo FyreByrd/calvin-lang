@@ -25,7 +25,7 @@ id      [a-zA-Z][a-zA-Z_0-9]*
 int     0|(\+|-)?[1-9][0-9]*
 hex     0x[0-9a-fA-F]+ 
 blank   [ \t\r]
-type    int|float|void|char|bool|long
+type    char|bool|(i|u)(8|16|32|64)|(r|x)(32|64)
 char    '([^\\"]|\\.)'
 real    ((\+|-)?([0-9]+\.[0-9]+|inf)|NaN)
 cmpx    ({real}(\+|-))?{real}(i|j|I)

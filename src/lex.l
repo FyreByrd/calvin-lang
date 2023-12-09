@@ -52,6 +52,9 @@ mcomnt  \/\*([^*]|(\*+[^*/]))*\*+\/
 const   return yy::parser::make_CONST   (loc);
 var     return yy::parser::make_VAR     (loc);
 return  return yy::parser::make_RETURN  (loc);
+not     return yy::parser::make_NOT     (loc);
+and     return yy::parser::make_AND     (loc);
+or      return yy::parser::make_OR      (loc);
 {bool}  return make_BOOL                (yytext, loc);
 {cmpx}  return make_CMPX                (yytext, loc);
 {real}  return make_REAL                (yytext, loc);
@@ -80,7 +83,7 @@ return  return yy::parser::make_RETURN  (loc);
 "~="    return yy::parser::make_TL_EQU  (loc);
 "&="    return yy::parser::make_AM_EQU  (loc);
 "|="    return yy::parser::make_PI_EQU  (loc);
-"^="    return yy::parser::make_CAR_EQU (loc);
+"^="    return yy::parser::make_CR_EQU  (loc);
 "<<="   return yy::parser::make_LS_EQU  (loc);
 ">>="   return yy::parser::make_RS_EQU  (loc);
 ">>>="  return yy::parser::make_AS_EQU  (loc);

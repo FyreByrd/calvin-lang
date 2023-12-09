@@ -35,8 +35,10 @@
     EQU
     PL_EQU MIN_EQU
     ST_EQU SL_EQU MD_EQU
-    TL_EQU AM_EQU PI_EQU CAR_EQU
+    TL_EQU AM_EQU PI_EQU CR_EQU
     LS_EQU RS_EQU AS_EQU
+    NOT AND OR
+    EE NE GE LE LT GT
     CONST VAR
     LBRACE RBRACE
     LPAREN RPAREN
@@ -62,10 +64,13 @@ stmt_list: stmt | stmt_list stmt;
 stmt: 
   decl SEMI
   | expr SEMI
+  | mass SEMI
   | RETURN expr SEMI;
+type: TYPE | CONST TYPE | VAR | CONST VAR;
 decl: 
-  TYPE ID
-  | TYPE ID EQU expr;
+  type ID
+  | type ID EQU expr
+  | type ID EQU cmp;
 expr: 
   val PLUS expr 
   | val MINUS expr 
@@ -80,21 +85,39 @@ expr:
   | val RSHIFT expr 
   | val ASHIFT expr 
   | val EQU expr
-  | val PL_EQU expr 
+  | val;
+mass:
+  val PL_EQU expr 
   | val MIN_EQU expr 
   | val ST_EQU expr 
   | val SL_EQU expr 
   | val MD_EQU expr 
   | val TL_EQU expr 
-  | val AM_EQU expr 
-  | val PI_EQU expr 
-  | val CAR_EQU expr 
+  | val TL_EQU cmp
+  | val AM_EQU expr
+  | val AM_EQU cmp
+  | val PI_EQU expr
+  | val PI_EQU cmp
+  | val CR_EQU expr
+  | val CR_EQU cmp 
   | val LS_EQU expr 
   | val RS_EQU expr 
-  | val AS_EQU expr 
-  | val;
-val: cnst | ID | LPAREN expr RPAREN;
+  | val AS_EQU expr;
+val:
+  cnst 
+  | ID 
+  | LPAREN expr RPAREN;
 cnst: BOOL | CHAR | REAL | INT | CMPX;
+cmp:
+  NOT val
+  | expr AND val
+  | expr OR val
+  | expr EE val
+  | expr NE val
+  | expr GE val
+  | expr LE val
+  | expr LT val
+  | expr GT val;
 
 %%
 

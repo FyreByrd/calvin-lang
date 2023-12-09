@@ -5,7 +5,7 @@
 %define api.token.raw
 
 %define api.token.constructor
-%define api.val.type variant
+%define api.value.type variant
 %define parse.assert
 
 %code requires {

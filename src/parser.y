@@ -114,9 +114,9 @@ mass:
     | val RS_EQU expr 
     | val AS_EQU expr;
 val:
-  cnst 
-  | ID 
-  | LPAREN expr RPAREN;
+    cnst 
+    | ID 
+    | LPAREN expr RPAREN;
 cnst:
     BOOL 
     | CHAR 

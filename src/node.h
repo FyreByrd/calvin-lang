@@ -54,7 +54,7 @@ private:
         return ret;
     }
 public:
-    string_constant(std::string name) : node (std::make_shared<meta>(meta("string"))) {
+    string_constant(std::string name) : node (std::make_shared<meta>("string")) {
         val = escape(name);
     }
 
@@ -157,7 +157,9 @@ typedef enum {
     //cast
     CAST,
     //return
-    RET
+    RET,
+    //function call
+    CALL
 } ExprType;
 
 typedef enum {
@@ -288,6 +290,7 @@ public:
             //cast
             case CAST:  return "cast";
             case RET:   return "return";
+            case CALL:  return "call";
         }
     }
     

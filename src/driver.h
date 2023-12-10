@@ -1,8 +1,6 @@
+#pragma once
 #include <stack>
 #include "parser.tab.hh"
-
-#ifndef DRIVER_H
-#define DRIVER_H
 
 # define YY_DECL yy::parser::symbol_type yylex (driver& drv)
 
@@ -45,4 +43,3 @@ public:
     void scan_end ();
     
 };
-#endif

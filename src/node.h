@@ -153,14 +153,19 @@ typedef enum {
     //boolean
     LNOT, LAND, LOR,
     //comparison
-    EE, NE, GE, LE, LT, GT
+    EE, NE, GE, LE, LT, GT,
+    //cast
+    CAST,
+    //return
+    RET
 } ExprType;
 
 typedef enum {
     ARITH,
     BITS,
     ASSGN,
-    COMP
+    COMP,
+    PROC
 } ExprClass;
 
 class expr: virtual public node {
@@ -179,95 +184,52 @@ private:
     }
     std::shared_ptr<meta> eval() {
         std::shared_ptr<meta> ret;
-        switch (e_type) {
-            case E_NOT:
-                if (right_arg->type_meta()->type() == FLOAT)
-                    debug::exit(debug::err() << "Invalid floating point operation: logical not!");
-                ret = right_arg->type_meta();
-                break;
-            case E_ADDRESS:
-                if (std::shared_ptr<expr> e = std::dynamic_pointer_cast<expr>(left_arg)) {
-                    if (e->etype() == E_DEREF) e->setType(E_DEREF_A);
-                    else if (e->etype() == E_INDEX) e->setType(E_INDEX_A);
-                    else if (e->etype() == E_ACCESS) e->setType(E_ACCESS_A);
-                }
-                ret = std::make_shared<meta>(right_arg->type_meta());
-                break;
-            case E_DEREF:
-            case E_DEREF_A:
-                if (right_arg->type_meta()->type() != POINTER)
-                    debug::exit(debug::err() << "TypeError: non-pointer type!");
-                ret = right_arg->type_meta()->child();
-                break;
-            case E_INDEX:
-                if (std::shared_ptr<expr> e = std::dynamic_pointer_cast<expr>(left_arg)) {
-                    if (e->etype() == E_DEREF) e->setType(E_DEREF_A);
-                    else if (e->etype() == E_INDEX) e->setType(E_INDEX_A);
-                    else if (e->etype() == E_ACCESS) e->setType(E_ACCESS_A);
-                }
-            case E_INDEX_A:
-                if (left_arg->type_meta()->type() != ARRAY)
-                    debug::exit(debug::err() << "TypeError: non-array type!");
-                ret = left_arg->type_meta()->child();
-                break;
-            case E_CAST:
-                ret = left_arg->type_meta();
-                break;
-            case E_ACCESS:
-                if (std::shared_ptr<expr> e = std::dynamic_pointer_cast<expr>(left_arg)) {
-                    if (e->etype() == E_DEREF) e->setType(E_DEREF_A);
-                    else if (e->etype() == E_INDEX) e->setType(E_INDEX_A);
-                    else if (e->etype() == E_ACCESS) e->setType(E_ACCESS_A);
-                }
-            case E_ACCESS_A:
-                ret = right_arg->type_meta();
-                break;
-            case E_MULT:
-            case E_DIV:
-            case E_ADD:
-            case E_SUB:
+        switch (eclass()) {
+            case ARITH:
                 if (std::shared_ptr<expr> e = std::dynamic_pointer_cast<expr>(right_arg)) {
-                    if ((e_type == E_MULT || e_type == E_DIV) && (e->e_type == E_ADD || e->e_type == E_SUB)) {
+                    if ((e_type == MUL || e_type == DIV || e_type == MOD) 
+                        && (e->e_type == ADD || e->e_type == SUB)) {
                         rotate(this);
                     }
                 }
                 if (*(left_arg->type_meta()) != *(right_arg->type_meta())) {
-                    if (meta::castRightToLeft(left_arg->type_meta(), right_arg->type_meta())) {
-                        right_arg = std::make_shared<expr>(E_CAST, 
+                    if (meta::canCast(left_arg->type_meta(), right_arg->type_meta())) {
+                        right_arg = std::make_shared<expr>(CAST, 
                             std::make_shared<type_node>(left_arg->type_meta()),
                             right_arg);
                     }
-                    else {
-                        left_arg = std::make_shared<expr>(E_CAST, 
+                    else if (meta::canCast(right_arg->type_meta(), left_arg->type_meta())) {
+                        left_arg = std::make_shared<expr>(CAST, 
                             std::make_shared<type_node>(right_arg->type_meta()),
                             left_arg);
                     }
+                    else debug::exit(debug::err() << "TypeError: Impossible to cast between "
+                        << *left_arg->type_meta() << " and " << *right_arg->type_meta() << "!");
                 }
                 ret = left_arg->type_meta();
+            case BITS:
+                if (right_arg->type_meta()->dataClass() != INTEGRAL
+                    || (left_arg && left_arg->type_meta()->dataClass() != INTEGRAL))
+                    debug::exit(debug::err() << "TypeError: Bitwise operations are only valid for integral types!");
+                if (left_arg) ret = left_arg->type_meta();
+                else ret = right_arg->type_meta();
                 break;
-            case E_CALL:
+            case ASSGN:
                 ret = left_arg->type_meta();
-                break;
-            case E_RETURN:
-                if (right_arg != nullptr) ret = right_arg->type_meta();
-                else ret = std::make_shared<meta>("void");
-                break;
-            case E_ASSIGN:
-                ret = left_arg->type_meta();
-                if (std::shared_ptr<expr> e = std::dynamic_pointer_cast<expr>(left_arg)) {
-                    if (e->etype() == E_DEREF) e->setType(E_DEREF_A);
-                    else if (e->etype() == E_INDEX) e->setType(E_INDEX_A);
-                    else if (e->etype() == E_ACCESS) e->setType(E_ACCESS_A);
-                }
                 if (right_arg) {
                     if (*left_arg->type_meta() != *right_arg->type_meta())
-                        right_arg = std::make_shared<expr>(E_CAST, 
-                            std::make_shared<type_node>(left_arg->type_meta()),
-                            right_arg);
-                    if (std::shared_ptr<list> ls = std::dynamic_pointer_cast<list>(right_arg))
-                        if (ls->length() > left_arg->type_meta()->size())
-                            left_arg->type_meta()->setSize(ls->length());
+                        if (meta::canCast(left_arg->type_meta(), right_arg->type_meta()))
+                            right_arg = std::make_shared<expr>(CAST, 
+                                std::make_shared<type_node>(left_arg->type_meta()),
+                                right_arg);
+                        else debug::exit(debug::err() << "TypeError: Impossible to cast "
+                            << *right_arg->type_meta() << " to " << *left_arg->type_meta() << "!");
                 }
+            case COMP:
+                ret = std::make_shared<meta>("bool");
+                break;
+            case PROC:
+                ret = left_arg->type_meta();
                 break;
         }
         return ret;
@@ -287,7 +249,8 @@ public:
         if (e_type <= MOD) return ARITH;
         else if (e_type >= BNOT && e_type <= ASR) return BITS;
         else if (e_type == EQU) return ASSGN;
-        else return COMP;
+        else if (e_type >= EE && e_type <= GT) return COMP;
+        else return PROC;
     }
     void setLeft(std::shared_ptr<node> left) { left_arg = left; setMeta(eval()); }
     void setRight(std::shared_ptr<node> right) { right_arg = right; setMeta(eval()); }
@@ -322,6 +285,9 @@ public:
             case LE:    return "<=";
             case LT:    return "<";
             case GT:    return ">";
+            //cast
+            case CAST:  return "cast";
+            case RET:   return "return";
         }
     }
     

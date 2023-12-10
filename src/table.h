@@ -20,8 +20,7 @@ typedef enum ScopeAccess {
 typedef enum ScopeType {
     PROGRAM_SCOPE,
     FUNCTION_SCOPE,
-    CLASS_SCOPE,
-    STRUCT_SCOPE
+    CLASS_SCOPE
 } ScopeType;
 
 class table {

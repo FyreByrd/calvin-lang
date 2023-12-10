@@ -9,9 +9,9 @@
 %define parse.assert
 
 %code requires {
-  # include <string>
-  #include "cmpx.h"
-  class driver;
+    # include <string>
+    #include "cmpx.h"
+    class driver;
 }
 
 %param { driver& drv }
@@ -23,7 +23,7 @@
 %define parse.lac full
 
 %code {
-#include "driver.h"
+    #include "driver.h"
 }
 
 %define api.token.prefix {TOK_}
@@ -58,69 +58,83 @@
 %%
 %start program;
 
-program: func_def | /*support null*/;
-func_def: TYPE ID LPAREN RPAREN LBRACE stmt_list RBRACE;
-stmt_list: stmt | stmt_list stmt;
+program: 
+    func_def 
+    | /*support null*/;
+func_def: 
+    TYPE ID LPAREN RPAREN LBRACE stmt_list RBRACE;
+stmt_list: 
+    stmt 
+    | stmt_list stmt;
 stmt: 
-  decl SEMI
-  | expr SEMI
-  | mass SEMI
-  | RETURN expr SEMI;
-type: TYPE | CONST TYPE | VAR | CONST VAR;
+    decl SEMI
+    | expr SEMI
+    | mass SEMI
+    | RETURN expr SEMI;
+type: 
+    TYPE 
+    | CONST TYPE 
+    | VAR 
+    | CONST VAR;
 decl: 
-  type ID
-  | type ID EQU expr
-  | type ID EQU cmp;
+    type ID
+    | type ID EQU expr
+    | type ID EQU cmp;
 expr: 
-  val PLUS expr 
-  | val MINUS expr 
-  | val STAR expr 
-  | val SLASH expr 
-  | val MOD expr 
-  | val TILDE expr 
-  | val AMP expr 
-  | val PIPE expr 
-  | val CARET expr 
-  | val LSHIFT expr 
-  | val RSHIFT expr 
-  | val ASHIFT expr 
-  | val EQU expr
-  | val;
+    val PLUS expr 
+    | val MINUS expr 
+    | val STAR expr 
+    | val SLASH expr 
+    | val MOD expr 
+    | val TILDE expr 
+    | val AMP expr 
+    | val PIPE expr 
+    | val CARET expr 
+    | val LSHIFT expr 
+    | val RSHIFT expr 
+    | val ASHIFT expr 
+    | val EQU expr
+    | val;
 mass:
-  val PL_EQU expr 
-  | val MIN_EQU expr 
-  | val ST_EQU expr 
-  | val SL_EQU expr 
-  | val MD_EQU expr 
-  | val TL_EQU expr 
-  | val TL_EQU cmp
-  | val AM_EQU expr
-  | val AM_EQU cmp
-  | val PI_EQU expr
-  | val PI_EQU cmp
-  | val CR_EQU expr
-  | val CR_EQU cmp 
-  | val LS_EQU expr 
-  | val RS_EQU expr 
-  | val AS_EQU expr;
+    val PL_EQU expr 
+    | val MIN_EQU expr 
+    | val ST_EQU expr 
+    | val SL_EQU expr 
+    | val MD_EQU expr 
+    | val TL_EQU expr 
+    | val TL_EQU cmp
+    | val AM_EQU expr
+    | val AM_EQU cmp
+    | val PI_EQU expr
+    | val PI_EQU cmp
+    | val CR_EQU expr
+    | val CR_EQU cmp 
+    | val LS_EQU expr 
+    | val RS_EQU expr 
+    | val AS_EQU expr;
 val:
   cnst 
   | ID 
   | LPAREN expr RPAREN;
-cnst: BOOL | CHAR | REAL | INT | CMPX;
+cnst:
+    BOOL 
+    | CHAR 
+    | REAL 
+    | INT 
+    | CMPX;
 cmp:
-  NOT val
-  | expr AND val
-  | expr OR val
-  | expr EE val
-  | expr NE val
-  | expr GE val
-  | expr LE val
-  | expr LT val
-  | expr GT val;
+    NOT val
+    | expr AND val
+    | expr OR val
+    | expr EE val
+    | expr NE val
+    | expr GE val
+    | expr LE val
+    | expr LT val
+    | expr GT val;
 
 %%
 
 void yy::parser::error (const location_type& l, const std::string& m) {
-  std::cerr << l << ": " << m << '\n';
+    std::cerr << l << ": " << m << '\n';
 }

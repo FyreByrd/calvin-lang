@@ -54,7 +54,7 @@ private:
         return ret;
     }
 public:
-    string_constant(std::string name) : node (std::make_shared<meta>(meta("string"))) {
+    string_constant(std::string name) : node (std::make_shared<meta>("string")) {
         val = escape(name);
     }
 
@@ -157,7 +157,9 @@ typedef enum {
     //cast
     CAST,
     //return
-    RET
+    RET,
+    //function call
+    CALL
 } ExprType;
 
 typedef enum {
@@ -217,13 +219,14 @@ private:
             case ASSGN:
                 ret = left_arg->type_meta();
                 if (right_arg) {
-                    if (*left_arg->type_meta() != *right_arg->type_meta())
+                    if (*left_arg->type_meta() != *right_arg->type_meta()) {
                         if (meta::canCast(left_arg->type_meta(), right_arg->type_meta()))
                             right_arg = std::make_shared<expr>(CAST, 
                                 std::make_shared<type_node>(left_arg->type_meta()),
                                 right_arg);
                         else debug::exit(debug::err() << "TypeError: Impossible to cast "
                             << *right_arg->type_meta() << " to " << *left_arg->type_meta() << "!");
+                    }
                 }
             case COMP:
                 ret = std::make_shared<meta>("bool");
@@ -288,6 +291,7 @@ public:
             //cast
             case CAST:  return "cast";
             case RET:   return "return";
+            case CALL:  return "call";
         }
     }
     

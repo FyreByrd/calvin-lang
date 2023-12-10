@@ -1,3 +1,4 @@
+#pragma once
 #include <memory>
 #include <string>
 #include "debug.h"
@@ -44,6 +45,7 @@ public:
         type_name = typeName;
         //if (!c_meta) debug::log() << "Initialized with nullptr" << std::endl;
         this->c_meta = c_meta;
+        t_size = meta::size(dataType);
     }
     meta(std::string typeString) {
         data_type = typeFromString(typeString);
@@ -54,6 +56,7 @@ public:
         data_class = meta::dataClass(data_type);
         t_size = 0;
         c_meta = addChild(data_type, typeString);
+        t_size = meta::size(data_type);
     }
     meta(std::shared_ptr<meta> c_meta) {
         data_type = LIST;
@@ -61,6 +64,7 @@ public:
         type_name = c_meta->name();
         type_name += "[]";
         this->c_meta = c_meta;
+        t_size = meta::size(data_type);
     }
     inline DataType type() const { return data_type; }
     inline std::string name() const { return type_name; }

@@ -1,7 +1,7 @@
 #include <fstream>
 #include "driver.h"
 #include "args.h"
-//#include "generator.h"
+#include "generator.h"
 //#include "systemv-x64.h"
 
 const std::string VERSION = "v0.0.1";
@@ -92,16 +92,15 @@ int main(int argc, char *argv[]) {
     if (cl_args.exists("c") || cl_args.exists("comment")) 
         debug::setComStream(out);
 
-    /*std::shared_ptr<generator> gen = std::make_shared<systemv_x64>(
+    std::shared_ptr<generator> gen = std::make_shared<default_generator>(
         drv.globals(), drv.data(), out);
 
     debug::log() << "Generating Assembly . . ." << std::endl << std::endl;
 
     generator::updateTable(gen, gen->symbols());
-    gen->generate();*/
+    gen->generate();
 
     out.close();
 
-    //fclose(prog);
     return res;
 }

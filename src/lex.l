@@ -51,6 +51,7 @@ mcomnt  \/\*([^*]|(\*+[^*/]))*\*+\/
 {char}  return make_CHAR                (yytext, loc);
 const   return yy::parser::make_CONST   (loc);
 var     return yy::parser::make_VAR     (loc);
+null    return yy::parser::make_NULL    (loc);
 return  return yy::parser::make_RETURN  (loc);
 not     return yy::parser::make_NOT     (loc);
 and     return yy::parser::make_AND     (loc);
@@ -87,11 +88,16 @@ or      return yy::parser::make_OR      (loc);
 "<<="   return yy::parser::make_LS_EQU  (loc);
 ">>="   return yy::parser::make_RS_EQU  (loc);
 ">>>="  return yy::parser::make_AS_EQU  (loc);
+"??="   return yy::parser::make_NC_EQU  (loc);
 "{"     return yy::parser::make_LBRACE  (loc);
 "}"     return yy::parser::make_RBRACE  (loc);
 "("     return yy::parser::make_LPAREN  (loc);
 ")"     return yy::parser::make_RPAREN  (loc);
 ";"     return yy::parser::make_SEMI    (loc);
+"?"     return yy::parser::make_QUE     (loc);
+":"     return yy::parser::make_COLON   (loc);
+"??"    return yy::parser::make_N_COAL  (loc);
+","     return yy::parser::make_COMMA   (loc);
 .       { throw yy::parser::syntax_error(loc, "invalid character: " + std::string(yytext));}
 <<EOF>> return yy::parser::make_YYEOF (loc);
 %%

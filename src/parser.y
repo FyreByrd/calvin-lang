@@ -36,13 +36,13 @@
     PL_EQU MIN_EQU
     ST_EQU SL_EQU MD_EQU
     TL_EQU AM_EQU PI_EQU CR_EQU
-    LS_EQU RS_EQU AS_EQU
+    LS_EQU RS_EQU AS_EQU NC_EQU
     NOT AND OR
     EE NE GE LE LT GT
-    CONST VAR
+    CONST VAR NULL
     LBRACE RBRACE
     LPAREN RPAREN
-    SEMI RETURN
+    SEMI RETURN QUE COLON N_COAL
 ;
 
 %token <bool> BOOL
@@ -94,6 +94,7 @@ expr:
     | val RSHIFT expr 
     | val ASHIFT expr 
     | val EQU expr
+    | cmp QUE expr COLON expr
     | val;
 mass:
     val PL_EQU expr 
@@ -111,7 +112,8 @@ mass:
     | val CR_EQU cmp 
     | val LS_EQU expr 
     | val RS_EQU expr 
-    | val AS_EQU expr;
+    | val AS_EQU expr
+    | val NC_EQU expr;
 val:
     cnst 
     | ID 
@@ -121,7 +123,8 @@ cnst:
     | CHAR 
     | REAL 
     | INT 
-    | CMPX;
+    | CMPX
+    | NULL;
 cmp:
     NOT val
     | expr AND val
@@ -131,7 +134,8 @@ cmp:
     | expr GE val
     | expr LE val
     | expr LT val
-    | expr GT val;
+    | expr GT val
+    | expr N_COAL val;
 
 %%
 

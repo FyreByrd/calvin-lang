@@ -43,6 +43,7 @@
     LBRACE RBRACE
     LPAREN RPAREN
     SEMI RETURN QUE COLON N_COAL
+    COMMA
 ;
 
 %token <bool> BOOL
@@ -62,7 +63,15 @@ program:
     func_def 
     | /*support null*/;
 func_def: 
-    TYPE ID LPAREN RPAREN LBRACE stmt_list RBRACE;
+    TYPE ID func_sig LBRACE stmt_list RBRACE;
+func_sig:
+    LPAREN RPAREN
+    | LPAREN par_list RPAREN;
+par_list:
+    func_par
+    | par_list COMMA;
+func_par:
+    type ID;
 stmt_list: 
     stmt 
     | stmt_list stmt;
@@ -94,7 +103,8 @@ expr:
     | val RSHIFT expr 
     | val ASHIFT expr 
     | val EQU expr
-    | cmp QUE expr COLON expr
+    | val EQU cmp
+    | LPAREN cmp RPAREN QUE expr COLON expr
     | val;
 mass:
     val PL_EQU expr 
@@ -127,15 +137,15 @@ cnst:
     | NULL;
 cmp:
     NOT val
-    | expr AND val
-    | expr OR val
-    | expr EE val
-    | expr NE val
-    | expr GE val
-    | expr LE val
-    | expr LT val
-    | expr GT val
-    | expr N_COAL val;
+    | val AND expr
+    | val OR expr
+    | val EE expr
+    | val NE expr
+    | val GE expr
+    | val LE expr
+    | val LT expr
+    | val GT expr
+    | val N_COAL expr;
 
 %%
 

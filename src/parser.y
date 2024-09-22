@@ -87,8 +87,7 @@ type:
     | CONST VAR;
 decl: 
     type ID
-    | type ID EQU expr
-    | type ID EQU cmp;
+    | type ID EQU expr;
 expr: 
     val PLUS expr 
     | val MINUS expr 
@@ -103,8 +102,18 @@ expr:
     | val RSHIFT expr 
     | val ASHIFT expr 
     | val EQU expr
-    | val EQU cmp
-    | LPAREN cmp RPAREN QUE expr COLON expr
+    | NOT val
+    | val AND expr
+    | val OR expr
+    | val EE expr
+    | val NE expr
+    | val GE expr
+    | val LE expr
+    | val LT expr
+    | val GT expr
+    | val N_COAL expr
+    | val QUE expr COLON expr
+    | val QUE COLON expr
     | val;
 mass:
     val PL_EQU expr 
@@ -112,14 +121,10 @@ mass:
     | val ST_EQU expr 
     | val SL_EQU expr 
     | val MD_EQU expr 
-    | val TL_EQU expr 
-    | val TL_EQU cmp
+    | val TL_EQU expr
     | val AM_EQU expr
-    | val AM_EQU cmp
     | val PI_EQU expr
-    | val PI_EQU cmp
     | val CR_EQU expr
-    | val CR_EQU cmp 
     | val LS_EQU expr 
     | val RS_EQU expr 
     | val AS_EQU expr
@@ -135,17 +140,6 @@ cnst:
     | INT 
     | CMPX
     | NULL;
-cmp:
-    NOT val
-    | val AND expr
-    | val OR expr
-    | val EE expr
-    | val NE expr
-    | val GE expr
-    | val LE expr
-    | val LT expr
-    | val GT expr
-    | val N_COAL expr;
 
 %%
 

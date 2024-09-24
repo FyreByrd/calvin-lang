@@ -5,6 +5,8 @@
     #include <cstring> // strerror
     #include <string>
     #include <string.h>
+    #include <set>
+    #include <map>
     #include "driver.h"
     #include "parser.tab.hh"
     #include "cmpx.h"
@@ -14,11 +16,17 @@
 
 %{
     yy::parser::symbol_type make_CHAR(const std::string &s, const yy::parser::location_type& loc);
+    yy::parser::symbol_type make_STRING (const std::string &s, const yy::parser::location_type& loc);
     yy::parser::symbol_type make_BOOL(const std::string &s, const yy::parser::location_type& loc);
     yy::parser::symbol_type make_CMPX(const std::string &s, const yy::parser::location_type& loc);
     yy::parser::symbol_type make_REAL(const std::string &s, const yy::parser::location_type& loc);
     yy::parser::symbol_type make_INT (const std::string &s, const yy::parser::location_type& loc);
     yy::parser::symbol_type make_HEX (const std::string &s, const yy::parser::location_type& loc);
+    yy::parser::symbol_type make_CLASS  (const std::string &s, const yy::parser::location_type& loc);
+    yy::parser::symbol_type make_INTER  (const std::string &s, const yy::parser::location_type& loc);
+
+    std::set<std::string> classes;
+    std::set<std::string> inters;
 %}
 
 id      [a-zA-Z][a-zA-Z_0-9]*
@@ -27,6 +35,7 @@ hex     0x[0-9a-fA-F]+
 blank   [ \t\r]
 type    char|bool|(i|u)(8|16|32|64)|(r|x)(32|64)
 char    '([^\\"]|\\.)'
+string  \"([^\\"]|\\.)*\"
 real    ((\+|-)?([0-9]+\.[0-9]+|inf)|NaN)
 cmpx    ({real}(\+|-))?{real}(i|j|I)
 bool    true|false
@@ -48,14 +57,27 @@ mcomnt  \/\*([^*]|(\*+[^*/]))*\*+\/
 {blank}+    loc.step();
 \n+         loc.lines (yyleng); loc.step ();
 {mcomnt}    /*ignore comments*/;
+{string}    return make_STRING  (yytext, loc);
 {char}  return make_CHAR                (yytext, loc);
 const   return yy::parser::make_CONST   (loc);
+static  return yy::parser::make_STATIC  (loc);
 var     return yy::parser::make_VAR     (loc);
 null    return yy::parser::make_NULL    (loc);
 return  return yy::parser::make_RETURN  (loc);
 not     return yy::parser::make_NOT     (loc);
 and     return yy::parser::make_AND     (loc);
 or      return yy::parser::make_OR      (loc);
+"class "{id}    return make_CLASS       (yytext, loc);
+public      return yy::parser::make_PUBLIC  (loc);
+private     return yy::parser::make_PRIVATE     (loc);
+protected   return yy::parser::make_PROTECTED   (loc);
+extends     return yy::parser::make_EXTENDS     (loc);
+"interface "{id}        return make_INTER   (yytext, loc);
+implements  return yy::parser::make_IMPLEMENTS  (loc);
+export  return yy::parser::make_EXPORT  (loc);
+import  return yy::parser::make_IMPORT  (loc);
+from    return yy::parser::make_FROM    (loc);
+as      return yy::parser::make_AS      (loc);
 {bool}  return make_BOOL                (yytext, loc);
 {cmpx}  return make_CMPX                (yytext, loc);
 {real}  return make_REAL                (yytext, loc);
@@ -106,6 +128,10 @@ yy::parser::symbol_type make_CHAR(const std::string &s, const yy::parser::locati
     return yy::parser::make_CHAR(s.substr(1, s.length() - 1)[0], loc);
 }
 
+yy::parser::symbol_type make_STRING(const std::string &s, const yy::parser::location_type& loc) {
+    return yy::parser::make_STRING(s.substr(1, s.length() - 1), loc);
+}
+
 yy::parser::symbol_type make_BOOL(const std::string &s, const yy::parser::location_type& loc) {
     if (s == "true") return yy::parser::make_BOOL(true, loc);
     else return yy::parser::make_BOOL(false, loc);
@@ -145,6 +171,30 @@ yy::parser::symbol_type make_HEX (const std::string &s, const yy::parser::locati
     if (! (LONG_MIN <= n && n <= LONG_MAX && errno != ERANGE))
         throw yy::parser::syntax_error (loc, "long is out of range: " + s);
     return yy::parser::make_INT (n, loc);
+}
+
+yy::parser::symbol_type make_CLASS(const std::string& s, const yy::parser::location_type& loc) {
+    int i = s.find(" ");
+    std::string name = s.substr(i+1);
+    if (inters.count(name))
+        throw yy::parser::syntax_error (loc, "redefinition of interface: " + name);
+    if (!classes.count(name)) {
+        classes.insert(name);
+        return yy::parser::make_CLASS(name, loc);
+    }
+    throw yy::parser::syntax_error (loc, "redefinition of class: " + name);
+}
+
+yy::parser::symbol_type make_INTER(const std::string& s, const yy::parser::location_type& loc) {
+    int i = s.find(" ");
+    std::string name = s.substr(i+1);
+    if (classes.count(name))
+        throw yy::parser::syntax_error (loc, "redefinition of class: " + name);
+    if (!inters.count(name)) {
+        inters.insert(name);
+        return yy::parser::make_INTER(name, loc);
+    }
+    throw yy::parser::syntax_error (loc, "redefinition of interface: " + name);
 }
 
 void driver::scan_begin () {

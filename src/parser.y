@@ -39,11 +39,14 @@
     LS_EQU RS_EQU AS_EQU NC_EQU
     NOT AND OR
     EE NE GE LE LT GT
-    CONST VAR NULL
+    CONST VAR NULL STATIC
     LBRACE RBRACE
     LPAREN RPAREN
     SEMI RETURN QUE COLON N_COAL
     COMMA
+    PUBLIC PRIVATE PROTECTED
+    EXTENDS IMPLEMENTS
+    EXPORT IMPORT FROM AS
 ;
 
 %token <bool> BOOL
@@ -53,6 +56,9 @@
 %token <cmpx*> CMPX
 %token <std::string> TYPE
 %token <std::string> ID
+%token <std::string> CLASS
+%token <std::string> INTER
+%token <std::string> STRING
 
 %printer { yyo << $$; } <*>;
 
@@ -60,10 +66,32 @@
 %start program;
 
 program: 
-    func_def 
+    prog_list
     | /*support null*/;
+prog_list:
+    prog_stmt
+    | prog_list prog_stmt;
+prog_stmt:
+    import
+    | EXPORT def
+    | def;
+import:
+    IMPORT STRING AS ID SEMI
+    | IMPORT imp_list FROM STRING SEMI;
+imp_list:
+    imp_alias
+    | imp_list COMMA imp_alias;
+imp_alias:
+    ID
+    | ID AS ID;
+def:
+    func_def
+    | inter_def
+    | class_def;
 func_def: 
-    type ID func_sig func_body;
+    func_prot func_body;
+func_prot:
+    type_sig ID func_sig;
 func_sig:
     LPAREN RPAREN
     | LPAREN par_list RPAREN;
@@ -74,7 +102,38 @@ par_list:
     func_par
     | par_list COMMA;
 func_par:
-    type ID;
+    type_sig ID;
+extd:
+    EXTENDS scope ID;
+impl:
+    IMPLEMENTS impl_list;
+impl_list:
+    ID 
+    | impl_list COMMA ID;
+inter_def:
+    INTER inter_body
+    | INTER extd inter_body;
+inter_body:
+    LBRACE RBRACE
+    | LBRACE inter_list RBRACE;
+inter_list:
+    func_prot SEMI
+    | inter_list func_prot SEMI;
+class_def:
+    CLASS class_ex class_body;
+class_ex:
+    extd
+    | impl
+    | extd COMMA impl;
+class_body:
+    LBRACE RBRACE
+    | LBRACE class_list RBRACE;
+class_list:
+    class_mem
+    | class_list class_mem;
+class_mem:
+    decl
+    | func_def;
 stmt_list: 
     stmt 
     | stmt_list stmt;
@@ -83,14 +142,25 @@ stmt:
     | expr SEMI
     | mass SEMI
     | RETURN expr SEMI;
-type: 
+type_sig: 
+    scope stat const type;
+type:
     TYPE 
-    | CONST TYPE 
-    | VAR 
-    | CONST VAR;
+    | VAR;
+const:
+    CONST 
+    |; 
+stat:
+    STATIC
+    |;
+scope:
+    PUBLIC 
+    | PROTECTED 
+    | PRIVATE 
+    |;
 decl: 
-    type ID
-    | type ID EQU expr;
+    type_sig ID
+    | type_sig ID EQU expr;
 expr: 
     val PLUS expr 
     | val MINUS expr 

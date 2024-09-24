@@ -63,10 +63,13 @@ program:
     func_def 
     | /*support null*/;
 func_def: 
-    TYPE ID func_sig LBRACE stmt_list RBRACE;
+    type ID func_sig func_body;
 func_sig:
     LPAREN RPAREN
     | LPAREN par_list RPAREN;
+func_body:
+    LBRACE RBRACE
+    | LBRACE stmt_list RBRACE;
 par_list:
     func_par
     | par_list COMMA;

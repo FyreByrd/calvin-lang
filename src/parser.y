@@ -39,7 +39,8 @@
     LS_EQU RS_EQU AS_EQU NC_EQU
     NOT AND OR
     EE NE GE LE LT GT
-    CONST VAR NULL STATIC
+    CONST AUTO NULL STATIC
+    UNION VAR
     LBRACE RBRACE
     LPAREN RPAREN
     SEMI RETURN QUE COLON N_COAL
@@ -47,6 +48,7 @@
     PUBLIC PRIVATE PROTECTED
     EXTENDS IMPLEMENTS
     EXPORT IMPORT FROM AS
+    CASE
 ;
 
 %token <bool> BOOL
@@ -59,6 +61,8 @@
 %token <std::string> CLASS
 %token <std::string> INTER
 %token <std::string> STRING
+%token <std::string> ENUM
+%token <std::string> TYPEDEF
 
 %printer { yyo << $$; } <*>;
 
@@ -87,22 +91,22 @@ imp_alias:
 def:
     func_def
     | inter_def
-    | class_def;
+    | class_def
+    | enum_def
+    | type_def;
 func_def: 
     func_prot func_body;
 func_prot:
-    type_sig ID func_sig;
+    type_sig ID func_sig const;
 func_sig:
     LPAREN RPAREN
-    | LPAREN par_list RPAREN;
+    | LPAREN decl_list RPAREN;
 func_body:
     LBRACE RBRACE
     | LBRACE stmt_list RBRACE;
-par_list:
-    func_par
-    | par_list COMMA;
-func_par:
-    type_sig ID;
+decl_list:
+    decl
+    | decl_list decl;
 extd:
     EXTENDS scope ID;
 impl:
@@ -134,6 +138,46 @@ class_list:
 class_mem:
     decl
     | func_def;
+enum_def:
+    ENUM enum_body
+    | ENUM COLON TYPE enum_body;
+enum_body:
+    LBRACE enum_list RBRACE;
+enum_list:
+    enum_stmt
+    | enum_list COMMA enum_stmt;
+enum_stmt:
+    ID
+    | ID EQU cnst;
+type_def:
+    TYPEDEF EQU type_isct type_body SEMI;
+type_isct:
+    EXTENDS type_list
+    |;
+type_list:
+    type
+    | type_list COMMA type;
+type_body:
+    type
+    | unions
+    | LBRACE type_blist RBRACE;
+unions:
+    UNION LBRACE decl_list RBRACE
+    | VAR opt_id var_type LBRACE var_list RBRACE;
+opt_id:
+    ID
+    |;
+var_type:
+    COLON ID
+    |;
+var_list:
+    var_mem
+    | var_list var_mem;
+var_mem:
+    CASE ID COLON decl SEMI;
+type_blist:
+    decl SEMI
+    | type_blist decl SEMI;
 stmt_list: 
     stmt 
     | stmt_list stmt;
@@ -146,7 +190,7 @@ type_sig:
     scope stat const type;
 type:
     TYPE 
-    | VAR;
+    | AUTO;
 const:
     CONST 
     |; 
@@ -160,7 +204,8 @@ scope:
     |;
 decl: 
     type_sig ID
-    | type_sig ID EQU expr;
+    | type_sig ID EQU expr
+    | unions;
 expr: 
     val PLUS expr 
     | val MINUS expr 
@@ -212,7 +257,8 @@ cnst:
     | REAL 
     | INT 
     | CMPX
-    | NULL;
+    | NULL
+    | STRING;
 
 %%
 

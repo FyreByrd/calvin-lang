@@ -189,8 +189,13 @@ stmt:
 type_sig: 
     scope stat const type;
 type:
-    TYPE 
+    TYPE type_suff
     | AUTO;
+type_suff:
+    AMP
+    | QUE
+    | AMP QUE
+    |;
 const:
     CONST 
     |; 

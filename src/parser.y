@@ -104,6 +104,12 @@ func_sig:
 func_body:
     LBRACE RBRACE
     | LBRACE stmt_list RBRACE;
+func_call:
+    ID LPAREN RPAREN
+    | ID LPAREN expr_list RPAREN;
+expr_list:
+    expr
+    | expr_list COMMA expr;
 decl_list:
     decl
     | decl_list decl;
@@ -239,6 +245,7 @@ expr:
     | val QUE COLON expr
     | LPAREN TYPE RPAREN expr
     | val AS TYPE
+    | func_call
     | val;
 mass:
     val PL_EQU expr 

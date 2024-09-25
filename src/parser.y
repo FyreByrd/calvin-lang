@@ -237,6 +237,8 @@ expr:
     | val N_COAL expr
     | val QUE expr COLON expr
     | val QUE COLON expr
+    | LPAREN TYPE RPAREN expr
+    | val AS TYPE
     | val;
 mass:
     val PL_EQU expr 

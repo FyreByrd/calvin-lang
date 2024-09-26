@@ -41,31 +41,31 @@ Notes:
 
 ### Operators
 
-|Precedence|Operator|Description|Associativity|
-|-|-|-|-|
-|1|*`type`*`()`|cast|left-to-right|
-||*`type`*`&()`|reference cast||
-||*`func`*`()`|function call||
-||*`arr`*`[]`|subscript||
-||`.` `?.`|member access and optional chaining||
-|2|`not` `~`|logical not and bitwise not|right-to-left|
-||`sizeof`|size of||
-|3|`a*b` `a/b` `a%b`|multiplication, division, and remainder|left-to-right|
-|4|`a+b` `a-b`|addition and subtraction||
-|5|`<<` `>>` `>>>`|bitwise left-shift and right-shift, arithmetic right-shift||
-|6|`<` `>` `<=` `>=`|relational operators||
-|7|`==` `!=`|equality operators||
-|8|`a&b`|bitwise and||
-|9|`a^b`|bitwise xor||
-|10|`a\|b`|bitwise or||
-|11|`and`|logical and||
-|12|`or`|logical or||
-|13|`??`|nullish coalescing||
-|14|`a?b:c`|ternary conditional|right-to-left|
-||`=`|assignment||
-||`+=` `-=`|compound assignment||
-||`*=` `/=` `%=`|||
-||`<<=` `>>=` `>>>=`|||
-||`&=` `\|=` `^=`|||
-||`??=`|||
-|15|`,`|comma|left-to-right|
+| Precedence | Operator           | Description                                                | Associativity |
+| ---------- | ------------------ | ---------------------------------------------------------- | ------------- |
+| 1          | *`type`*`()`       | cast                                                       | left-to-right |
+|            | *`type`*`&()`      | reference cast                                             |               |
+|            | *`func`*`()`       | function call                                              |               |
+|            | *`arr`*`[]`        | subscript                                                  |               |
+|            | `.` `?.`           | member access and optional chaining                        |               |
+| 2          | `not` `~`          | logical not and bitwise not                                | right-to-left |
+|            | `sizeof`           | size of                                                    |               |
+| 3          | `a*b` `a/b` `a%b`  | multiplication, division, and remainder                    | left-to-right |
+| 4          | `a+b` `a-b`        | addition and subtraction                                   |               |
+| 5          | `<<` `>>` `>>>`    | bitwise left-shift and right-shift, arithmetic right-shift |               |
+| 6          | `<` `>` `<=` `>=`  | relational operators                                       |               |
+| 7          | `==` `!=`          | equality operators                                         |               |
+| 8          | `a&b`              | bitwise and                                                |               |
+| 9          | `a^b`              | bitwise xor                                                |               |
+| 10         | `a\|b`             | bitwise or                                                 |               |
+| 11         | `and`              | logical and                                                |               |
+| 12         | `or`               | logical or                                                 |               |
+| 13         | `??`               | null coalescing                                            |               |
+| 14         | `a?b:c`            | ternary conditional                                        | right-to-left |
+|            | `=`                | assignment                                                 |               |
+|            | `+=` `-=`          | compound assignment                                        |               |
+|            | `*=` `/=` `%=`     |                                                            |               |
+|            | `<<=` `>>=` `>>>=` |                                                            |               |
+|            | `&=` `\|=` `^=`    |                                                            |               |
+|            | `??=`              |                                                            |               |
+| 15         | `,`                | comma                                                      | left-to-right |

@@ -48,7 +48,9 @@
     PUBLIC PRIVATE PROTECTED
     EXTENDS IMPLEMENTS
     EXPORT IMPORT FROM AS
-    CASE
+    IF ELIF ELSE
+    SWITCH CASE DEFAULT
+    BREAK
 ;
 
 %token <bool> BOOL
@@ -95,13 +97,13 @@ def:
     | enum_def
     | type_def;
 func_def: 
-    func_prot func_body;
+    func_prot scoped_body;
 func_prot:
     type_sig ID func_sig const;
 func_sig:
     LPAREN RPAREN
     | LPAREN decl_list RPAREN;
-func_body:
+scoped_body:
     LBRACE RBRACE
     | LBRACE stmt_list RBRACE;
 func_call:
@@ -112,7 +114,10 @@ expr_list:
     | expr_list COMMA expr;
 decl_list:
     decl
-    | decl_list decl;
+    | decl_list COMMA decl;
+decl_list_semi:
+    decl
+    | decl_list_semi SEMI decl;
 extd:
     EXTENDS scope ID;
 impl:
@@ -168,7 +173,7 @@ type_body:
     | unions
     | LBRACE type_blist RBRACE;
 unions:
-    UNION LBRACE decl_list RBRACE
+    UNION LBRACE decl_list_semi RBRACE
     | VAR opt_id var_type LBRACE var_list RBRACE;
 opt_id:
     ID
@@ -191,7 +196,23 @@ stmt:
     decl SEMI
     | expr SEMI
     | mass SEMI
-    | RETURN expr SEMI;
+    | RETURN expr SEMI
+    | scoped_body
+    | IF LPAREN expr RPAREN stmt if_opt
+    | SWITCH LPAREN val RPAREN LBRACE case_list RBRACE
+    | BREAK SEMI;
+if_opt:
+    ELIF LPAREN expr RPAREN stmt if_opt
+    | ELSE stmt;
+case_list:
+    case_item
+    | case_list case_item;
+case_item:
+    case_head
+    | case_head stmt_list;
+case_head:
+    CASE val COLON
+    | DEFAULT COLON;
 type_sig: 
     scope stat const type;
 type:

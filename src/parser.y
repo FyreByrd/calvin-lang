@@ -243,11 +243,9 @@ type:
     TYPE type_suff
     | AUTO;
 type_suff:
-    type_ref type_null type_arr;
+    type_ref type_arr;
 type_ref:
-    AMP |;
-type_null:
-    QUE |;
+    AMP | QUE |;
 type_arr:
     type_arr LBRACK RBRACK
     | type_arr LBRACK val RBRACK
@@ -316,6 +314,7 @@ val:
     | THIS
     | func_call
     | val DOT opt_chain ID
+    | val DOT opt_chain func_call
     | val opt_chain LBRACK expr RBRACK
     | val opt_chain LBRACK slice RBRACK
     | LBRACE expr_list RBRACE

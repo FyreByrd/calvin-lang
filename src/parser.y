@@ -52,7 +52,7 @@
     IF ELIF ELSE
     SWITCH CASE DEFAULT
     BREAK CONTINUE
-    FOR WHILE DO
+    FOR WHILE DO IN
 ;
 
 %token <bool> BOOL
@@ -204,9 +204,12 @@ stmt:
     | SWITCH LPAREN val RPAREN LBRACE case_list RBRACE
     | BREAK SEMI
     | CONTINUE SEMI
+    | BREAK INT SEMI
+    | CONTINUE INT SEMI
     | FOR LPAREN stmt stmt stmt RPAREN stmt
+    | FOR LPAREN decl IN val RPAREN stmt
     | WHILE LPAREN expr RPAREN stmt
-    | DO stmt WHILE LPAREN expr RPAREN SEMI
+    | DO stmt WHILE LPAREN expr RPAREN stmt
     | SEMI;
 if_opt:
     ELIF LPAREN expr RPAREN stmt if_opt

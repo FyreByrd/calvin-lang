@@ -79,6 +79,7 @@ not     return yy::parser::make_NOT     (loc);
 and     return yy::parser::make_AND     (loc);
 or      return yy::parser::make_OR      (loc);
 "class "{id}    return make_CLASS       (yytext, loc);
+this    return yy::parser::make_THIS    (loc);
 public      return yy::parser::make_PUBLIC  (loc);
 private     return yy::parser::make_PRIVATE     (loc);
 protected   return yy::parser::make_PROTECTED   (loc);
@@ -143,11 +144,15 @@ break   return yy::parser::make_BREAK   (loc);
 "}"     return yy::parser::make_RBRACE  (loc);
 "("     return yy::parser::make_LPAREN  (loc);
 ")"     return yy::parser::make_RPAREN  (loc);
+"["     return yy::parser::make_LBRACK  (loc);
+"]"     return yy::parser::make_RBRACK  (loc);
 ";"     return yy::parser::make_SEMI    (loc);
 "?"     return yy::parser::make_QUE     (loc);
+"!"     return yy::parser::make_BANG    (loc);
 ":"     return yy::parser::make_COLON   (loc);
 "??"    return yy::parser::make_N_COAL  (loc);
 ","     return yy::parser::make_COMMA   (loc);
+"."     return yy::parser::make_DOT     (loc);
 .       { throw yy::parser::syntax_error(loc, "invalid character: " + std::string(yytext));}
 <<EOF>> return yy::parser::make_YYEOF (loc);
 %%

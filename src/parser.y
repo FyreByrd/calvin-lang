@@ -43,10 +43,11 @@
     UNION VAR
     LBRACE RBRACE
     LPAREN RPAREN
-    SEMI RETURN QUE COLON N_COAL
-    COMMA
+    LBRACK RBRACK
+    SEMI RETURN QUE BANG N_COAL
+    COLON COMMA DOT
     PUBLIC PRIVATE PROTECTED
-    EXTENDS IMPLEMENTS
+    THIS EXTENDS IMPLEMENTS
     EXPORT IMPORT FROM AS
     IF ELIF ELSE
     SWITCH CASE DEFAULT
@@ -219,10 +220,15 @@ type:
     TYPE type_suff
     | AUTO;
 type_suff:
-    AMP
-    | QUE
-    | AMP QUE
-    |;
+    type_ref type_null type_arr;
+type_ref:
+    AMP |;
+type_null:
+    QUE |;
+type_arr:
+    type_arr LBRACK RBRACK
+    | type_arr LBRACK val RBRACK
+    | ;
 const:
     CONST 
     |; 
@@ -266,7 +272,6 @@ expr:
     | val QUE COLON expr
     | LPAREN TYPE RPAREN expr
     | val AS TYPE
-    | func_call
     | val;
 mass:
     val PL_EQU expr 
@@ -285,7 +290,23 @@ mass:
 val:
     cnst 
     | ID 
+    | THIS
+    | func_call
+    | val DOT opt_chain ID
+    | val opt_chain LBRACK expr RBRACK
+    | val opt_chain LBRACK slice RBRACK
+    | LBRACE expr_list RBRACE
     | LPAREN expr RPAREN;
+slice:
+    opt_expr COLON opt_expr
+    | opt_expr COLON opt_expr COLON expr;
+opt_expr:
+    expr
+    |;
+opt_chain:
+    QUE
+    | BANG
+    |;
 cnst:
     BOOL 
     | CHAR 

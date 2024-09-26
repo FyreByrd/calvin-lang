@@ -72,265 +72,268 @@
 %printer { yyo << $$; } <*>;
 
 %%
-%start program;
-
-program: 
-    prog_list
-    | /*support null*/;
-prog_list:
-    prog_stmt
-    | prog_list prog_stmt;
-prog_stmt:
-    import
-    | EXPORT def
-    | def;
-import:
+%start optional_list_program_statement;
+/* test comment*/
+optional_list_program_statement: 
+    list_program_statement
+    |;
+list_program_statement:
+    program_statement
+    | list_program_statement program_statement;
+program_statement:
+    import_statement
+    | EXPORT definition
+    | definition;
+import_statement:
     IMPORT STRING AS ID SEMI
-    | IMPORT imp_list FROM STRING SEMI;
-imp_list:
-    imp_alias
-    | imp_list COMMA imp_alias;
-imp_alias:
+    | IMPORT list_import_member FROM STRING SEMI;
+list_import_member:
+    import_member
+    | list_import_member COMMA import_member;
+import_member:
     ID
     | ID AS ID;
-def:
-    func_def
-    | inter_def
-    | class_def
-    | enum_def
-    | type_def;
-func_def: 
-    func_prot scoped_body;
-func_prot:
-    type_sig ID func_sig const;
-func_sig:
+definition:
+    function_definition
+    | interface_definition
+    | class_definition
+    | enum_definition
+    | typedef_definition;
+function_definition: 
+    function_signature generic_body;
+function_signature:
+    type_signature ID function_parameters optional_const;
+function_parameters:
     LPAREN RPAREN
-    | LPAREN decl_list RPAREN;
-scoped_body:
+    | LPAREN list_declaration RPAREN;
+generic_body:
     LBRACE RBRACE
-    | LBRACE stmt_list RBRACE;
-func_call:
+    | LBRACE list_statement RBRACE;
+function_call:
     ID LPAREN RPAREN
-    | ID LPAREN expr_list RPAREN;
-expr_list:
-    expr
-    | expr_list COMMA expr;
-decl_list:
-    decl
-    | decl_list COMMA decl;
-decl_list_semi:
-    decl
-    | decl_list_semi SEMI decl;
-extd:
-    EXTENDS scope ID;
-impl:
-    IMPLEMENTS impl_list;
-impl_list:
+    | ID LPAREN list_expression RPAREN;
+list_expression:
+    expression
+    | list_expression COMMA expression;
+list_declaration:
+    declaration
+    | list_declaration COMMA declaration;
+list_declaration_semi:
+    declaration
+    | list_declaration_semi SEMI declaration;
+extends:
+    EXTENDS optional_scope ID;
+implements:
+    IMPLEMENTS list_implements;
+list_implements:
     ID 
-    | impl_list COMMA ID;
-inter_def:
-    INTER inter_body
-    | INTER extd inter_body;
-inter_body:
+    | list_implements COMMA ID;
+interface_definition:
+    INTER interface_body
+    | INTER extends interface_body;
+interface_body:
     LBRACE RBRACE
-    | LBRACE inter_list RBRACE;
-inter_list:
-    func_prot SEMI
-    | inter_list func_prot SEMI;
-class_def:
-    CLASS class_ex class_body;
-class_ex:
-    extd
-    | impl
-    | extd COMMA impl;
+    | LBRACE list_interface_member RBRACE;
+list_interface_member:
+    function_signature SEMI
+    | list_interface_member function_signature SEMI;
+class_definition:
+    CLASS class_extends class_body;
+class_extends:
+    extends
+    | implements
+    | extends COMMA implements;
 class_body:
     LBRACE RBRACE
-    | LBRACE class_list RBRACE;
-class_list:
-    class_mem
-    | class_list class_mem;
-class_mem:
-    decl
-    | func_def;
-enum_def:
+    | LBRACE list_class_member RBRACE;
+list_class_member:
+    class_member
+    | list_class_member class_member;
+class_member:
+    declaration
+    | function_definition;
+enum_definition:
     ENUM enum_body
     | ENUM COLON TYPE enum_body;
 enum_body:
-    LBRACE enum_list RBRACE;
-enum_list:
-    enum_stmt
-    | enum_list COMMA enum_stmt;
-enum_stmt:
+    LBRACE list_enum_member RBRACE;
+list_enum_member:
+    enum_member
+    | list_enum_member COMMA enum_member;
+enum_member:
     ID
-    | ID EQU cnst;
-type_def:
-    TYPEDEF EQU type_isct type_body SEMI;
-type_isct:
-    EXTENDS type_list
+    | ID EQU constant;
+typedef_definition:
+    TYPEDEF EQU optional_type_intersect typedef_body SEMI;
+optional_type_intersect:
+    EXTENDS list_type
     |;
-type_list:
+list_type:
     type
-    | type_list COMMA type;
-type_body:
+    | list_type COMMA type;
+typedef_body:
     type
-    | unions
-    | LBRACE type_blist RBRACE;
-unions:
-    UNION LBRACE decl_list_semi RBRACE
-    | VAR opt_id var_type LBRACE var_list RBRACE;
-opt_id:
+    | union_or_variant
+    | LBRACE list_declaration_semi RBRACE;
+union_or_variant:
+    UNION LBRACE list_declaration_semi RBRACE
+    | VAR optional_id optional_variant_type LBRACE list_variant_member RBRACE;
+optional_id:
     ID
     |;
-var_type:
+optional_variant_type:
     COLON ID
     |;
-var_list:
-    var_mem
-    | var_list var_mem;
-var_mem:
-    CASE ID COLON decl SEMI;
-type_blist:
-    decl SEMI
-    | type_blist decl SEMI;
-stmt_list: 
-    stmt 
-    | stmt_list stmt;
-stmt: 
-    decl SEMI
-    | expr SEMI
-    | mass SEMI
-    | RETURN expr SEMI
-    | scoped_body
-    | IF LPAREN expr RPAREN scoped_body if_opt
-    | SWITCH LPAREN val RPAREN LBRACE case_list RBRACE
+list_variant_member:
+    variant_member
+    | list_variant_member variant_member;
+variant_member:
+    CASE ID COLON declaration SEMI;
+list_statement: 
+    statement 
+    | list_statement statement;
+statement: 
+    declaration SEMI
+    | expression SEMI
+    | compound_assign SEMI
+    | RETURN expression SEMI
+    | generic_body
+    | IF LPAREN expression RPAREN generic_body optional_if_suffix
+    | SWITCH LPAREN value RPAREN LBRACE list_case_item RBRACE
     | BREAK SEMI
     | CONTINUE SEMI
     | BREAK INT SEMI
     | CONTINUE INT SEMI
-    | FOR LPAREN stmt stmt stmt RPAREN stmt
-    | FOR LPAREN decl IN val RPAREN stmt
-    | WHILE LPAREN expr RPAREN stmt
-    | DO stmt WHILE LPAREN expr RPAREN stmt
-    | THROW val SEMI
-    | TRY scoped_body try_suff
+    | FOR LPAREN statement statement statement RPAREN generic_body optional_finally
+    | FOR LPAREN declaration IN value RPAREN generic_body optional_finally
+    | WHILE LPAREN expression RPAREN generic_body optional_finally
+    | DO generic_body WHILE LPAREN expression RPAREN optional_while_generic_body optional_finally
+    | THROW value SEMI
+    | TRY generic_body try_suffix
     | SEMI;
-try_suff:
-    catch_list
-    | catch_list final
-    | final;
-catch_list:
+optional_while_generic_body:
+    generic_body
+    | SEMI;
+try_suffix:
+    list_catch
+    | list_catch finally
+    | finally;
+list_catch:
     catch
-    | catch_list catch;
+    | list_catch catch;
 catch:
-    CATCH LPAREN decl RPAREN scoped_body;
-final:
-    FINALLY scoped_body;
-if_opt:
-    ELIF LPAREN expr RPAREN scoped_body if_opt
-    | ELSE scoped_body
+    CATCH LPAREN declaration RPAREN generic_body;
+finally:
+    FINALLY generic_body;
+optional_finally:
+    finally
     |;
-case_list:
+optional_if_suffix:
+    ELIF LPAREN expression RPAREN generic_body optional_if_suffix
+    | ELSE generic_body
+    |;
+list_case_item:
     case_item
-    | case_list case_item;
+    | list_case_item case_item;
 case_item:
-    case_head
-    | case_head stmt_list;
-case_head:
-    CASE val COLON
+    case_header
+    | case_header list_statement;
+case_header:
+    CASE value COLON
     | DEFAULT COLON;
-type_sig: 
-    scope stat const type;
+type_signature: 
+    optional_scope optional_static type;
 type:
-    TYPE type_suff
+    optional_const TYPE type_suffix
     | AUTO;
-type_suff:
-    type_ref type_arr;
-type_ref:
+type_suffix:
+    optional_reference_type optional_array_type;
+optional_reference_type:
     AMP | QUE |;
-type_arr:
-    type_arr LBRACK RBRACK
-    | type_arr LBRACK val RBRACK
-    | ;
-const:
+optional_array_type:
+    optional_array_type LBRACK RBRACK
+    | optional_array_type LBRACK value RBRACK
+    |;
+optional_const:
     CONST 
     |; 
-stat:
+optional_static:
     STATIC
     |;
-scope:
+optional_scope:
     PUBLIC 
     | PROTECTED 
     | PRIVATE 
     |;
-decl: 
-    type_sig ID
-    | type_sig ID EQU expr
-    | unions;
-expr: 
-    val PLUS expr 
-    | val MINUS expr 
-    | val STAR expr 
-    | val SLASH expr 
-    | val MOD expr 
-    | val TILDE expr 
-    | val AMP expr 
-    | val PIPE expr 
-    | val CARET expr 
-    | val LSHIFT expr 
-    | val RSHIFT expr 
-    | val ASHIFT expr 
-    | val EQU expr
-    | NOT val
-    | val AND expr
-    | val OR expr
-    | val EE expr
-    | val NE expr
-    | val GE expr
-    | val LE expr
-    | val LT expr
-    | val GT expr
-    | val N_COAL expr
-    | val QUE expr COLON expr
-    | val QUE COLON expr
-    | LPAREN TYPE RPAREN expr
-    | val AS TYPE
-    | val;
-mass:
-    val PL_EQU expr 
-    | val MIN_EQU expr 
-    | val ST_EQU expr 
-    | val SL_EQU expr 
-    | val MD_EQU expr 
-    | val TL_EQU expr
-    | val AM_EQU expr
-    | val PI_EQU expr
-    | val CR_EQU expr
-    | val LS_EQU expr 
-    | val RS_EQU expr 
-    | val AS_EQU expr
-    | val NC_EQU expr;
-val:
-    cnst 
+declaration: 
+    type_signature ID
+    | type_signature ID EQU expression
+    | union_or_variant;
+expression: 
+    value PLUS expression 
+    | value MINUS expression 
+    | value STAR expression 
+    | value SLASH expression 
+    | value MOD expression 
+    | value TILDE expression 
+    | value AMP expression 
+    | value PIPE expression 
+    | value CARET expression 
+    | value LSHIFT expression 
+    | value RSHIFT expression 
+    | value ASHIFT expression 
+    | value EQU expression
+    | NOT value
+    | value AND expression
+    | value OR expression
+    | value EE expression
+    | value NE expression
+    | value GE expression
+    | value LE expression
+    | value LT expression
+    | value GT expression
+    | value N_COAL expression
+    | value QUE expression COLON expression
+    | value QUE COLON expression
+    | LPAREN TYPE RPAREN expression
+    | value AS TYPE
+    | value;
+compound_assign:
+    value PL_EQU expression 
+    | value MIN_EQU expression 
+    | value ST_EQU expression 
+    | value SL_EQU expression 
+    | value MD_EQU expression 
+    | value TL_EQU expression
+    | value AM_EQU expression
+    | value PI_EQU expression
+    | value CR_EQU expression
+    | value LS_EQU expression 
+    | value RS_EQU expression 
+    | value AS_EQU expression
+    | value NC_EQU expression;
+value:
+    constant 
     | ID 
     | THIS
-    | func_call
-    | val DOT opt_chain ID
-    | val DOT opt_chain func_call
-    | val opt_chain LBRACK expr RBRACK
-    | val opt_chain LBRACK slice RBRACK
-    | LBRACE expr_list RBRACE
-    | LPAREN expr RPAREN;
+    | function_call
+    | value DOT optional_chain ID
+    | value DOT optional_chain function_call
+    | value optional_chain LBRACK expression RBRACK
+    | value optional_chain LBRACK slice RBRACK
+    | LBRACE list_expression RBRACE
+    | LPAREN expression RPAREN;
 slice:
-    opt_expr COLON opt_expr
-    | opt_expr COLON opt_expr COLON expr;
-opt_expr:
-    expr
+    optional_expression COLON optional_expression
+    | optional_expression COLON optional_expression COLON expression;
+optional_expression:
+    expression
     |;
-opt_chain:
+optional_chain:
     QUE
     | BANG
     |;
-cnst:
+constant:
     BOOL 
     | CHAR 
     | REAL 

@@ -103,6 +103,7 @@ continue    return yy::parser::make_CONTINUE    (loc);
 for     return yy::parser::make_FOR     (loc);
 while   return yy::parser::make_WHILE   (loc);
 do      return yy::parser::make_DO      (loc);
+in      return yy::parser::make_IN      (loc);
 {bool}  return make_BOOL                (yytext, loc);
 {cmpx}  return make_CMPX                (yytext, loc);
 {real}  return make_REAL                (yytext, loc);

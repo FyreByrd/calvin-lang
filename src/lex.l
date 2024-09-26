@@ -28,6 +28,7 @@
     yy::parser::symbol_type make_INTER  (const std::string &s, const yy::parser::location_type& loc);
     yy::parser::symbol_type make_ENUM   (const std::string &s, const yy::parser::location_type& loc);
     yy::parser::symbol_type make_TYPE   (const std::string &s, const yy::parser::location_type& loc);
+    yy::parser::symbol_type make_ID     (const std::string &s, const yy::parser::location_type& loc);
 
     std::set<std::string> classes;
     std::set<std::string> inters;
@@ -116,7 +117,7 @@ throw   return yy::parser::make_THROW   (loc);
 {bin}   return make_BIN                 (yytext, loc);
 {int}   return make_INT                 (yytext, loc);
 {type}  return yy::parser::make_TYPE    (yytext, loc);
-{id}    return yy::parser::make_ID      (yytext, loc);
+{id}    return make_ID                  (yytext, loc);
 "+="    return yy::parser::make_PL_EQU  (loc);
 "-="    return yy::parser::make_MIN_EQU (loc);
 "*="    return yy::parser::make_ST_EQU  (loc);
@@ -288,6 +289,15 @@ yy::parser::symbol_type make_TYPE(const std::string& s, const yy::parser::locati
     
     types.insert(name);
     return yy::parser::make_TYPEDEF(name, loc);
+}
+
+yy::parser::symbol_type make_ID(const std::string& s, const yy::parser::location_type& loc) {
+    if (classes.count(s)) return yy::parser::make_TYPE(s+":C", loc);
+    if (inters.count(s)) return yy::parser::make_TYPE(s+":I", loc);
+    if (enums.count(s)) return yy::parser::make_TYPE(s+":E", loc);
+    if (types.count(s)) return yy::parser::make_TYPE(s+":T", loc);
+    
+    return yy::parser::make_ID(s, loc);
 }
 
 void driver::scan_begin () {

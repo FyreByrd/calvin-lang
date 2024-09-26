@@ -22,6 +22,8 @@
     yy::parser::symbol_type make_REAL   (const std::string &s, const yy::parser::location_type& loc);
     yy::parser::symbol_type make_INT    (const std::string &s, const yy::parser::location_type& loc);
     yy::parser::symbol_type make_HEX    (const std::string &s, const yy::parser::location_type& loc);
+    yy::parser::symbol_type make_OCT    (const std::string &s, const yy::parser::location_type& loc);
+    yy::parser::symbol_type make_BIN    (const std::string &s, const yy::parser::location_type& loc);
     yy::parser::symbol_type make_CLASS  (const std::string &s, const yy::parser::location_type& loc);
     yy::parser::symbol_type make_INTER  (const std::string &s, const yy::parser::location_type& loc);
     yy::parser::symbol_type make_ENUM   (const std::string &s, const yy::parser::location_type& loc);
@@ -34,13 +36,16 @@
 %}
 
 id      [a-zA-Z][a-zA-Z_0-9]*
-int     0|(\+|-)?[1-9][0-9]*
-hex     0x[0-9a-fA-F]+ 
+dig     [1-9]([0-9_]+[0-9]|[0-9])|[0-9]
+int     (\+|-)?{dig}
+hex     0x[0-9a-fA-F_]+ 
+oct     0o[0-7_]+
+bin     0b[0-1_]+
 blank   [ \t\r]
 type    char|bool|(i|u)(8|16|32|64)|(r|x)(32|64)|string
 char    '([^\\"]|\\.)'
 string  \"([^\\"]|\\.)*\"
-real    ((\+|-)?([0-9]+\.[0-9]+|inf)|NaN)
+real    ((\+|-)?({dig}\.[0-9]+|inf)|NaN)
 cmpx    ({real}(\+|-))?{real}(i|j|I)
 bool    true|false
 comnt   \/\/[^\n]*
@@ -96,8 +101,10 @@ break   return yy::parser::make_BREAK   (loc);
 {bool}  return make_BOOL                (yytext, loc);
 {cmpx}  return make_CMPX                (yytext, loc);
 {real}  return make_REAL                (yytext, loc);
-{int}   return make_INT                 (yytext, loc);
 {hex}   return make_HEX                 (yytext, loc);
+{oct}   return make_OCT                 (yytext, loc);
+{bin}   return make_BIN                 (yytext, loc);
+{int}   return make_INT                 (yytext, loc);
 {type}  return yy::parser::make_TYPE    (yytext, loc);
 {id}    return yy::parser::make_ID      (yytext, loc);
 "+="    return yy::parser::make_PL_EQU  (loc);
@@ -158,37 +165,64 @@ yy::parser::symbol_type make_BOOL(const std::string &s, const yy::parser::locati
     else return yy::parser::make_BOOL(false, loc);
 }
 
+std::string filterUnderscores(const std::string& to) {
+    std::string final;
+    for(std::string::const_iterator it = to.begin(); it != to.end(); ++it) {
+        if(*it != '_') {
+            final += *it;
+        }
+    }
+    return final;
+}
+
 yy::parser::symbol_type make_CMPX(const std::string &s, const yy::parser::location_type& loc) {
-    int i = strcspn(s.c_str(), "+-"); // index of first + or -
-    i = 1 + strcspn(s.c_str() + i + 1, "+-"); // index of second + or -
+    std::string f = filterUnderscores(s);
+    int i = strcspn(f.c_str(), "+-"); // index of first + or -
+    i = 1 + strcspn(f.c_str() + i + 1, "+-"); // index of second + or -
     if (i < s.length()) {
-        double r = strtod(s.substr(0, i).c_str(), NULL);
-        double m = strtod(s.substr(i, s.length() - i - 1).c_str(), NULL);
+        double r = strtod(f.substr(0, i).c_str(), NULL);
+        double m = strtod(f.substr(i, s.length() - i - 1).c_str(), NULL);
         return yy::parser::make_CMPX (new cmpx(r, m), loc);
     }
     else {
-        double m = strtod(s.c_str(), NULL);
+        double m = strtod(f.c_str(), NULL);
         return yy::parser::make_CMPX (new cmpx(0.0, m), loc);
     }
 }
 
 yy::parser::symbol_type make_REAL(const std::string &s, const yy::parser::location_type& loc) {
-    errno = 0;
-    double n = strtod(s.c_str(), NULL);
+    std::string f = filterUnderscores(s);
+    double n = strtod(f.c_str(), NULL);
     return yy::parser::make_REAL (n, loc);
 }
 
 yy::parser::symbol_type make_INT (const std::string &s, const yy::parser::location_type& loc) {
-    errno = 0;
-    long n = strtol(s.c_str(), NULL, 10);
-    if (! (INT_MIN <= n && n <= INT_MAX && errno != ERANGE))
-        throw yy::parser::syntax_error (loc, "integer is out of range: " + s);
+    std::string f = filterUnderscores(s);
+    long n = strtol(f.c_str(), NULL, 10);
+    if (! (LONG_MIN <= n && n <= LONG_MAX && errno != ERANGE))
+        throw yy::parser::syntax_error (loc, "long is out of range: " + s);
     return yy::parser::make_INT ((int) n, loc);
 }
 
 yy::parser::symbol_type make_HEX (const std::string &s, const yy::parser::location_type& loc) {
-    errno = 0;
-    long n = strtol(s.c_str(), NULL, 16);
+    std::string f = filterUnderscores(s);
+    long n = strtol(f.c_str(), NULL, 16);
+    if (! (LONG_MIN <= n && n <= LONG_MAX && errno != ERANGE))
+        throw yy::parser::syntax_error (loc, "long is out of range: " + s);
+    return yy::parser::make_INT (n, loc);
+}
+
+yy::parser::symbol_type make_OCT (const std::string &s, const yy::parser::location_type& loc) {
+    std::string f = filterUnderscores(s);
+    long n = strtol(f.c_str(), NULL, 8);
+    if (! (LONG_MIN <= n && n <= LONG_MAX && errno != ERANGE))
+        throw yy::parser::syntax_error (loc, "long is out of range: " + s);
+    return yy::parser::make_INT (n, loc);
+}
+
+yy::parser::symbol_type make_BIN (const std::string &s, const yy::parser::location_type& loc) {
+    std::string f = filterUnderscores(s);
+    long n = strtol(f.c_str(), NULL, 2);
     if (! (LONG_MIN <= n && n <= LONG_MAX && errno != ERANGE))
         throw yy::parser::syntax_error (loc, "long is out of range: " + s);
     return yy::parser::make_INT (n, loc);

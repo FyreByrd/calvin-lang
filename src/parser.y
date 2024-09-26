@@ -53,6 +53,7 @@
     SWITCH CASE DEFAULT
     BREAK CONTINUE
     FOR WHILE DO IN
+    TRY CATCH FINALLY THROW
 ;
 
 %token <bool> BOOL
@@ -210,7 +211,20 @@ stmt:
     | FOR LPAREN decl IN val RPAREN stmt
     | WHILE LPAREN expr RPAREN stmt
     | DO stmt WHILE LPAREN expr RPAREN stmt
+    | THROW val SEMI
+    | TRY scoped_body try_suff
     | SEMI;
+try_suff:
+    catch_list
+    | catch_list final
+    | final;
+catch_list:
+    catch
+    | catch_list catch;
+catch:
+    CATCH LPAREN decl RPAREN scoped_body;
+final:
+    FINALLY scoped_body;
 if_opt:
     ELIF LPAREN expr RPAREN stmt if_opt
     | ELSE stmt;

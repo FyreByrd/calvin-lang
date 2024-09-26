@@ -201,7 +201,7 @@ stmt:
     | mass SEMI
     | RETURN expr SEMI
     | scoped_body
-    | IF LPAREN expr RPAREN stmt if_opt
+    | IF LPAREN expr RPAREN scoped_body if_opt
     | SWITCH LPAREN val RPAREN LBRACE case_list RBRACE
     | BREAK SEMI
     | CONTINUE SEMI
@@ -226,8 +226,9 @@ catch:
 final:
     FINALLY scoped_body;
 if_opt:
-    ELIF LPAREN expr RPAREN stmt if_opt
-    | ELSE stmt;
+    ELIF LPAREN expr RPAREN scoped_body if_opt
+    | ELSE scoped_body
+    |;
 case_list:
     case_item
     | case_list case_item;

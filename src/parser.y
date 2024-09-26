@@ -51,7 +51,8 @@
     EXPORT IMPORT FROM AS
     IF ELIF ELSE
     SWITCH CASE DEFAULT
-    BREAK
+    BREAK CONTINUE
+    FOR WHILE DO
 ;
 
 %token <bool> BOOL
@@ -201,7 +202,12 @@ stmt:
     | scoped_body
     | IF LPAREN expr RPAREN stmt if_opt
     | SWITCH LPAREN val RPAREN LBRACE case_list RBRACE
-    | BREAK SEMI;
+    | BREAK SEMI
+    | CONTINUE SEMI
+    | FOR LPAREN stmt stmt stmt RPAREN stmt
+    | WHILE LPAREN expr RPAREN stmt
+    | DO stmt WHILE LPAREN expr RPAREN SEMI
+    | SEMI;
 if_opt:
     ELIF LPAREN expr RPAREN stmt if_opt
     | ELSE stmt;

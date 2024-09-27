@@ -332,6 +332,8 @@ expression:
     | NOT value
     | PLUS PLUS value
     | MINUS MINUS value
+    | value PLUS PLUS
+    | value MINUS MINUS
     | value AND expression
     | value OR expression
     | value IN value
@@ -345,7 +347,6 @@ expression:
     | value N_COAL expression
     | value QUE expression COLON expression
     | value QUE COLON expression
-    | type_signature LPAREN expression RPAREN
     | value AS type_signature
     | type_signature function_parameters optional_const EQU GT generic_body
     | value;
@@ -376,7 +377,8 @@ value:
     | value optional_chain LBRACK expression RBRACK
     | value optional_chain LBRACK slice RBRACK
     | LBRACE list_expression RBRACE
-    | LPAREN expression RPAREN;
+    | LPAREN expression RPAREN
+    | type_signature LPAREN expression RPAREN;
 constant:
     BOOL 
     | CHAR 

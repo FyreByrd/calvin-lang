@@ -1,17 +1,9 @@
 # todo list
 
-## Stage 1
+- [ ] Documentation
+- [ ] Main file
+- [ ] Lexer
+- [ ] Parser
+- [ ] Data Model
+- [ ] Backend
 
-basic types and operators
-
-## Stage 2
-
-variables
-
-## Stage 3
-
-functions
-
-## Stage 4
-
-collections, objects

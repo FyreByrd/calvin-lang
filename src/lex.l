@@ -29,11 +29,13 @@
     yy::parser::symbol_type make_ENUM   (const std::string &s, const yy::parser::location_type& loc);
     yy::parser::symbol_type make_TYPE   (const std::string &s, const yy::parser::location_type& loc);
     yy::parser::symbol_type make_ID     (const std::string &s, const yy::parser::location_type& loc);
+    yy::parser::symbol_type make_NAME   (const std::string &s, const yy::parser::location_type& loc);
 
     std::set<std::string> classes;
     std::set<std::string> inters;
     std::set<std::string> enums;
     std::set<std::string> types;
+    std::set<std::string> names;
 %}
 
 id      [a-zA-Z][a-zA-Z_0-9]*
@@ -51,6 +53,7 @@ cmpx    ({real}(\+|-))?{real}(i|j|I)
 bool    true|false
 comnt   \/\/[^\n]*
 mcomnt  \/\*([^*]|(\*+[^*/]))*\*+\/
+name    {id}(\.{id})*
 
 %{
     # define YY_USER_ACTION  loc.columns (yyleng);
@@ -110,6 +113,8 @@ try     return yy::parser::make_TRY     (loc);
 catch   return yy::parser::make_CATCH   (loc);
 finally return yy::parser::make_FINALLY (loc);
 throw   return yy::parser::make_THROW   (loc);
+"namespace "{name}  return make_NAME    (yytext, loc);
+using   return yy::parser::make_USING   (loc);
 {bool}  return make_BOOL                (yytext, loc);
 {cmpx}  return make_CMPX                (yytext, loc);
 {real}  return make_REAL                (yytext, loc);
@@ -252,6 +257,7 @@ yy::parser::symbol_type make_CLASS(const std::string& s, const yy::parser::locat
     if (inters.count(name)) throw yy::parser::syntax_error (loc, "redefinition of interface: " + name);
     if (enums.count(name)) throw yy::parser::syntax_error (loc, "redefinition of enum: " + name);
     if (types.count(name)) throw yy::parser::syntax_error (loc, "redefinition of type: " + name);
+    if (names.count(name)) throw yy::parser::syntax_error (loc, "redefinition of namespace: " + name);
     
     classes.insert(name);
     return yy::parser::make_CLASS(name, loc);
@@ -264,6 +270,7 @@ yy::parser::symbol_type make_INTER(const std::string& s, const yy::parser::locat
     if (inters.count(name)) throw yy::parser::syntax_error (loc, "redefinition of interface: " + name);
     if (enums.count(name)) throw yy::parser::syntax_error (loc, "redefinition of enum: " + name);
     if (types.count(name)) throw yy::parser::syntax_error (loc, "redefinition of type: " + name);
+    if (names.count(name)) throw yy::parser::syntax_error (loc, "redefinition of namespace: " + name);    
     
     inters.insert(name);
     return yy::parser::make_INTER(name, loc);
@@ -276,6 +283,7 @@ yy::parser::symbol_type make_ENUM(const std::string& s, const yy::parser::locati
     if (inters.count(name)) throw yy::parser::syntax_error (loc, "redefinition of interface: " + name);
     if (enums.count(name)) throw yy::parser::syntax_error (loc, "redefinition of enum: " + name);
     if (types.count(name)) throw yy::parser::syntax_error (loc, "redefinition of type: " + name);
+    if (names.count(name)) throw yy::parser::syntax_error (loc, "redefinition of namespace: " + name);
     
     enums.insert(name);
     return yy::parser::make_ENUM(name, loc);
@@ -288,6 +296,7 @@ yy::parser::symbol_type make_TYPE(const std::string& s, const yy::parser::locati
     if (inters.count(name)) throw yy::parser::syntax_error (loc, "redefinition of interface: " + name);
     if (enums.count(name)) throw yy::parser::syntax_error (loc, "redefinition of enum: " + name);
     if (types.count(name)) throw yy::parser::syntax_error (loc, "redefinition of type: " + name);
+    if (names.count(name)) throw yy::parser::syntax_error (loc, "redefinition of namespace: " + name);
     
     types.insert(name);
     return yy::parser::make_TYPEDEF(name, loc);
@@ -298,8 +307,33 @@ yy::parser::symbol_type make_ID(const std::string& s, const yy::parser::location
     if (inters.count(s)) return yy::parser::make_TYPE(s+":I", loc);
     if (enums.count(s)) return yy::parser::make_TYPE(s+":E", loc);
     if (types.count(s)) return yy::parser::make_TYPE(s+":T", loc);
+    if (names.count(s)) return yy::parser::make_TYPE(s+":N", loc);
     
     return yy::parser::make_ID(s, loc);
+}
+
+yy::parser::symbol_type make_NAME(const std::string& s, const yy::parser::location_type& loc) {
+    int i = s.find(" ");
+    std::string name = s.substr(i+1);
+    if (classes.count(name)) throw yy::parser::syntax_error (loc, "redefinition of class: " + name);
+    if (inters.count(name)) throw yy::parser::syntax_error (loc, "redefinition of interface: " + name);
+    if (enums.count(name)) throw yy::parser::syntax_error (loc, "redefinition of enum: " + name);
+    if (types.count(name)) throw yy::parser::syntax_error (loc, "redefinition of type: " + name);
+    
+    std::string next = name;
+    i = 0;
+    do {
+        int j = next.find(".");
+        std::string tmp = next.substr(0, j);
+        if (!names.count(tmp)) {
+            names.insert(tmp);
+        }
+        if (j < next.length()) {
+            next = next.substr(j+1);
+        }
+        i += j;
+    } while (i <= name.length());
+    return yy::parser::make_NAMESPACE(name, loc);
 }
 
 void driver::scan_begin () {

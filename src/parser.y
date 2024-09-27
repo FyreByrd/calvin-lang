@@ -55,6 +55,7 @@
     FOR WHILE DO IN
     TRY CATCH FINALLY THROW
     NULL GLOBAL
+    USING
 ;
 
 %token <bool>           BOOL
@@ -69,6 +70,7 @@
 %token <std::string>    STRING
 %token <std::string>    ENUM
 %token <std::string>    TYPEDEF
+%token <std::string>    NAMESPACE
 
 %printer { yyo << $$; } <*>;
 
@@ -84,10 +86,24 @@ list_program_statement:
 program_statement:
     import_statement
     | EXPORT definition
-    | definition;
+    | definition
+    | USING namespace SEMI;
+/* NAMESPACE */
+namespace:
+    TYPE
+    | namespace DOT TYPE;
+namespace_definition:
+    NAMESPACE LBRACE list_namespace_member RBRACE;
+list_namespace_member:
+    namespace_member
+    | list_namespace_member namespace_member;
+namespace_member:
+    optional_scope declaration
+    | optional_scope definition;
 /* IMPORTS */
 import_statement:
     IMPORT STRING AS ID SEMI
+    | IMPORT STAR FROM STRING SEMI
     | IMPORT list_import_member FROM STRING SEMI;
 list_import_member:
     import_member
@@ -101,7 +117,8 @@ definition:
     | interface_definition
     | class_definition
     | enum_definition
-    | typedef_definition;
+    | typedef_definition
+    | namespace_definition;
 generic_body:
     LBRACE RBRACE
     | LBRACE list_statement RBRACE;
@@ -256,8 +273,8 @@ finally:
     FINALLY generic_body;
 /* TYPES */
 type_signature:
-    TYPE type_suffix
-    | CONST TYPE type_suffix
+    namespace type_suffix
+    | CONST namespace type_suffix
     | AUTO
     | CONST AUTO
     | type_signature LPAREN list_type RPAREN;
@@ -351,8 +368,8 @@ value:
     | ID 
     | GLOBAL ID
     | THIS
-    | TYPE DOT ID
-    | TYPE DOT function_call
+    | namespace DOT ID
+    | namespace DOT function_call
     | function_call
     | value optional_chain DOT ID
     | value optional_chain DOT function_call

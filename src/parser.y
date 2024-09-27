@@ -45,7 +45,7 @@
     LPAREN RPAREN
     LBRACK RBRACK
     QUE BANG N_COAL
-    COLON COMMA DOT SEMI
+    COLON COMMA DOT SEMI USCORE
     PUBLIC PRIVATE PROTECTED THIS 
     EXTENDS IMPLEMENTS
     EXPORT IMPORT FROM AS
@@ -115,7 +115,12 @@ function_signature:
     type_signature ID function_parameters optional_const;
 function_parameters:
     LPAREN RPAREN
-    | LPAREN list_declaration RPAREN;
+    | LPAREN list_function_parameters RPAREN;
+list_function_parameters:
+    declaration
+    | USCORE
+    | list_function_parameters COMMA declaration
+    | list_function_parameters COMMA USCORE;
 function_call:
     ID LPAREN RPAREN
     | ID LPAREN list_expression RPAREN;
@@ -171,16 +176,16 @@ optional_typedef_extends:
     EXTENDS list_type
     |;
 list_type:
-    TYPE
-    | list_type COMMA TYPE;
+    type_signature
+    | list_type COMMA type_signature;
 typedef_body:
     type_signature
     | union
     | variant
-    | LBRACE list_declaration_semi RBRACE;
+    | LBRACE list_declaration RBRACE;
 /* UNION */
 union:
-    UNION LBRACE list_declaration_semi RBRACE;
+    UNION LBRACE list_declaration RBRACE;
 /* VARIANT */
 variant:
     VAR optional_type LBRACE list_variant_member RBRACE;
@@ -253,7 +258,9 @@ finally:
 type_signature:
     TYPE type_suffix
     | CONST TYPE type_suffix
-    | AUTO;
+    | AUTO
+    | CONST AUTO
+    | type_signature LPAREN list_type RPAREN;
 type_suffix:
     optional_reference_type optional_array_type;
 optional_reference_type:
@@ -276,10 +283,7 @@ optional_scope:
 /* DECLARATIONS */
 list_declaration:
     declaration
-    | list_declaration COMMA declaration;
-list_declaration_semi:
-    declaration
-    | list_declaration_semi SEMI declaration;
+    | list_declaration SEMI declaration;
 declaration: 
     type_signature ID
     | type_signature ID EQU expression
@@ -320,6 +324,7 @@ expression:
     | value QUE COLON expression
     | LPAREN TYPE RPAREN expression
     | value AS TYPE
+    | type_signature function_parameters optional_const EQU GT generic_body
     | value;
 compound_assign:
     value PL_EQU expression 

@@ -158,6 +158,7 @@ throw   return yy::parser::make_THROW   (loc);
 "["     return yy::parser::make_LBRACK  (loc);
 "]"     return yy::parser::make_RBRACK  (loc);
 ";"     return yy::parser::make_SEMI    (loc);
+"_"     return yy::parser::make_USCORE  (loc);
 "?"     return yy::parser::make_QUE     (loc);
 "!"     return yy::parser::make_BANG    (loc);
 ":"     return yy::parser::make_COLON   (loc);

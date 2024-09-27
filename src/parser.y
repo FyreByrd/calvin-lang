@@ -112,7 +112,7 @@ optional_type:
 function_definition: 
     function_signature generic_body;
 function_signature:
-    type_full ID function_parameters optional_const;
+    type_signature ID function_parameters optional_const;
 function_parameters:
     LPAREN RPAREN
     | LPAREN list_declaration RPAREN;
@@ -151,8 +151,8 @@ list_class_member:
     class_member
     | list_class_member class_member;
 class_member:
-    declaration
-    | function_definition;
+    optional_scope optional_static declaration
+    | optional_scope optional_static function_definition;
 /* ENUM */
 enum_definition:
     ENUM optional_type enum_body;
@@ -174,7 +174,7 @@ list_type:
     TYPE
     | list_type COMMA TYPE;
 typedef_body:
-    type_partial
+    type_signature
     | union
     | variant
     | LBRACE list_declaration_semi RBRACE;
@@ -250,9 +250,7 @@ optional_finally:
 finally:
     FINALLY generic_body;
 /* TYPES */
-type_full: 
-    optional_scope optional_static type_partial;
-type_partial:
+type_signature:
     optional_const TYPE type_suffix
     | AUTO;
 type_suffix:
@@ -282,8 +280,8 @@ list_declaration_semi:
     declaration
     | list_declaration_semi SEMI declaration;
 declaration: 
-    type_full ID
-    | type_full ID EQU expression
+    type_signature ID
+    | type_signature ID EQU expression
     | union
     | variant;
 /* EXPRESSION */

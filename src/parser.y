@@ -215,7 +215,7 @@ statement:
     | RETURN expression SEMI
     /* LOOPS */
     | FOR LPAREN statement statement statement RPAREN generic_body optional_finally
-    | FOR LPAREN declaration IN value RPAREN generic_body optional_finally
+    | FOR LPAREN declaration_pure IN value RPAREN generic_body optional_finally
     | WHILE LPAREN expression RPAREN generic_body optional_finally
     | DO generic_body WHILE LPAREN expression RPAREN optional_while_generic_body optional_finally
     /* EXCEPTIONS */
@@ -248,7 +248,7 @@ list_catch:
     catch
     | list_catch catch;
 catch:
-    CATCH LPAREN declaration RPAREN generic_body;
+    CATCH LPAREN declaration_pure RPAREN generic_body;
 optional_finally:
     finally
     |;
@@ -284,8 +284,10 @@ optional_scope:
 list_declaration:
     declaration
     | list_declaration SEMI declaration;
+declaration_pure:
+    type_signature ID;
 declaration: 
-    type_signature ID
+    declaration_pure
     | type_signature ID EQU expression
     | union
     | variant;
@@ -313,6 +315,8 @@ expression:
     | NOT value
     | value AND expression
     | value OR expression
+    | value IN value
+    | value NOT IN value
     | value EE expression
     | value NE expression
     | value GE expression

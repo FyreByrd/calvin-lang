@@ -298,7 +298,7 @@ list_expression:
 optional_expression:
     expression
     |;
-expression: 
+expression:
     value PLUS expression 
     | value MINUS expression 
     | value STAR expression 
@@ -313,6 +313,8 @@ expression:
     | value ASHIFT expression 
     | value EQU expression
     | NOT value
+    | PLUS PLUS value
+    | MINUS MINUS value
     | value AND expression
     | value OR expression
     | value IN value

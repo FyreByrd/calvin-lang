@@ -75,6 +75,7 @@ auto    return yy::parser::make_AUTO    (loc);
 union   return yy::parser::make_UNION   (loc);
 var     return yy::parser::make_VAR     (loc);
 null    return yy::parser::make_NULL    (loc);
+global  return yy::parser::make_GLOBAL  (loc);
 return  return yy::parser::make_RETURN  (loc);
 not     return yy::parser::make_NOT     (loc);
 and     return yy::parser::make_AND     (loc);

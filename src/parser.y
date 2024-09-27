@@ -54,7 +54,7 @@
     BREAK CONTINUE RETURN 
     FOR WHILE DO IN
     TRY CATCH FINALLY THROW
-    NULL
+    NULL GLOBAL
 ;
 
 %token <bool>           BOOL
@@ -251,7 +251,8 @@ finally:
     FINALLY generic_body;
 /* TYPES */
 type_signature:
-    optional_const TYPE type_suffix
+    TYPE type_suffix
+    | CONST TYPE type_suffix
     | AUTO;
 type_suffix:
     optional_reference_type optional_array_type;
@@ -337,7 +338,10 @@ compound_assign:
 value:
     constant 
     | ID 
+    | GLOBAL ID
     | THIS
+    | TYPE DOT ID
+    | TYPE DOT function_call
     | function_call
     | value optional_chain DOT ID
     | value optional_chain DOT function_call

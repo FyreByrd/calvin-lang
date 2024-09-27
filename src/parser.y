@@ -322,8 +322,8 @@ expression:
     | value N_COAL expression
     | value QUE expression COLON expression
     | value QUE COLON expression
-    | LPAREN TYPE RPAREN expression
-    | value AS TYPE
+    | type_signature LPAREN expression RPAREN
+    | value AS type_signature
     | type_signature function_parameters optional_const EQU GT generic_body
     | value;
 compound_assign:

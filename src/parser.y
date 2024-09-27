@@ -46,7 +46,8 @@
     LBRACK RBRACK
     QUE BANG N_COAL
     COLON COMMA DOT SEMI USCORE
-    PUBLIC PRIVATE PROTECTED THIS 
+    PUBLIC PRIVATE PROTECTED
+    THIS INIT
     EXTENDS IMPLEMENTS
     EXPORT IMPORT FROM AS
     IF ELIF ELSE
@@ -139,8 +140,7 @@ list_function_parameters:
     | list_function_parameters COMMA declaration
     | list_function_parameters COMMA USCORE;
 function_call:
-    ID LPAREN RPAREN
-    | ID LPAREN list_expression RPAREN;
+    ID LPAREN optional_list_expression RPAREN;
 /* EXTENDS/IMPLEMENTS */
 extends:
     EXTENDS optional_scope ID;
@@ -174,7 +174,8 @@ list_class_member:
     | list_class_member class_member;
 class_member:
     optional_scope optional_static declaration
-    | optional_scope optional_static function_definition;
+    | optional_scope optional_static function_definition
+    | INIT function_parameters generic_body;
 /* ENUM */
 enum_definition:
     ENUM optional_type enum_body;
@@ -315,6 +316,9 @@ list_expression:
 optional_expression:
     expression
     |;
+optional_list_expression:
+    list_expression
+    |;
 expression:
     value PLUS expression 
     | value MINUS expression 
@@ -371,6 +375,7 @@ value:
     | THIS
     | namespace DOT ID
     | namespace DOT function_call
+    | namespace DOT INIT LPAREN optional_list_expression RPAREN
     | function_call
     | value optional_chain DOT ID
     | value optional_chain DOT function_call

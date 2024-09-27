@@ -85,6 +85,7 @@ and     return yy::parser::make_AND     (loc);
 or      return yy::parser::make_OR      (loc);
 "class "{id}    return make_CLASS       (yytext, loc);
 this    return yy::parser::make_THIS    (loc);
+init    return yy::parser::make_INIT    (loc);
 public      return yy::parser::make_PUBLIC  (loc);
 private     return yy::parser::make_PRIVATE     (loc);
 protected   return yy::parser::make_PROTECTED   (loc);

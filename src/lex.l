@@ -39,17 +39,18 @@
 %}
 
 id      [a-zA-Z][a-zA-Z_0-9]*
-dig     [1-9]([0-9_]+[0-9]|[0-9])|[0-9]
+dig     0|[1-9]([0-9_]+[0-9]|[0-9])?
 int     (\+|-)?{dig}
-hex     0x[0-9a-fA-F_]+ 
-oct     0o[0-7_]+
-bin     0b[0-1_]+
+hex     0x([0-9a-fA-F][0-9a-fA-F_]*[0-9a-fA-F]|[0-9a-fA-F])
+oct     0o([0-7][0-7_]*[0-7]|[0-7])
+bin     0b([01][01_]*[01]|[01])
 blank   [ \t\r]
 type    char|bool|(i|u)(8|16|32|64)|(r|x)(32|64)|string
-char    '([^\\"]|\\.)'
-string  \"([^\\"]|\\.)*\"
+eseq    [\'\"\\abfnrtv]|[0-7]{1,3}|x[0-9a-fA-F]{1,2}
+char    \'([^\\"]|\\{eseq})\'
+string  \"([^\\"]|\\{eseq})*\"
 real    ((\+|-)?({dig}\.[0-9]+|inf)|NaN)
-cmpx    ({real}(\+|-))?{real}(i|j|I)
+cmpx    ({real}(\+|-))?{real}(i|j|I|J)
 bool    true|false
 comnt   \/\/[^\n]*
 mcomnt  \/\*([^*]|(\*+[^*/]))*\*+\/
@@ -175,17 +176,68 @@ using   return yy::parser::make_USING   (loc);
 <<EOF>> return yy::parser::make_YYEOF (loc);
 %%
 
-yy::parser::symbol_type make_CHAR(const std::string &s, const yy::parser::location_type& loc) {
-    return yy::parser::make_CHAR(s.substr(1, s.length() - 1)[0], loc);
-}
-
-yy::parser::symbol_type make_STRING(const std::string &s, const yy::parser::location_type& loc) {
-    return yy::parser::make_STRING(s.substr(1, s.length() - 1), loc);
-}
-
-yy::parser::symbol_type make_BOOL(const std::string &s, const yy::parser::location_type& loc) {
-    if (s == "true") return yy::parser::make_BOOL(true, loc);
-    else return yy::parser::make_BOOL(false, loc);
+std::string escape(const std::string& s) {
+    std::string out;
+    for (int i = 0; i < s.length(); i++) {
+        if (s[i] == '\\') {
+            i++;
+            switch(s[i]) {
+                //[0-7]{1,3}|x[0-9a-fA-F]{1,2}
+                case '\'': out += 0x27; break;
+                case '\"': out += 0x22; break;
+                case '\\': out += 0x5c; break;
+                case 'a': out +=  0x07; break;
+                case 'b': out +=  0x08; break;
+                case 'f': out +=  0x0c; break;
+                case 'n': out +=  0x0a; break;
+                case 'r': out +=  0x0d; break;
+                case 't': out +=  0x09; break;
+                case 'v': out +=  0x0b; break;
+                //hexadecimal
+                case 'x':{
+                    i++;
+                    std::string opts = "0123456789abcdefABCDEF";
+                    if (opts.find(s[i+1]) < 22) {
+                        out += strtol(s.substr(i, 2).c_str(), NULL, 16);
+                        i++;
+                    }
+                    else {
+                        out += strtol(s.substr(i, 1).c_str(), NULL, 16);
+                    }
+                    break;}
+                //octal
+                case '0':
+                case '1':
+                case '2':
+                case '3':
+                case '4':
+                case '5':
+                case '6':
+                case '7':{
+                    std::string opts = "01234567";
+                    if (opts.find(s[i+1]) < 8) {
+                        if (opts.find(s[i+2]) < 8) {
+                            out += strtol(s.substr(i, 3).c_str(), NULL, 8);
+                            i++;
+                        }
+                        else {
+                            out += strtol(s.substr(i, 2).c_str(), NULL, 8);
+                        }
+                        i++;
+                    }
+                    else {
+                        out += strtol(s.substr(i, 1).c_str(), NULL, 8);
+                    }
+                    break;}
+                default:
+                    break;
+            }
+        }
+        else {
+            out += s[i];
+        }
+    }
+    return out;
 }
 
 std::string filterUnderscores(const std::string& to) {
@@ -198,13 +250,28 @@ std::string filterUnderscores(const std::string& to) {
     return final;
 }
 
+yy::parser::symbol_type make_CHAR(const std::string &s, const yy::parser::location_type& loc) {
+    return yy::parser::make_CHAR(escape(s.substr(1, s.length() - 1))[0], loc);
+}
+
+yy::parser::symbol_type make_STRING(const std::string &s, const yy::parser::location_type& loc) {
+    return yy::parser::make_STRING(escape(s.substr(1, s.length() - 1)), loc);
+}
+
+yy::parser::symbol_type make_BOOL(const std::string &s, const yy::parser::location_type& loc) {
+    if (s == "true") return yy::parser::make_BOOL(true, loc);
+    else return yy::parser::make_BOOL(false, loc);
+}
+
 yy::parser::symbol_type make_CMPX(const std::string &s, const yy::parser::location_type& loc) {
     std::string f = filterUnderscores(s);
     int i = strcspn(f.c_str(), "+-"); // index of first + or -
-    i = 1 + strcspn(f.c_str() + i + 1, "+-"); // index of second + or -
-    if (i < s.length()) {
+    if (i < f.length()) {
+        i = 1 + strcspn(f.c_str() + i + 1, "+-"); // index of second + or -
+    }
+    if (i < f.length()) {
         double r = strtod(f.substr(0, i).c_str(), NULL);
-        double m = strtod(f.substr(i, s.length() - i - 1).c_str(), NULL);
+        double m = strtod(f.substr(i, f.length() - i - 1).c_str(), NULL);
         return yy::parser::make_CMPX (new cmpx(r, m), loc);
     }
     else {
@@ -220,6 +287,7 @@ yy::parser::symbol_type make_REAL(const std::string &s, const yy::parser::locati
 }
 
 yy::parser::symbol_type make_INT (const std::string &s, const yy::parser::location_type& loc) {
+    errno = 0;
     std::string f = filterUnderscores(s);
     long n = strtol(f.c_str(), NULL, 10);
     if (! (LONG_MIN <= n && n <= LONG_MAX && errno != ERANGE))
@@ -228,6 +296,7 @@ yy::parser::symbol_type make_INT (const std::string &s, const yy::parser::locati
 }
 
 yy::parser::symbol_type make_HEX (const std::string &s, const yy::parser::location_type& loc) {
+    errno = 0;
     std::string f = filterUnderscores(s);
     long n = strtol(f.c_str(), NULL, 16);
     if (! (LONG_MIN <= n && n <= LONG_MAX && errno != ERANGE))
@@ -236,6 +305,7 @@ yy::parser::symbol_type make_HEX (const std::string &s, const yy::parser::locati
 }
 
 yy::parser::symbol_type make_OCT (const std::string &s, const yy::parser::location_type& loc) {
+    errno = 0;
     std::string f = filterUnderscores(s);
     long n = strtol(f.c_str(), NULL, 8);
     if (! (LONG_MIN <= n && n <= LONG_MAX && errno != ERANGE))
@@ -244,6 +314,7 @@ yy::parser::symbol_type make_OCT (const std::string &s, const yy::parser::locati
 }
 
 yy::parser::symbol_type make_BIN (const std::string &s, const yy::parser::location_type& loc) {
+    errno = 0;
     std::string f = filterUnderscores(s);
     long n = strtol(f.c_str(), NULL, 2);
     if (! (LONG_MIN <= n && n <= LONG_MAX && errno != ERANGE))

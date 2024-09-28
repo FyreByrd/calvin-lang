@@ -68,6 +68,7 @@ int main(int argc, char *argv[]) {
     else input_name = cl_args.orphan(0); 
 
     debug::log() << std::endl << "Parsing . . ." << std::endl << std::endl;
+    debug::log(drv.trace_parsing) << "Parse debugging enabled . . ." << std::endl << std::endl;
 
     res = drv.parse(input_name);
 

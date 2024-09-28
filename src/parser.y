@@ -11,6 +11,7 @@
 %code requires {
     #include <string>
     #include "cmpx.h"
+    #include "debug.h"
     class driver;
 }
 
@@ -99,8 +100,7 @@ list_namespace_member:
     namespace_member
     | list_namespace_member namespace_member;
 namespace_member:
-    optional_scope declaration
-    | optional_scope definition;
+    optional_scope definition;
 /* IMPORTS */
 import_statement:
     IMPORT STRING AS ID SEMI
@@ -119,7 +119,8 @@ definition:
     | class_definition
     | enum_definition
     | typedef_definition
-    | namespace_definition;
+    | namespace_definition
+    | declaration SEMI;
 generic_body:
     LBRACE RBRACE
     | LBRACE list_statement RBRACE;
@@ -385,13 +386,14 @@ value:
     | LPAREN expression RPAREN
     | type_signature LPAREN expression RPAREN;
 constant:
-    BOOL 
-    | CHAR 
-    | REAL 
-    | INT 
-    | CMPX
-    | NULL
-    | STRING;
+    BOOL { debug::log(drv.trace_parsing) << std::endl << "Parser push boolean: " << $1 << std::endl << std::endl; }
+    | CHAR { debug::log(drv.trace_parsing) << std::endl << "Parser push char: '" << $1 << "' (" << ((int) $1) << ")" << std::endl << std::endl; } 
+    | REAL { debug::log(drv.trace_parsing) << std::endl << "Parser push real: " << $1 << std::endl << std::endl; } 
+    | INT { debug::log(drv.trace_parsing) << std::endl << "Parser push long: " << $1 << std::endl << std::endl; } 
+    /* Lexer isn't handling `a + bi` (but will take `a+bi`), but should be able to treat it as `a + 0+bi` with an implicit cast */
+    | CMPX { debug::log(drv.trace_parsing) << std::endl << "Parser push cmpx: " << *($1) << std::endl << std::endl; }
+    | NULL { debug::log(drv.trace_parsing) << std::endl << "Parser push null" << std::endl << std::endl; }
+    | STRING { debug::log(drv.trace_parsing) << std::endl << "Parser push string: \"" << $1 << "\"" << std::endl << std::endl; };
 optional_chain:
     QUE
     | BANG

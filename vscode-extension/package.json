@@ -1,0 +1,25 @@
+{
+  "name": "calvin-lang",
+  "displayName": "Calvin",
+  "description": "Calvin language support",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.93.0"
+  },
+  "categories": [
+    "Programming Languages"
+  ],
+  "contributes": {
+    "languages": [{
+      "id": "calvin",
+      "aliases": ["Calvin", "calvin"],
+      "extensions": [".cal"],
+      "configuration": "./language-configuration.json"
+    }],
+    "grammars": [{
+      "language": "calvin",
+      "scopeName": "source.calvin",
+      "path": "./syntaxes/calvin.tmLanguage.json"
+    }]
+  }
+}

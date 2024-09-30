@@ -1,0 +1,69 @@
+{
+	"$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+	"name": "Calvin",
+	"patterns": [
+		{
+			"include": "#comments"
+		},
+		{
+			"include": "#keywords"
+		},
+		{
+			"include": "#strings"
+		},
+		{
+			"include": "#chars"
+		}
+	],
+	"repository": {
+		"comments": {
+			"patterns": [
+				{
+					"name": "comment.block.documentation.calvin",
+					"begin": "/\\*\\*[^/]",
+					"end": "\\*/"
+				},
+				{
+					"name": "comment.block.calvin",
+					"begin": "/\\*",
+					"end": "\\*/"
+				},
+				{
+					"name": "comment.line.double-slash.calvin",
+					"match": "//[^\n]*"
+				}
+			]
+		},
+		"keywords": {
+			"patterns": [{
+				"name": "keyword.control.calvin",
+				"match": "\\b(if|elif|else|do|while|for|return|break|continue)\\b"
+			}]
+		},
+		"escape": {
+			"patterns": [
+				{
+					"name": "constant.character.escape.calvin",
+					"match": "\\\\([\\\\'\"abfnrtv]|[0-7]{1,3}|x[0-9a-fA-F]{1,2})"
+				}
+			]
+		},
+		"strings": {
+			"name": "string.quoted.double.calvin",
+			"begin": "\"",
+			"end": "\"",
+			"patterns": [
+				{ "include": "#escape"}
+			]
+		},
+		"chars": {
+			"name": "string.quoted.single",
+			"begin": "'",
+			"end": "'",
+			"patterns": [
+				{ "include": "#escape"}
+			]
+		}
+	},
+	"scopeName": "source.calvin"
+}

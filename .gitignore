@@ -1,0 +1,13 @@
+test*
+.vscode
+*.s
+
+# Obsidian exclusions
+**/.obsidian/plugins
+**/.obsidian/workspace.json
+**/.obsidian/workspace-mobile.json
+**/.obsidian/appearance.json
+
+# Add below lines to exclude OS settings and caches
+.trash/
+.DS_Store

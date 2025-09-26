@@ -17,14 +17,21 @@ export const CalvinLexer = new Lexer(allTokens);
 
 //@typescript-eslint
 export class CalvinParser extends CstParser {
-  public expression;
-  public value;
+  public readonly file;
+  private readonly expression;
+  private readonly value;
 
   constructor() {
     super(allTokens);
 
     // eslint-disable-next-line @typescript-eslint/no-this-alias
     const $ = this;
+
+    this.file = $.RULE('file', () => {
+      $.MANY(() => {
+        $.SUBRULE($.expression);
+      });
+    });
 
     this.expression = $.RULE('expression', () => {
       $.CONSUME(ID);

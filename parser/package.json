@@ -1,0 +1,26 @@
+{
+  "name": "parser",
+  "version": "1.0.0",
+  "description": "",
+  "license": "ISC",
+  "author": "",
+  "type": "module",
+  "main": "index.ts",
+  "scripts": {
+    "format": "eslint --fix .",
+    "lint": "eslint ."
+  },
+  "dependencies": {
+    "chevrotain": "^11.0.3",
+    "typescript": "^5.9.2"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.36.0",
+    "eslint": "^9.36.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-import": "^2.32.0",
+    "eslint-plugin-prettier": "^5.5.4",
+    "globals": "^16.4.0",
+    "typescript-eslint": "^8.44.1"
+  }
+}

@@ -1,6 +1,7 @@
-test*
+hide*
 .vscode
 *.s
+node_modules
 
 # Obsidian exclusions
 **/.obsidian/plugins

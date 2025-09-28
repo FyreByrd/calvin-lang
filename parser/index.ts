@@ -29,13 +29,35 @@ class CalvinPrinter extends BaseCstVisitor {
     console.log(';');
   }
 
-  value(ctx: { ID: IToken[]; NUMBER: IToken[] }) {
+  value(ctx: { ID: IToken[]; constant: CstNode[] }) {
     if (ctx.ID) {
-      console.log(ctx.ID[0]!.image);
-    } else if (ctx.NUMBER) {
-      console.log(ctx.NUMBER[0]!.image);
+      console.log(`ID: ${ctx.ID[0]?.image}`);
+    } else if (ctx.constant) {
+      this.visit(ctx.constant);
     } else {
       console.log('$UNKNOWN_VALUE');
+    }
+  }
+
+  constant(ctx: {
+    BOOL: IToken[];
+    INT: IToken[];
+    CMPX: IToken[];
+    REAL: IToken[];
+    STRING: IToken[];
+  }) {
+    if (ctx.BOOL) {
+      console.log(`BOOL: ${ctx.BOOL[0]?.image}`);
+    } else if (ctx.INT) {
+      console.log(`INT: ${ctx.INT[0]?.image}`);
+    } else if (ctx.CMPX) {
+      console.log(`CMPX: ${ctx.CMPX[0]?.image}`);
+    } else if (ctx.REAL) {
+      console.log(`REAL: ${ctx.REAL[0]?.image}`);
+    } else if (ctx.STRING) {
+      console.log(`STRING: ${ctx.STRING[0]?.image}`);
+    } else {
+      console.log('$UNKNOWN_CONSTANT');
     }
   }
 }

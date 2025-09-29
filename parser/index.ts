@@ -1,7 +1,8 @@
 import type { CstNode, IToken } from 'chevrotain';
 import { readFileSync } from 'fs';
 import { join } from 'path';
-import { CalvinLexer, CalvinParser } from './parser.js';
+import { CalvinLexer } from './lexer.js';
+import { CalvinParser } from './parser.js';
 
 const parser = new CalvinParser();
 

@@ -1,6 +1,6 @@
 a = true;
 b = 0.1;
 c = 1_000;
-d = 1.0+2.0i;
+d = 1.0 + 2.0i;
 e = "Hello, World!";
 f = 'aaaaaaaaaaaaaaaaa';

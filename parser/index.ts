@@ -18,16 +18,19 @@ class CalvinPrinter extends BaseCstVisitor {
     this.validateVisitor();
   }
 
-  file(ctx: { expression: CstNode[] }) {
-    for (const expr of ctx.expression) {
-      this.visit(expr);
+  file(ctx: { statement: CstNode[] }) {
+    for (const stmt of ctx.statement) {
+      this.visit(stmt);
     }
   }
 
-  expression(ctx: { ID: IToken[]; value: CstNode[] }) {
-    console.log(`${ctx.ID[0]!.image} = `);
-    this.visit(ctx.value);
+  statement(ctx: { expression: CstNode }) {
+    this.visit(ctx.expression);
     console.log(';');
+  }
+
+  expression(ctx: { value: CstNode[] }) {
+    this.visit(ctx.value);
   }
 
   value(ctx: { ID: IToken[]; constant: CstNode[] }) {

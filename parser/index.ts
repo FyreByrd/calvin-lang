@@ -1,67 +1,59 @@
-import type { CstNode, IToken } from 'chevrotain';
 import { readFileSync } from 'fs';
 import { join } from 'path';
 import { CalvinLexer } from './lexer.js';
-import { CalvinParser } from './parser.js';
+import { CalvinParser, type Expr, type Value } from './parser.js';
+
+function leftpad(str: string, len: number, ch?: string) {
+  let i = -1;
+  const _ch = ch || ' ';
+  const _len = len - str.length;
+  let _str = str;
+  while (i++ < _len) {
+    _str = _ch + _str;
+  }
+  return _str;
+}
 
 const parser = new CalvinParser();
 
 // ----------------- Printer -----------------
-// Obtains the default CstVisitor constructor to extend.
-const BaseCstVisitor = parser.getBaseCstVisitorConstructor();
-
-// All our semantics go into the visitor, completely separated from the grammar.
-class CalvinPrinter extends BaseCstVisitor {
-  constructor() {
-    super();
-    // This helper will detect any missing or redundant methods on this visitor
-    this.validateVisitor();
-  }
-
-  file(ctx: { statement: CstNode[] }) {
-    for (const stmt of ctx.statement) {
-      this.visit(stmt);
+class CalvinPrinter {
+  file(statements: Expr[]) {
+    console.log('(');
+    for (const stmt of statements) {
+      this.statement(stmt, 1);
     }
+    console.log(')');
   }
 
-  statement(ctx: { expression: CstNode }) {
-    this.visit(ctx.expression);
-    console.log(';');
+  statement(stmt: Expr, indent: number) {
+    this.expression(stmt, indent);
   }
 
-  expression(ctx: { value: CstNode[] }) {
-    this.visit(ctx.value);
-  }
-
-  value(ctx: { ID: IToken[]; constant: CstNode[] }) {
-    if (ctx.ID) {
-      console.log(`ID: ${ctx.ID[0]?.image}`);
-    } else if (ctx.constant) {
-      this.visit(ctx.constant);
+  expression(expr: Expr, indent: number) {
+    if (expr.operator) {
+      console.log(leftpad('(' + expr.operator.image, indent));
     } else {
-      console.log('$UNKNOWN_VALUE');
+      console.log(leftpad('(', indent));
     }
+    this.value(expr.value, indent + 2);
+    if (expr.expr) {
+      this.expression(expr.expr, indent + 2);
+    }
+    console.log(leftpad(')', indent));
   }
 
-  constant(ctx: {
-    BOOL: IToken[];
-    INT: IToken[];
-    CMPX: IToken[];
-    REAL: IToken[];
-    STRING: IToken[];
-  }) {
-    if (ctx.BOOL) {
-      console.log(`BOOL: ${ctx.BOOL[0]?.image}`);
-    } else if (ctx.INT) {
-      console.log(`INT: ${ctx.INT[0]?.image}`);
-    } else if (ctx.CMPX) {
-      console.log(`CMPX: ${ctx.CMPX[0]?.image}`);
-    } else if (ctx.REAL) {
-      console.log(`REAL: ${ctx.REAL[0]?.image}`);
-    } else if (ctx.STRING) {
-      console.log(`STRING: ${ctx.STRING[0]?.image}`);
-    } else {
-      console.log('$UNKNOWN_CONSTANT');
+  value(val: Value, indent: number) {
+    switch (val.type) {
+      case 'constant':
+        console.log(leftpad(val.const.image, indent));
+        break;
+      case 'expr':
+        this.expression(val.expr, indent + 2);
+        break;
+      case 'id':
+        console.log(leftpad(val.id.image, indent));
+        break;
     }
   }
 }
@@ -82,7 +74,7 @@ function parseInput(text: string) {
   }
 
   //console.log(JSON.stringify(output, null, 4));
-  printer.visit(output);
+  printer.file(output);
 }
 
 const file = readFileSync(join(import.meta.dirname, './tests/test.txt'));

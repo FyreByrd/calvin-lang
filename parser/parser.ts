@@ -1,8 +1,19 @@
-import { CstParser } from 'chevrotain';
+import { EmbeddedActionsParser, type IToken } from 'chevrotain';
 import * as Tokens from './lexer.js';
 
-//@typescript-eslint
-export class CalvinParser extends CstParser {
+export type Expr = {
+  value: Value;
+  operator?: IToken;
+  expr?: Expr;
+};
+export type Value = {
+  type: 'constant' | 'id' | 'expr';
+} & (
+  | { type: 'constant'; const: IToken }
+  | { type: 'id'; id: IToken }
+  | { type: 'expr'; expr: Expr }
+);
+export class CalvinParser extends EmbeddedActionsParser {
   public readonly file;
   private readonly statement;
   private readonly expression;
@@ -17,173 +28,178 @@ export class CalvinParser extends CstParser {
     // eslint-disable-next-line @typescript-eslint/no-this-alias
     const $ = this;
 
-    this.file = $.RULE('file', () => {
+    this.file = $.RULE('file', (): Expr[] => {
+      const res: Expr[] = [];
       $.MANY(() => {
-        $.SUBRULE($.statement);
+        res.push($.SUBRULE($.statement));
       });
+      return res;
     });
 
     this.statement = $.RULE('statement', () => {
-      $.SUBRULE($.expression);
+      const expr = $.SUBRULE($.expression);
       $.CONSUME(Tokens.SEMI);
+      return expr;
     });
 
     this.expression = $.RULE('expression', () => {
-      $.SUBRULE($.value);
+      const expr = { value: $.SUBRULE($.value) } as Expr;
       $.OPTION(() => {
-        $.OR([
+        expr.operator = $.OR([
           {
             ALT: () => {
-              $.CONSUME(Tokens.N_COAL);
+              return $.CONSUME(Tokens.N_COAL);
             }
           },
           {
             ALT: () => {
-              $.CONSUME(Tokens.EE);
+              return $.CONSUME(Tokens.EE);
             }
           },
           {
             ALT: () => {
-              $.CONSUME(Tokens.NE);
+              return $.CONSUME(Tokens.NE);
             }
           },
           {
             ALT: () => {
-              $.CONSUME(Tokens.GE);
+              return $.CONSUME(Tokens.GE);
             }
           },
           {
             ALT: () => {
-              $.CONSUME(Tokens.LE);
+              return $.CONSUME(Tokens.LE);
             }
           },
           {
             ALT: () => {
-              $.CONSUME(Tokens.LT);
+              return $.CONSUME(Tokens.LT);
             }
           },
           {
             ALT: () => {
-              $.CONSUME(Tokens.GT);
+              return $.CONSUME(Tokens.GT);
             }
           },
           {
             ALT: () => {
-              $.CONSUME(Tokens.PLUS);
+              return $.CONSUME(Tokens.PLUS);
             }
           },
           {
             ALT: () => {
-              $.CONSUME(Tokens.MINUS);
+              return $.CONSUME(Tokens.MINUS);
             }
           },
           {
             ALT: () => {
-              $.CONSUME(Tokens.STAR);
+              return $.CONSUME(Tokens.STAR);
             }
           },
           {
             ALT: () => {
-              $.CONSUME(Tokens.SLASH);
+              return $.CONSUME(Tokens.SLASH);
             }
           },
           {
             ALT: () => {
-              $.CONSUME(Tokens.MOD);
+              return $.CONSUME(Tokens.MOD);
             }
           },
           {
             ALT: () => {
-              $.CONSUME(Tokens.TILDE);
+              return $.CONSUME(Tokens.TILDE);
             }
           },
           {
             ALT: () => {
-              $.CONSUME(Tokens.AMP);
+              return $.CONSUME(Tokens.AMP);
             }
           },
           {
             ALT: () => {
-              $.CONSUME(Tokens.PIPE);
+              return $.CONSUME(Tokens.PIPE);
             }
           },
           {
             ALT: () => {
-              $.CONSUME(Tokens.CARET);
+              return $.CONSUME(Tokens.CARET);
             }
           },
           {
             ALT: () => {
-              $.CONSUME(Tokens.LSHIFT);
+              return $.CONSUME(Tokens.LSHIFT);
             }
           },
           {
             ALT: () => {
-              $.CONSUME(Tokens.RSHIFT);
+              return $.CONSUME(Tokens.RSHIFT);
             }
           },
           {
             ALT: () => {
-              $.CONSUME(Tokens.ASHIFT);
+              return $.CONSUME(Tokens.ASHIFT);
             }
           },
           {
             ALT: () => {
-              $.CONSUME(Tokens.EQU);
+              return $.CONSUME(Tokens.EQU);
             }
           }
         ]);
-        $.SUBRULE($.expression);
+        expr.expr = $.SUBRULE($.expression);
       });
+      return expr;
     });
 
-    this.value = $.RULE('value', () => {
-      $.OR([
+    this.value = $.RULE('value', (): Value => {
+      return $.OR([
         {
           ALT: () => {
-            $.SUBRULE($.constant);
+            return { type: 'constant', const: $.SUBRULE($.constant) };
           }
         },
         {
           ALT: () => {
-            $.CONSUME(Tokens.ID);
+            return { type: 'id', id: $.CONSUME(Tokens.ID) };
           }
         },
         {
           ALT: () => {
             $.CONSUME(Tokens.LPAREN);
-            $.SUBRULE($.expression);
+            const expr = $.SUBRULE($.expression);
             $.CONSUME(Tokens.RPAREN);
+            return { type: 'expr', expr };
           }
         }
       ]);
     });
 
     this.constant = $.RULE('constant', () => {
-      $.OR([
+      return $.OR([
         {
           ALT: () => {
-            $.CONSUME(Tokens.BOOL);
+            return $.CONSUME(Tokens.BOOL);
           }
         },
         {
           ALT: () => {
-            $.CONSUME(Tokens.CMPX);
+            return $.CONSUME(Tokens.CMPX);
           }
         },
         {
           ALT: () => {
-            $.CONSUME(Tokens.REAL);
+            return $.CONSUME(Tokens.REAL);
           }
         },
         {
           ALT: () => {
-            $.CONSUME(Tokens.INT);
+            return $.CONSUME(Tokens.INT);
           }
         },
         {
           ALT: () => {
-            $.CONSUME(Tokens.STRING);
+            return $.CONSUME(Tokens.STRING);
           }
         }
       ]);

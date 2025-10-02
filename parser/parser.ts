@@ -8,6 +8,7 @@ export type Expr = {
 };
 export type Value = {
   type: 'constant' | 'id' | 'expr';
+  // TODO return types
 } & (
   | { type: 'constant'; const: IToken }
   | { type: 'id'; id: IToken }
@@ -43,113 +44,31 @@ export class CalvinParser extends EmbeddedActionsParser {
     });
 
     this.expression = $.RULE('expression', () => {
-      const expr = { value: $.SUBRULE($.value) } as Expr;
-      $.OPTION(() => {
-        expr.operator = $.OR([
-          {
-            ALT: () => {
-              return $.CONSUME(Tokens.N_COAL);
-            }
-          },
-          {
-            ALT: () => {
-              return $.CONSUME(Tokens.EE);
-            }
-          },
-          {
-            ALT: () => {
-              return $.CONSUME(Tokens.NE);
-            }
-          },
-          {
-            ALT: () => {
-              return $.CONSUME(Tokens.GE);
-            }
-          },
-          {
-            ALT: () => {
-              return $.CONSUME(Tokens.LE);
-            }
-          },
-          {
-            ALT: () => {
-              return $.CONSUME(Tokens.LT);
-            }
-          },
-          {
-            ALT: () => {
-              return $.CONSUME(Tokens.GT);
-            }
-          },
-          {
-            ALT: () => {
-              return $.CONSUME(Tokens.PLUS);
-            }
-          },
-          {
-            ALT: () => {
-              return $.CONSUME(Tokens.MINUS);
-            }
-          },
-          {
-            ALT: () => {
-              return $.CONSUME(Tokens.STAR);
-            }
-          },
-          {
-            ALT: () => {
-              return $.CONSUME(Tokens.SLASH);
-            }
-          },
-          {
-            ALT: () => {
-              return $.CONSUME(Tokens.MOD);
-            }
-          },
-          {
-            ALT: () => {
-              return $.CONSUME(Tokens.TILDE);
-            }
-          },
-          {
-            ALT: () => {
-              return $.CONSUME(Tokens.AMP);
-            }
-          },
-          {
-            ALT: () => {
-              return $.CONSUME(Tokens.PIPE);
-            }
-          },
-          {
-            ALT: () => {
-              return $.CONSUME(Tokens.CARET);
-            }
-          },
-          {
-            ALT: () => {
-              return $.CONSUME(Tokens.LSHIFT);
-            }
-          },
-          {
-            ALT: () => {
-              return $.CONSUME(Tokens.RSHIFT);
-            }
-          },
-          {
-            ALT: () => {
-              return $.CONSUME(Tokens.ASHIFT);
-            }
-          },
-          {
-            ALT: () => {
-              return $.CONSUME(Tokens.EQU);
-            }
+      return $.OR([
+        {
+          ALT: () => {
+            const expr = { value: $.SUBRULE($.value) } as Expr;
+            $.OPTION(() => {
+              expr.operator = $.OR1([
+                ...Tokens.binopTokens.map((t) => ({ ALT: () => $.CONSUME(t) }))
+              ]);
+              expr.expr = $.SUBRULE($.expression);
+              // TODO reorder based on precedence
+            });
+            return expr;
           }
-        ]);
-        expr.expr = $.SUBRULE($.expression);
-      });
-      return expr;
+        },
+        {
+          ALT: () => {
+            // TODO postfix
+            // TODO `not x in y` should be recognized as `(not x) in y`
+            return {
+              operator: $.OR2([...Tokens.unopTokens.map((t) => ({ ALT: () => $.CONSUME(t) }))]),
+              value: $.SUBRULE1($.value)
+            };
+          }
+        }
+      ]);
     });
 
     this.value = $.RULE('value', (): Value => {

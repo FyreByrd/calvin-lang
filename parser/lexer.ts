@@ -1,5 +1,6 @@
 import { Lexer, createToken } from 'chevrotain';
 
+/* Value Tokens */
 export const STRING = createToken({
   name: 'STRING',
   // "a\"a" or 'b\'b'
@@ -22,6 +23,7 @@ export const CMPX = createToken({
 });
 export const REAL = createToken({ name: 'REAL', pattern: real });
 export const ID = createToken({ name: 'ID', pattern: /[a-zA-Z_][a-zA-Z_\d]*/ });
+/* Binary Operator Tokens */
 export const N_COAL = createToken({ name: 'N_COAL', pattern: '??' });
 export const EE = createToken({ name: 'EE', pattern: '==' });
 export const NE = createToken({ name: 'NE', pattern: '!=' });
@@ -42,6 +44,14 @@ export const LSHIFT = createToken({ name: 'LSHIFT', pattern: '<<' });
 export const RSHIFT = createToken({ name: 'RSHIFT', pattern: '>>' });
 export const ASHIFT = createToken({ name: 'ASHIFT', pattern: '>>>' });
 export const EQU = createToken({ name: 'EQU', pattern: '=' });
+export const AND = createToken({ name: 'AND', pattern: 'and' });
+export const OR = createToken({ name: 'OR', pattern: 'or' });
+export const IN = createToken({ name: 'IN', pattern: 'in' });
+/* Unary Operator Tokens */
+export const NOT = createToken({ name: 'NOT', pattern: 'not' });
+export const INC = createToken({ name: 'INC', pattern: '++' });
+export const DEC = createToken({ name: 'DEC', pattern: '--' });
+/* Other Tokens */
 export const LPAREN = createToken({ name: 'LPAREN', pattern: '(' });
 export const RPAREN = createToken({ name: 'RPAREN', pattern: ')' });
 export const SEMI = createToken({ name: 'SEMI', pattern: ';' });
@@ -51,15 +61,7 @@ const WS = createToken({
   group: Lexer.SKIPPED
 });
 
-// note we are placing WhiteSpace first as it is very common thus it will speed up the lexer.
-export const allTokens = [
-  WS,
-  STRING,
-  BOOL,
-  CMPX,
-  REAL,
-  INT,
-  ID,
+export const binopTokens = [
   N_COAL,
   EE,
   NE,
@@ -80,6 +82,23 @@ export const allTokens = [
   RSHIFT,
   ASHIFT,
   EQU,
+  AND,
+  OR,
+  IN
+];
+export const unopTokens = [NOT, INC, DEC];
+
+// note we are placing WhiteSpace first as it is very common thus it will speed up the lexer.
+export const allTokens = [
+  WS,
+  STRING,
+  BOOL,
+  CMPX,
+  REAL,
+  INT,
+  ...unopTokens,
+  ...binopTokens,
+  ID,
   LPAREN,
   RPAREN,
   SEMI

@@ -1,6 +1,15 @@
 import { EmbeddedActionsParser, type IToken } from 'chevrotain';
 import * as Tokens from './lexer.js';
 
+export type Stmt = {
+  type: 'expr' | 'decl';
+} & (({ type: 'expr' } & Expr) | ({ type: 'decl' } & Decl));
+
+export type Decl = {
+  id: IToken;
+  expr?: Expr;
+};
+
 export type Expr = {
   value: Value;
   operator?: IToken;
@@ -18,6 +27,7 @@ export type Value = {
 export class CalvinParser extends EmbeddedActionsParser {
   public readonly file;
   private readonly statement;
+  private readonly declaration;
   private readonly expression;
   private readonly value;
   private readonly constant;
@@ -28,18 +38,44 @@ export class CalvinParser extends EmbeddedActionsParser {
     // eslint-disable-next-line @typescript-eslint/no-this-alias
     const $ = this;
 
-    this.file = $.RULE('file', (): Expr[] => {
-      const res: Expr[] = [];
+    this.file = $.RULE('file', (): Stmt[] => {
+      const res: Stmt[] = [];
       $.MANY(() => {
         res.push($.SUBRULE($.statement));
       });
       return res;
     });
 
-    this.statement = $.RULE('statement', () => {
-      const expr = $.SUBRULE($.expression);
+    this.statement = $.RULE('statement', (): Stmt => {
+      const stmt = $.OR([
+        {
+          ALT: () => {
+            $.CONSUME(Tokens.LET);
+            return {
+              type: 'decl',
+              ...$.SUBRULE($.declaration)
+            };
+          }
+        },
+        {
+          ALT: () => ({
+            type: 'expr',
+            ...$.SUBRULE($.expression)
+          })
+        }
+      ]);
       $.CONSUME(Tokens.SEMI);
-      return expr;
+      return stmt;
+    });
+
+    this.declaration = $.RULE('declaration', (): Decl => {
+      return {
+        id: $.CONSUME(Tokens.ID),
+        expr: $.OPTION(() => {
+          $.CONSUME(Tokens.EQU);
+          return $.SUBRULE($.expression);
+        })
+      };
     });
 
     this.expression = $.RULE('expression', (): Expr => {

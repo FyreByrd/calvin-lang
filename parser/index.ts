@@ -1,7 +1,7 @@
 import { readFileSync } from 'fs';
 import { join } from 'path';
 import { CalvinLexer } from './lexer.js';
-import { CalvinParser, type Expr, type Value } from './parser.js';
+import { CalvinParser, type Decl, type Expr, type Stmt, type Value } from './parser.js';
 
 function prefix(str: string, len: number, ch: string = ' ') {
   let i = 0;
@@ -16,7 +16,7 @@ const parser = new CalvinParser();
 
 // ----------------- Printer -----------------
 class CalvinPrinter {
-  file(statements: Expr[]) {
+  file(statements: Stmt[]) {
     console.log('(');
     for (const stmt of statements) {
       this.statement(stmt, 2);
@@ -24,8 +24,20 @@ class CalvinPrinter {
     console.log(')');
   }
 
-  statement(stmt: Expr, indent: number) {
-    this.expression(stmt, indent);
+  statement(stmt: Stmt, indent: number) {
+    if (stmt.type === 'decl') {
+      this.declaration(stmt, indent);
+    } else {
+      this.expression(stmt, indent);
+    }
+  }
+
+  declaration(decl: Decl, indent: number) {
+    console.log(prefix(`let ${decl.id.image}${decl.expr ? ' = (' : ''}`, indent));
+    if (decl.expr) {
+      this.expression(decl.expr, indent + 2);
+      console.log(prefix(')', indent));
+    }
   }
 
   expression(expr: Expr, indent: number) {

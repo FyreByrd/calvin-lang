@@ -47,30 +47,6 @@ export const EQU = createToken({ name: 'EQU', pattern: '=' });
 export const AND = createToken({ name: 'AND', pattern: 'and' });
 export const OR = createToken({ name: 'OR', pattern: 'or' });
 export const IN = createToken({ name: 'IN', pattern: 'in' });
-/* Unary Operator Tokens */
-export const NOT = createToken({ name: 'NOT', pattern: 'not' });
-export const INC = createToken({ name: 'INC', pattern: '++' });
-export const DEC = createToken({ name: 'DEC', pattern: '--' });
-/* Other Tokens */
-export const LPAREN = createToken({ name: 'LPAREN', pattern: '(' });
-export const RPAREN = createToken({ name: 'RPAREN', pattern: ')' });
-export const SEMI = createToken({ name: 'SEMI', pattern: ';' });
-const WS = createToken({
-  name: 'WS',
-  pattern: /\s+/,
-  group: Lexer.SKIPPED
-});
-const LCOMNT = createToken({
-  name: 'LCOMNT',
-  pattern: /\/\/[^\n]*/,
-  group: Lexer.SKIPPED
-});
-const MCOMNT = createToken({
-  name: 'MCOMNT',
-  pattern: /\/\*([^*]|(\*+[^*/]))*\*+\//,
-  group: Lexer.SKIPPED
-});
-
 export const binopTokens = [
   N_COAL,
   EE,
@@ -96,8 +72,35 @@ export const binopTokens = [
   OR,
   IN
 ];
+/* Unary Operator Tokens */
+export const NOT = createToken({ name: 'NOT', pattern: 'not' });
+export const INC = createToken({ name: 'INC', pattern: '++' });
+export const DEC = createToken({ name: 'DEC', pattern: '--' });
 export const postfixUnopTokens = [INC, DEC];
 export const unopTokens = [NOT, ...postfixUnopTokens];
+/* Other Tokens */
+export const LPAREN = createToken({ name: 'LPAREN', pattern: '(' });
+export const RPAREN = createToken({ name: 'RPAREN', pattern: ')' });
+export const SEMI = createToken({ name: 'SEMI', pattern: ';' });
+/* Keywords */
+export const LET = createToken({ name: 'LET', pattern: 'let' });
+const keywords = [LET];
+/* Ignored Tokens */
+const WS = createToken({
+  name: 'WS',
+  pattern: /\s+/,
+  group: Lexer.SKIPPED
+});
+const LCOMNT = createToken({
+  name: 'LCOMNT',
+  pattern: /\/\/[^\n]*/,
+  group: Lexer.SKIPPED
+});
+const MCOMNT = createToken({
+  name: 'MCOMNT',
+  pattern: /\/\*([^*]|(\*+[^*/]))*\*+\//,
+  group: Lexer.SKIPPED
+});
 
 // note we are placing WhiteSpace first as it is very common thus it will speed up the lexer.
 export const allTokens = [
@@ -111,6 +114,7 @@ export const allTokens = [
   INT,
   ...unopTokens,
   ...binopTokens,
+  ...keywords,
   ID,
   LPAREN,
   RPAREN,

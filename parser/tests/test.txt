@@ -3,7 +3,7 @@ b = 0.1;
 c = 1_000;
 d = 1.0 + 2.0i;
 e = "Hello, World!";
-f = 'aaaaaaaaaaaaaaaaa';
+f = 'aaaa/**/aaaaa//aaaaaaaa'; // embed what would be comments in string
 g = a = b;
 h = 1 + 1;
 i = (x * y) + b;
@@ -13,4 +13,11 @@ l = x and y;
 m = x or y;
 n = x in y;
 o = not (x in y);
-p = (not x) in y;
+p = (not /* y */ x) in y /**/;
+//q = not x in y;
+/**/
+/**
+
+*
+
+*/

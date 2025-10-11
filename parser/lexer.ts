@@ -60,6 +60,16 @@ const WS = createToken({
   pattern: /\s+/,
   group: Lexer.SKIPPED
 });
+const LCOMNT = createToken({
+  name: 'LCOMNT',
+  pattern: /\/\/[^\n]*/,
+  group: Lexer.SKIPPED
+});
+const MCOMNT = createToken({
+  name: 'MCOMNT',
+  pattern: /\/\*([^*]|(\*+[^*/]))*\*+\//,
+  group: Lexer.SKIPPED
+});
 
 export const binopTokens = [
   N_COAL,
@@ -90,7 +100,9 @@ export const unopTokens = [NOT, INC, DEC];
 
 // note we are placing WhiteSpace first as it is very common thus it will speed up the lexer.
 export const allTokens = [
+  LCOMNT,
   WS,
+  MCOMNT,
   STRING,
   BOOL,
   CMPX,

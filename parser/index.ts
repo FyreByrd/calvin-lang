@@ -30,7 +30,7 @@ class CalvinPrinter {
 
   expression(expr: Expr, indent: number) {
     if (expr.operator) {
-      console.log(prefix('(' + expr.operator.image, indent));
+      console.log(prefix('(' + expr.operator.image + (expr.reversed ? '!' : ''), indent));
     } else {
       console.log(prefix('(', indent));
     }

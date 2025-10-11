@@ -7,14 +7,14 @@ f = 'aaaa/**/aaaaa//aaaaaaaa'; // embed what would be comments in string
 g = a = b;
 h = 1 + 1;
 i = (x * y) + b;
-j = x * y + b;
-k = x * (y + b);
-l = x and y;
+j = x * y + b++;
+k = x * (y + ++b);
+l = x and ++y++;
 m = x or y;
 n = x in y;
 o = not (x in y);
 p = (not /* y */ x) in y /**/;
-//q = not x in y;
+q = not x in y; // This should be parsed the same as p
 /**/
 /**
 

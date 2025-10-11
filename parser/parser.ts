@@ -5,6 +5,7 @@ export type Expr = {
   value: Value;
   operator?: IToken;
   expr?: Expr;
+  reversed?: boolean;
 };
 export type Value = {
   type: 'constant' | 'id' | 'expr';
@@ -22,9 +23,7 @@ export class CalvinParser extends EmbeddedActionsParser {
   private readonly constant;
 
   constructor() {
-    super(Tokens.allTokens, {
-      maxLookahead: 5
-    });
+    super(Tokens.allTokens);
 
     // eslint-disable-next-line @typescript-eslint/no-this-alias
     const $ = this;
@@ -43,36 +42,45 @@ export class CalvinParser extends EmbeddedActionsParser {
       return expr;
     });
 
-    this.expression = $.RULE('expression', () => {
-      return $.OR([
+    this.expression = $.RULE('expression', (): Expr => {
+      const expr: Expr = { value: $.SUBRULE($.value) };
+      $.OR([
         {
           ALT: () => {
-            const expr = { value: $.SUBRULE($.value) } as Expr;
+            expr.operator = $.OR1([
+              ...Tokens.postfixUnopTokens.map((t) => ({ ALT: () => $.CONSUME(t) }))
+            ]);
+            expr.reversed = true;
+          }
+        },
+        {
+          ALT: () => {
             $.OPTION(() => {
-              expr.operator = $.OR1([
+              expr.operator = $.OR2([
                 ...Tokens.binopTokens.map((t) => ({ ALT: () => $.CONSUME(t) }))
               ]);
               expr.expr = $.SUBRULE($.expression);
               // TODO reorder based on precedence
             });
-            return expr;
-          }
-        },
-        {
-          ALT: () => {
-            // TODO postfix
-            // TODO `not x in y` should be recognized as `(not x) in y`
-            return {
-              operator: $.OR2([...Tokens.unopTokens.map((t) => ({ ALT: () => $.CONSUME(t) }))]),
-              value: $.SUBRULE1($.value)
-            };
           }
         }
       ]);
+      return expr;
     });
 
     this.value = $.RULE('value', (): Value => {
       return $.OR([
+        {
+          ALT: () => {
+            return {
+              type: 'expr',
+              expr: {
+                operator: $.OR1([...Tokens.unopTokens.map((t) => ({ ALT: () => $.CONSUME(t) }))]),
+                value: $.SUBRULE1($.value)
+              }
+            };
+          }
+        },
         {
           ALT: () => {
             return { type: 'constant', const: $.SUBRULE($.constant) };

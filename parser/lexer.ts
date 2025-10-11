@@ -96,7 +96,8 @@ export const binopTokens = [
   OR,
   IN
 ];
-export const unopTokens = [NOT, INC, DEC];
+export const postfixUnopTokens = [INC, DEC];
+export const unopTokens = [NOT, ...postfixUnopTokens];
 
 // note we are placing WhiteSpace first as it is very common thus it will speed up the lexer.
 export const allTokens = [

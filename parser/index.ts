@@ -3,15 +3,13 @@ import { join } from 'path';
 import { CalvinLexer } from './lexer.js';
 import { CalvinParser, type Expr, type Value } from './parser.js';
 
-function leftpad(str: string, len: number, ch?: string) {
-  let i = -1;
-  const _ch = ch || ' ';
-  const _len = len - str.length;
-  let _str = str;
-  while (i++ < _len) {
-    _str = _ch + _str;
+function prefix(str: string, len: number, ch: string = ' ') {
+  let i = 0;
+  let pre = '';
+  while (i++ < len) {
+    pre += ch;
   }
-  return _str;
+  return pre + str;
 }
 
 const parser = new CalvinParser();
@@ -21,7 +19,7 @@ class CalvinPrinter {
   file(statements: Expr[]) {
     console.log('(');
     for (const stmt of statements) {
-      this.statement(stmt, 1);
+      this.statement(stmt, 2);
     }
     console.log(')');
   }
@@ -32,27 +30,27 @@ class CalvinPrinter {
 
   expression(expr: Expr, indent: number) {
     if (expr.operator) {
-      console.log(leftpad('(' + expr.operator.image, indent));
+      console.log(prefix('(' + expr.operator.image, indent));
     } else {
-      console.log(leftpad('(', indent));
+      console.log(prefix('(', indent));
     }
     this.value(expr.value, indent + 2);
     if (expr.expr) {
       this.expression(expr.expr, indent + 2);
     }
-    console.log(leftpad(')', indent));
+    console.log(prefix(')', indent));
   }
 
   value(val: Value, indent: number) {
     switch (val.type) {
       case 'constant':
-        console.log(leftpad(val.const.image, indent));
+        console.log(prefix(val.const.image, indent));
         break;
       case 'expr':
         this.expression(val.expr, indent + 2);
         break;
       case 'id':
-        console.log(leftpad(val.id.image, indent));
+        console.log(prefix(val.id.image, indent));
         break;
     }
   }

@@ -6,6 +6,7 @@ export enum TypeClasses {
   Real,
   Complex,
   Boolean,
+  Binary,
   String,
   Never
 }

@@ -8,13 +8,16 @@ export const STRING = createToken({
 });
 export const BOOL = createToken({ name: 'BOOL', pattern: /true|false/ });
 const digits = /0|[1-9]([\d_]+\d|\d)?/;
-const base10 = RegExp(`(\\+|-)?(${digits.source})`);
+export const INT = createToken({
+  name: 'INT',
+  pattern: RegExp(`(\\+|-)?(${digits.source})`)
+});
 const base16 = /0x([0-9a-fA-F][0-9a-fA-F_]*[0-9a-fA-F]|[0-9a-fA-F])/;
 const base8 = /0o([0-7][0-7_]*[0-7]|[0-7])/;
 const base2 = /0b([01][01_]*[01]|[01])/;
-export const INT = createToken({
-  name: 'INT',
-  pattern: RegExp(`(${base10.source})|(${base16.source})|(${base8.source})|(${base2.source})`)
+export const BIN = createToken({
+  name: 'BIN',
+  pattern: RegExp(`(${base16.source})|(${base8.source})|(${base2.source})`)
 });
 const real = RegExp(`((\\+|-)?((${digits.source})\\.\\d+|inf)|NaN)`);
 export const CMPX = createToken({
@@ -26,7 +29,7 @@ export const ID = createToken({ name: 'ID', pattern: /[a-zA-Z_][a-zA-Z_\d]*/ });
 /* Type Tokens */
 export const BASIC_TYPE = createToken({
   name: 'BASIC_TYPE',
-  pattern: /bool|(i|u)(8|16|32|64)|(r|x)(32|64)|string/
+  pattern: /bool|(i|u|b)(8|16|32|64)|(r|x)(32|64)|string/
 });
 /* Binary Operator Tokens */
 export const N_COAL = createToken({ name: 'N_COAL', pattern: '??' });
@@ -118,6 +121,7 @@ export const allTokens = [
   CMPX,
   REAL,
   INT,
+  BIN,
   ...unopTokens,
   ...binopTokens,
   ...keywords,

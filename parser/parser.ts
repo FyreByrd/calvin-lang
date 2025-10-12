@@ -242,6 +242,8 @@ export class CalvinParser extends EmbeddedActionsParser {
                 return TypeClasses.Real;
               case Tokens.INT:
                 return TypeClasses.Integral;
+              case Tokens.BIN:
+                return TypeClasses.Binary;
               case Tokens.STRING:
                 return TypeClasses.String;
               default:
@@ -267,7 +269,7 @@ export class CalvinParser extends EmbeddedActionsParser {
             case 'r':
               return TypeClasses.Real;
             case 'b':
-              return TypeClasses.Boolean;
+              return t[1] === 'o' ? TypeClasses.Boolean : TypeClasses.Binary;
             case 's':
               return TypeClasses.String;
             default:

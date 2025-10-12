@@ -1,5 +1,6 @@
 import { EmbeddedActionsParser, type IToken } from 'chevrotain';
 import * as Tokens from './lexer.js';
+import { type Meta, TypeClasses, scope } from './semantics.js';
 
 export type Stmt = {
   type: 'expr' | 'decl';
@@ -7,10 +8,12 @@ export type Stmt = {
 
 export type Decl = {
   id: IToken;
+  meta: Meta;
   expr?: Expr;
 };
 
 export type Expr = {
+  meta: Meta;
   value: Value;
   operator?: IToken;
   expr?: Expr;
@@ -18,11 +21,10 @@ export type Expr = {
 };
 export type Value = {
   type: 'constant' | 'id' | 'expr';
-  // TODO return types
 } & (
-  | { type: 'constant'; const: IToken }
-  | { type: 'id'; id: IToken }
-  | { type: 'expr'; expr: Expr }
+  | { type: 'constant'; const: IToken; meta: Meta }
+  | { type: 'id'; id: IToken; meta: Meta }
+  | ({ type: 'expr' } & Expr)
 );
 export class CalvinParser extends EmbeddedActionsParser {
   public readonly file;
@@ -31,9 +33,14 @@ export class CalvinParser extends EmbeddedActionsParser {
   private readonly expression;
   private readonly value;
   private readonly constant;
+  private readonly type;
+  public hasErrors: boolean;
+  public hasWarnings: boolean;
 
   constructor() {
     super(Tokens.allTokens);
+    this.hasErrors = false;
+    this.hasWarnings = false;
 
     // eslint-disable-next-line @typescript-eslint/no-this-alias
     const $ = this;
@@ -69,17 +76,54 @@ export class CalvinParser extends EmbeddedActionsParser {
     });
 
     this.declaration = $.RULE('declaration', (): Decl => {
+      const id = $.CONSUME(Tokens.ID);
+      const t = $.OPTION(() => {
+        $.CONSUME(Tokens.COLON);
+        return $.SUBRULE($.type);
+      });
+      const expr = $.OPTION1(() => {
+        $.CONSUME(Tokens.EQU);
+        return $.SUBRULE($.expression);
+      });
+      const meta =
+        t ?? expr?.meta ?? ({ source: id, returnType: TypeClasses.Unknown } satisfies Meta);
+      $.ACTION(() => {
+        const existing = scope.get(id.image);
+        if (existing) {
+          $.hasErrors = true;
+          console.error(
+            `variable ${id.image} originally defined on line ${existing.tok.startLine}, redefined on line ${id.startLine}!`
+          );
+        }
+        if (t && expr?.meta) {
+          if (t.returnType !== expr.meta.returnType) {
+            // TODO type resolution algorithm
+            $.hasErrors = true;
+            console.error(
+              `type declaration on line ${t.source.startLine} does not match assignment on line ${expr.meta.source.startLine}`
+            );
+          }
+        } else if (!t && !expr?.meta) {
+          $.hasWarnings = true;
+          console.warn(
+            `Type inference failed for ${id.image} on line ${id.startLine}, assigned type = unknown`
+          );
+        }
+        if (!existing) {
+          scope.set(id.image, { tok: id, meta });
+        }
+      });
       return {
-        id: $.CONSUME(Tokens.ID),
-        expr: $.OPTION(() => {
-          $.CONSUME(Tokens.EQU);
-          return $.SUBRULE($.expression);
-        })
+        id,
+        meta,
+        expr
       };
     });
 
     this.expression = $.RULE('expression', (): Expr => {
-      const expr: Expr = { value: $.SUBRULE($.value) };
+      const value = $.SUBRULE($.value);
+      // TODO value operator mismatch
+      const expr: Expr = { value, meta: value.meta };
       $.OR([
         {
           ALT: () => {
@@ -108,23 +152,41 @@ export class CalvinParser extends EmbeddedActionsParser {
       return $.OR([
         {
           ALT: () => {
+            const operator = $.OR1([
+              ...Tokens.unopTokens.map((t) => ({ ALT: () => $.CONSUME(t) }))
+            ]);
+            // TODO value operator mismatch
+            const value = $.SUBRULE1($.value);
             return {
               type: 'expr',
-              expr: {
-                operator: $.OR1([...Tokens.unopTokens.map((t) => ({ ALT: () => $.CONSUME(t) }))]),
-                value: $.SUBRULE1($.value)
+              operator,
+              value,
+              meta: value.meta
+            } satisfies Value;
+          }
+        },
+        {
+          ALT: () => {
+            return { type: 'constant', ...$.SUBRULE($.constant) } satisfies Value;
+          }
+        },
+        {
+          ALT: () => {
+            const id = $.CONSUME(Tokens.ID);
+            let meta: Meta | undefined = undefined;
+            $.ACTION(() => {
+              const existing = scope.get(id.image);
+              if (!existing) {
+                $.hasErrors = true;
+                console.error(`undeclared variable ${id.image} used on line ${id.startLine}`);
               }
-            };
-          }
-        },
-        {
-          ALT: () => {
-            return { type: 'constant', const: $.SUBRULE($.constant) };
-          }
-        },
-        {
-          ALT: () => {
-            return { type: 'id', id: $.CONSUME(Tokens.ID) };
+              meta = existing?.meta;
+            });
+            return {
+              type: 'id',
+              id,
+              meta: meta ?? { source: id, returnType: TypeClasses.Unknown }
+            } satisfies Value;
           }
         },
         {
@@ -132,14 +194,14 @@ export class CalvinParser extends EmbeddedActionsParser {
             $.CONSUME(Tokens.LPAREN);
             const expr = $.SUBRULE($.expression);
             $.CONSUME(Tokens.RPAREN);
-            return { type: 'expr', expr };
+            return { type: 'expr', ...expr } satisfies Value;
           }
         }
       ]);
     });
 
     this.constant = $.RULE('constant', () => {
-      return $.OR([
+      const tok = $.OR([
         {
           ALT: () => {
             return $.CONSUME(Tokens.BOOL);
@@ -166,6 +228,53 @@ export class CalvinParser extends EmbeddedActionsParser {
           }
         }
       ]);
+      const ret = {
+        const: tok,
+        meta: {
+          source: tok,
+          returnType: [tok].map((t) => {
+            switch (tok.tokenType) {
+              case Tokens.BOOL:
+                return TypeClasses.Boolean;
+              case Tokens.CMPX:
+                return TypeClasses.Complex;
+              case Tokens.REAL:
+                return TypeClasses.Real;
+              case Tokens.INT:
+                return TypeClasses.Integral;
+              case Tokens.STRING:
+                return TypeClasses.String;
+              default:
+                return TypeClasses.Unknown;
+            }
+          })[0]!
+        }
+      };
+      return ret;
+    });
+
+    this.type = $.RULE('type', (): Meta => {
+      const source = $.CONSUME(Tokens.BASIC_TYPE);
+      return {
+        source,
+        returnType: [source.image].map((t) => {
+          switch (t[0]) {
+            case 'i':
+            case 'u':
+              return TypeClasses.Integral;
+            case 'x':
+              return TypeClasses.Complex;
+            case 'r':
+              return TypeClasses.Real;
+            case 'b':
+              return TypeClasses.Boolean;
+            case 's':
+              return TypeClasses.String;
+            default:
+              return TypeClasses.Unknown;
+          }
+        })[0]!
+      };
     });
 
     this.performSelfAnalysis();

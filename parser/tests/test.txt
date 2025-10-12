@@ -1,20 +1,20 @@
-let a = true;
-let b = 0.1;
-let c = 1_000;
-let d = 1.0 + 2.0i;
-let e = "Hello, World!";
+let a = true; // bool
+let b = 0.1;  // r64
+let c: i16 = 1_000; // i16
+let d = 1.0 + 2.0i; // x64
+let e = "Hello, World!"; // string
 let f = 'aaaa/**/aaaaa//aaaaaaaa'; // embed what would be comments in string
-let g = a = b;
-let h = 1 + 1;
-let i = (x * y) + b;
-let j = x * y + b++;
-let k = x * (y + ++b);
-let l = x and ++y++;
-let m = x or y;
-let n = x in y;
-let o = not (x in y);
-let p = (not /* y */ x) in y /**/;
-let q = not x in y; // This should be parsed the same as p
+let g = a = b; // never
+let h: u8 = 1 + 1; // u8
+let i = (x * y) + b; // unknown
+let j = x * y + b++; // unknown
+let k = x * (y + ++b); // unknown
+let l = x and ++y++; // unknown
+let m = x or y; // unknown
+let n = x in y; // unknown
+let o = not (x in y); // unknown
+let p = (not /* y */ x) in y /**/; // unknown
+let q = not x in y; // This should be parsed the same as p // unknown
 /**/
 /**
 

@@ -23,6 +23,11 @@ export const CMPX = createToken({
 });
 export const REAL = createToken({ name: 'REAL', pattern: real });
 export const ID = createToken({ name: 'ID', pattern: /[a-zA-Z_][a-zA-Z_\d]*/ });
+/* Type Tokens */
+export const BASIC_TYPE = createToken({
+  name: 'BASIC_TYPE',
+  pattern: /bool|(i|u)(8|16|32|64)|(r|x)(32|64)|string/
+});
 /* Binary Operator Tokens */
 export const N_COAL = createToken({ name: 'N_COAL', pattern: '??' });
 export const EE = createToken({ name: 'EE', pattern: '==' });
@@ -82,6 +87,7 @@ export const unopTokens = [NOT, ...postfixUnopTokens];
 export const LPAREN = createToken({ name: 'LPAREN', pattern: '(' });
 export const RPAREN = createToken({ name: 'RPAREN', pattern: ')' });
 export const SEMI = createToken({ name: 'SEMI', pattern: ';' });
+export const COLON = createToken({ name: 'COLON', pattern: ':' });
 /* Keywords */
 export const LET = createToken({ name: 'LET', pattern: 'let' });
 const keywords = [LET];
@@ -115,10 +121,12 @@ export const allTokens = [
   ...unopTokens,
   ...binopTokens,
   ...keywords,
+  BASIC_TYPE,
   ID,
   LPAREN,
   RPAREN,
-  SEMI
+  SEMI,
+  COLON
 ];
 
 export const CalvinLexer = new Lexer(allTokens);

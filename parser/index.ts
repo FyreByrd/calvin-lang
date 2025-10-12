@@ -2,6 +2,7 @@ import { readFileSync } from 'fs';
 import { join } from 'path';
 import { CalvinLexer } from './lexer.js';
 import { CalvinParser, type Decl, type Expr, type Stmt, type Value } from './parser.js';
+import { scope } from './semantics.js';
 
 function prefix(str: string, len: number, ch: string = ' ') {
   let i = 0;
@@ -59,7 +60,7 @@ class CalvinPrinter {
         console.log(prefix(val.const.image, indent));
         break;
       case 'expr':
-        this.expression(val.expr, indent + 2);
+        this.expression(val, indent + 2);
         break;
       case 'id':
         console.log(prefix(val.id.image, indent));
@@ -85,6 +86,11 @@ function parseInput(text: string) {
 
   //console.log(JSON.stringify(output, null, 4));
   printer.file(output);
+  scope.values().forEach((v) => {
+    console.log(
+      `${v.tok.image} on line ${v.tok.startLine} = ${v.meta.returnType} (from ${v.meta.source.image} on line ${v.meta.source.startLine})`
+    );
+  });
 }
 
 const file = readFileSync(join(import.meta.dirname, './tests/test.txt'));

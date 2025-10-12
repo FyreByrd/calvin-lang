@@ -34,13 +34,30 @@ export class CalvinParser extends EmbeddedActionsParser {
   private readonly value;
   private readonly constant;
   private readonly type;
-  public hasErrors: boolean;
-  public hasWarnings: boolean;
+  private _hasErrors: boolean;
+  private _hasWarnings: boolean;
+
+  get hasErrors() {
+    return this._hasErrors;
+  }
+  get hasWarnings() {
+    return this._hasWarnings;
+  }
+
+  warn(msg: string) {
+    this._hasWarnings = true;
+    console.warn('\x1b[33mWarning: %s\x1b[0m', msg);
+  }
+
+  error(msg: string) {
+    this._hasErrors = true;
+    console.error('\x1b[31mError: %s\x1b[0m', msg);
+  }
 
   constructor() {
     super(Tokens.allTokens);
-    this.hasErrors = false;
-    this.hasWarnings = false;
+    this._hasErrors = false;
+    this._hasWarnings = false;
 
     // eslint-disable-next-line @typescript-eslint/no-this-alias
     const $ = this;
@@ -90,22 +107,19 @@ export class CalvinParser extends EmbeddedActionsParser {
       $.ACTION(() => {
         const existing = scope.get(id.image);
         if (existing) {
-          $.hasErrors = true;
-          console.error(
+          $.error(
             `variable ${id.image} originally defined on line ${existing.tok.startLine}, redefined on line ${id.startLine}!`
           );
         }
         if (t && expr?.meta) {
           if (t.returnType !== expr.meta.returnType) {
             // TODO type resolution algorithm
-            $.hasErrors = true;
-            console.error(
+            $.error(
               `type declaration on line ${t.source.startLine} does not match assignment on line ${expr.meta.source.startLine}`
             );
           }
         } else if (!t && !expr?.meta) {
-          $.hasWarnings = true;
-          console.warn(
+          $.warn(
             `Type inference failed for ${id.image} on line ${id.startLine}, assigned type = unknown`
           );
         }
@@ -177,8 +191,7 @@ export class CalvinParser extends EmbeddedActionsParser {
             $.ACTION(() => {
               const existing = scope.get(id.image);
               if (!existing) {
-                $.hasErrors = true;
-                console.error(`undeclared variable ${id.image} used on line ${id.startLine}`);
+                $.error(`undeclared variable ${id.image} used on line ${id.startLine}`);
               }
               meta = existing?.meta;
             });

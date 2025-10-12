@@ -185,7 +185,7 @@ export class CalvinParser extends EmbeddedActionsParser {
             return {
               type: 'id',
               id,
-              meta: meta ?? { source: id, returnType: TypeClasses.Unknown }
+              meta: meta ?? { source: id, returnType: TypeClasses.Never }
             } satisfies Value;
           }
         },

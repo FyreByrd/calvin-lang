@@ -111,6 +111,8 @@ const MCOMNT = createToken({
   group: Lexer.SKIPPED
 });
 
+const ERROR = createToken({ name: 'LEFTOVER', pattern: /./ });
+
 // note we are placing WhiteSpace first as it is very common thus it will speed up the lexer.
 export const allTokens = [
   LCOMNT,
@@ -130,7 +132,8 @@ export const allTokens = [
   LPAREN,
   RPAREN,
   SEMI,
-  COLON
+  COLON,
+  ERROR
 ];
 
 export const CalvinLexer = new Lexer(allTokens);

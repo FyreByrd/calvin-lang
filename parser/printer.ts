@@ -27,6 +27,39 @@ export class CalvinPrinter {
         break;
       case 'empty':
         break;
+      case 'if':
+        tree('if (', indent);
+        if (stmt.pred.type === 'decl') {
+          this.declaration(stmt.pred, indent + 2);
+        } else {
+          this.expression(stmt.pred, indent + 2);
+        }
+        tree(') {', indent);
+        for (const s2 of stmt.body) {
+          this.statement(s2, indent + 2);
+        }
+        tree('}', indent);
+        for (const elif of stmt.alts) {
+          tree('elif (', indent);
+          if (elif.pred.type === 'decl') {
+            this.declaration(elif.pred, indent + 2);
+          } else {
+            this.expression(elif.pred, indent + 2);
+          }
+          tree(') {', indent);
+          for (const s2 of elif.body) {
+            this.statement(s2, indent + 2);
+          }
+          tree('}', indent);
+        }
+        if (stmt.else) {
+          tree('else {', indent);
+          for (const s2 of stmt.else) {
+            this.statement(s2, indent + 2);
+          }
+          tree('}', indent);
+        }
+        break;
       default:
         error(`Unhandled debug stmt ${stmt}`);
         break;

@@ -22,6 +22,12 @@ let q = not x in y; // This should be parsed the same as p // unknown
 }
 ;;;
 let r = 2; // should not warn
+if (r > 3) {}
+elif (let s = 0) {}
+else {
+    let r = 3; // should warn
+    let s = 1;
+}
 /**/
 /**
 

@@ -128,7 +128,11 @@ export const SEMI = createToken({ name: 'SEMI', pattern: ';' });
 export const COLON = createToken({ name: 'COLON', pattern: ':' });
 /* Keywords */
 export const LET = createToken({ name: 'LET', pattern: 'let' });
-const keywords = [LET];
+// Selection
+export const IF = createToken({ name: 'IF', pattern: 'if' });
+export const ELIF = createToken({ name: 'ELIF', pattern: 'elif' });
+export const ELSE = createToken({ name: 'ELSE', pattern: 'else' });
+const keywords = [LET, IF, ELIF, ELSE];
 /* Ignored Tokens */
 const WS = createToken({
   name: 'WS',

@@ -4,11 +4,13 @@ import { error, warn } from './logging.js';
 import { type Meta, Scope, TypeClasses } from './semantics.js';
 
 export type Stmt =
-  | ({
-      type: 'expr' | 'decl' | 'body' | 'empty';
-    } & (({ type: 'expr' } & Expr) | ({ type: 'decl' } & Decl)))
+  | IfPred
   | { type: 'body'; body: Stmt[] }
-  | { type: 'empty' };
+  | { type: 'empty' }
+  | ({ type: 'if'; alts: IfStmt[]; else?: Stmt[] } & IfStmt);
+
+type IfPred = ({ type: 'expr' } & Expr) | ({ type: 'decl' } & Decl);
+type IfStmt = { pred: IfPred; body: Stmt[] };
 
 export type Decl = {
   id: IToken;
@@ -33,6 +35,8 @@ export type Value = {
 export class CalvinParser extends EmbeddedActionsParser {
   public readonly file;
   private readonly statement;
+  private readonly ifStatement;
+  private readonly body;
   private readonly declaration;
   private readonly expression;
   private readonly value;
@@ -80,7 +84,7 @@ export class CalvinParser extends EmbeddedActionsParser {
     });
 
     this.statement = $.RULE('statement', (): Stmt => {
-      const stmt = $.OR([
+      return $.OR([
         {
           ALT: () => {
             const ret = $.OPTION(
@@ -109,23 +113,78 @@ export class CalvinParser extends EmbeddedActionsParser {
         },
         {
           ALT: () => {
-            $.CONSUME(Tokens.LCURLY);
-            $.ACTION(() => {
-              $._scope = $.scope.createChild('{anonymous body}');
-            });
-            const res: Stmt[] = [];
+            $.CONSUME(Tokens.IF);
+
+            const { pred, body } = $.SUBRULE1($.ifStatement);
+
+            const alts: IfStmt[] = [];
+
             $.MANY(() => {
-              res.push($.SUBRULE($.statement));
+              $.CONSUME(Tokens.ELIF);
+              alts.push($.SUBRULE2($.ifStatement));
             });
-            $.CONSUME(Tokens.RCURLY);
-            $.ACTION(() => {
-              $._scope = $._scope.parent!;
+
+            const optElse = $.OPTION1(() => {
+              $.CONSUME(Tokens.ELSE);
+              return $.SUBRULE3($.body);
             });
-            return { type: 'body', body: res };
+
+            return {
+              type: 'if',
+              pred,
+              body,
+              alts,
+              else: optElse?.body
+            } satisfies Stmt;
           }
+        },
+        {
+          ALT: () => $.SUBRULE($.body)
+        }
+      ]) satisfies Stmt;
+    });
+
+    this.ifStatement = $.RULE('ifStatement', () => {
+      $.CONSUME(Tokens.LPAREN);
+      $.ACTION(() => {
+        $._scope = $.scope.createChild('if');
+      });
+      const pred = $.OR<IfPred>([
+        {
+          ALT: () => {
+            $.CONSUME(Tokens.LET);
+            return { type: 'decl', ...$.SUBRULE($.declaration) };
+          }
+        },
+        {
+          ALT: () => ({ type: 'expr', ...$.SUBRULE($.expression) })
         }
       ]);
-      return stmt;
+      $.CONSUME(Tokens.RPAREN);
+
+      const { body } = $.SUBRULE($.body);
+
+      $.ACTION(() => {
+        $._scope = $.scope.parent!;
+      });
+
+      return { pred, body } satisfies IfStmt;
+    });
+
+    this.body = $.RULE('body', () => {
+      $.CONSUME(Tokens.LCURLY);
+      $.ACTION(() => {
+        $._scope = $.scope.createChild('{anonymous body}');
+      });
+      const body: Stmt[] = [];
+      $.MANY(() => {
+        body.push($.SUBRULE($.statement));
+      });
+      $.CONSUME(Tokens.RCURLY);
+      $.ACTION(() => {
+        $._scope = $._scope.parent!;
+      });
+      return { type: 'body', body };
     });
 
     this.declaration = $.RULE('declaration', (): Decl => {

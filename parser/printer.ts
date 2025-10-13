@@ -4,10 +4,14 @@ import { type Decl, type Expr, type Stmt, type Value } from './parser.js';
 export class CalvinPrinter {
   file(statements: Stmt[]) {
     tree('(', 0);
-    for (const stmt of statements) {
-      this.statement(stmt, 2);
-    }
+    this.statement_list(statements, 2);
     tree(')', 0);
+  }
+
+  statement_list(statements: Stmt[], indent: number) {
+    for (const stmt of statements) {
+      this.statement(stmt, indent);
+    }
   }
 
   statement(stmt: Stmt, indent: number) {
@@ -17,9 +21,7 @@ export class CalvinPrinter {
         break;
       case 'body':
         tree('{', indent);
-        for (const s2 of stmt.body) {
-          this.statement(s2, indent + 2);
-        }
+        this.statement_list(stmt.body, indent + 2);
         tree('}', indent);
         break;
       case 'expr':
@@ -35,9 +37,7 @@ export class CalvinPrinter {
           this.expression(stmt.pred, indent + 2);
         }
         tree(') {', indent);
-        for (const s2 of stmt.body) {
-          this.statement(s2, indent + 2);
-        }
+        this.statement_list(stmt.body, indent + 2);
         tree('}', indent);
         for (const elif of stmt.alts) {
           tree('elif (', indent);
@@ -47,16 +47,31 @@ export class CalvinPrinter {
             this.expression(elif.pred, indent + 2);
           }
           tree(') {', indent);
-          for (const s2 of elif.body) {
-            this.statement(s2, indent + 2);
-          }
+          this.statement_list(elif.body, indent + 2);
           tree('}', indent);
         }
         if (stmt.else) {
           tree('else {', indent);
-          for (const s2 of stmt.else) {
-            this.statement(s2, indent + 2);
-          }
+          this.statement_list(stmt.else, indent + 2);
+          tree('}', indent);
+        }
+        break;
+      case 'while':
+        if (stmt.do) {
+          tree('do {', indent);
+          this.statement_list(stmt.do, indent + 2);
+          tree('} while (', indent);
+        } else {
+          tree('while (', indent);
+        }
+        this.expression(stmt.pred, indent + 2);
+        tree(') {', indent);
+        this.statement_list(stmt.while, indent + 2);
+        if (stmt.finally) {
+          tree('} finally {', indent);
+          this.statement_list(stmt.finally, indent + 2);
+          tree('}', indent);
+        } else {
           tree('}', indent);
         }
         break;

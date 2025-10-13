@@ -28,6 +28,14 @@ else {
     let r = 3; // should warn
     let s = 1;
 }
+do {}
+while (x < 3);
+while (y > 4) {
+
+} finally {
+    
+}
+do {} while(true) {}
 /**/
 /**
 

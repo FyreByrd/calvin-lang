@@ -132,7 +132,11 @@ export const LET = createToken({ name: 'LET', pattern: 'let' });
 export const IF = createToken({ name: 'IF', pattern: 'if' });
 export const ELIF = createToken({ name: 'ELIF', pattern: 'elif' });
 export const ELSE = createToken({ name: 'ELSE', pattern: 'else' });
-const keywords = [LET, IF, ELIF, ELSE];
+// Loops
+export const DO = createToken({ name: 'DO', pattern: 'do' });
+export const WHILE = createToken({ name: 'WHILE', pattern: 'while' });
+export const FINALLY = createToken({ name: 'FINALLY', pattern: 'finally' });
+const keywords = [LET, IF, ELIF, ELSE, DO, WHILE, FINALLY];
 /* Ignored Tokens */
 const WS = createToken({
   name: 'WS',

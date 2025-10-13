@@ -7,7 +7,8 @@ export type Stmt =
   | IfPred
   | { type: 'body'; body: Stmt[] }
   | { type: 'empty' }
-  | ({ type: 'if'; alts: IfStmt[]; else?: Stmt[] } & IfStmt);
+  | ({ type: 'if'; alts: IfStmt[]; else?: Stmt[] } & IfStmt)
+  | { type: 'while'; do?: Stmt[]; pred: Expr; while: Stmt[]; finally?: Stmt[] };
 
 type IfPred = ({ type: 'expr' } & Expr) | ({ type: 'decl' } & Decl);
 type IfStmt = { pred: IfPred; body: Stmt[] };
@@ -136,6 +137,47 @@ export class CalvinParser extends EmbeddedActionsParser {
               alts,
               else: optElse?.body
             } satisfies Stmt;
+          }
+        },
+        {
+          ALT: () => {
+            const _do = $.OPTION2(() => {
+              $.CONSUME(Tokens.DO);
+              return $.SUBRULE4($.body, { ARGS: [true, 'do'] });
+            });
+
+            $.CONSUME(Tokens.WHILE);
+            $.ACTION(() => {
+              $._scope = $.scope.createChild('while');
+            });
+            const pred = $.SUBRULE2($.expression);
+            const _while = $.OR2([
+              {
+                ALT: () => {
+                  $.CONSUME2(Tokens.SEMI);
+                  return { type: 'body', body: [] };
+                }
+              },
+              {
+                ALT: () => $.SUBRULE5($.body, { ARGS: [false] })
+              }
+            ]);
+            $.ACTION(() => {
+              $._scope = $.scope.parent!;
+            });
+
+            const _finally = $.OPTION3(() => {
+              $.CONSUME(Tokens.FINALLY);
+              return $.SUBRULE6($.body, { ARGS: [true, 'finally'] });
+            });
+
+            return {
+              type: 'while',
+              do: _do?.body,
+              pred,
+              while: _while.body,
+              finally: _finally?.body
+            };
           }
         },
         {

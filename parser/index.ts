@@ -3,26 +3,18 @@ import { join } from 'path';
 import { CalvinLexer } from './lexer.js';
 import { CalvinParser, type Decl, type Expr, type Stmt, type Value } from './parser.js';
 import { scope } from './semantics.js';
-
-function prefix(str: string, len: number, ch: string = ' ') {
-  let i = 0;
-  let pre = '';
-  while (i++ < len) {
-    pre += ch;
-  }
-  return pre + str;
-}
+import { error, tree } from './printers.js';
 
 const parser = new CalvinParser();
 
 // ----------------- Printer -----------------
 class CalvinPrinter {
   file(statements: Stmt[]) {
-    console.log('(');
+    tree('(', 0);
     for (const stmt of statements) {
       this.statement(stmt, 2);
     }
-    console.log(')');
+    tree(')', 0);
   }
 
   statement(stmt: Stmt, indent: number) {
@@ -34,36 +26,36 @@ class CalvinPrinter {
   }
 
   declaration(decl: Decl, indent: number) {
-    console.log(prefix(`let ${decl.id.image}${decl.expr ? ' = (' : ''}`, indent));
+    tree(`let ${decl.id.image}${decl.expr ? ' = (' : ''}`, indent);
     if (decl.expr) {
       this.expression(decl.expr, indent + 2);
-      console.log(prefix(')', indent));
+      tree(')', indent);
     }
   }
 
   expression(expr: Expr, indent: number) {
     if (expr.operator) {
-      console.log(prefix('(' + expr.operator.image + (expr.reversed ? '!' : ''), indent));
+      tree('(' + expr.operator.image + (expr.reversed ? '!' : ''), indent);
     } else {
-      console.log(prefix('(', indent));
+      tree('(', indent);
     }
     this.value(expr.value, indent + 2);
     if (expr.expr) {
       this.expression(expr.expr, indent + 2);
     }
-    console.log(prefix(')', indent));
+    tree(')', indent);
   }
 
   value(val: Value, indent: number) {
     switch (val.type) {
       case 'constant':
-        console.log(prefix(val.const.image, indent));
+        tree(val.const.image, indent);
         break;
       case 'expr':
         this.expression(val, indent + 2);
         break;
       case 'id':
-        console.log(prefix(val.id.image, indent));
+        tree(val.id.image, indent);
         break;
     }
   }
@@ -79,12 +71,11 @@ function parseInput(text: string) {
 
   if (parser.errors.length > 0) {
     for (const err of parser.errors) {
-      console.log(err);
+      error(err.message);
     }
     throw Error();
   }
 
-  //console.log(JSON.stringify(output, null, 4));
   printer.file(output);
   scope.values().forEach((v) => {
     console.log(

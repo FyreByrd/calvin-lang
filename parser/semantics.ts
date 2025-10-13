@@ -83,7 +83,12 @@ export class Scope {
   }
 
   public print(indent: number = 0) {
-    debug(prefix(`SCOPE: ${this.name} (parent: ${this.parent?.name ?? 'None'})`, indent));
+    debug(
+      prefix(
+        `SCOPE: ${this.name} (parent: ${this.parent?.name ?? 'None'}, symbols: ${this.map.size}, children: ${this.children.length})`,
+        indent
+      )
+    );
     this.map.values().forEach((v) => {
       debug(
         prefix(

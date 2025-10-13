@@ -1,5 +1,5 @@
 import type { IToken } from 'chevrotain';
-import { debug, prefix } from './printers.js';
+import { debug, prefix } from './logging.js';
 
 export enum TypeClasses {
   Unknown,

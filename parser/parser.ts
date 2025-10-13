@@ -1,6 +1,6 @@
 import { EmbeddedActionsParser, type IToken } from 'chevrotain';
 import * as Tokens from './lexer.js';
-import { error, warn } from './printers.js';
+import { error, warn } from './logging.js';
 import { type Meta, Scope, TypeClasses } from './semantics.js';
 
 export type Stmt =

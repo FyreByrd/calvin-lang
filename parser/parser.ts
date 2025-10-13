@@ -5,9 +5,10 @@ import { type Meta, Scope, TypeClasses } from './semantics.js';
 
 export type Stmt =
   | ({
-      type: 'expr' | 'decl' | 'body';
+      type: 'expr' | 'decl' | 'body' | 'empty';
     } & (({ type: 'expr' } & Expr) | ({ type: 'decl' } & Decl)))
-  | { type: 'body'; body: Stmt[] };
+  | { type: 'body'; body: Stmt[] }
+  | { type: 'empty' };
 
 export type Decl = {
   id: IToken;
@@ -82,18 +83,29 @@ export class CalvinParser extends EmbeddedActionsParser {
       const stmt = $.OR([
         {
           ALT: () => {
-            $.CONSUME(Tokens.LET);
-            return {
-              type: 'decl',
-              ...$.SUBRULE($.declaration)
-            };
+            const ret = $.OPTION(
+              (): Stmt =>
+                $.OR1([
+                  {
+                    ALT: () => {
+                      $.CONSUME(Tokens.LET);
+                      return {
+                        type: 'decl',
+                        ...$.SUBRULE($.declaration)
+                      };
+                    }
+                  },
+                  {
+                    ALT: () => ({
+                      type: 'expr',
+                      ...$.SUBRULE($.expression)
+                    })
+                  }
+                ])
+            );
+            $.CONSUME(Tokens.SEMI);
+            return (ret ?? { type: 'empty' }) satisfies Stmt;
           }
-        },
-        {
-          ALT: () => ({
-            type: 'expr',
-            ...$.SUBRULE($.expression)
-          })
         },
         {
           ALT: () => {
@@ -113,7 +125,6 @@ export class CalvinParser extends EmbeddedActionsParser {
           }
         }
       ]);
-      $.CONSUME(Tokens.SEMI);
       return stmt;
     });
 

@@ -1,4 +1,4 @@
-import { tree } from './logging.js';
+import { error, tree } from './logging.js';
 import { type Decl, type Expr, type Stmt, type Value } from './parser.js';
 
 export class CalvinPrinter {
@@ -11,16 +11,25 @@ export class CalvinPrinter {
   }
 
   statement(stmt: Stmt, indent: number) {
-    if (stmt.type === 'decl') {
-      this.declaration(stmt, indent);
-    } else if (stmt.type === 'body') {
-      tree('{', indent);
-      for (const s2 of stmt.body) {
-        this.statement(s2, indent + 2);
-      }
-      tree('}', indent);
-    } else {
-      this.expression(stmt, indent);
+    switch (stmt.type) {
+      case 'decl':
+        this.declaration(stmt, indent);
+        break;
+      case 'body':
+        tree('{', indent);
+        for (const s2 of stmt.body) {
+          this.statement(s2, indent + 2);
+        }
+        tree('}', indent);
+        break;
+      case 'expr':
+        this.expression(stmt, indent);
+        break;
+      case 'empty':
+        break;
+      default:
+        error(`Unhandled debug stmt ${stmt}`);
+        break;
     }
   }
 
@@ -55,6 +64,9 @@ export class CalvinPrinter {
         break;
       case 'id':
         tree(val.id.image, indent);
+        break;
+      default:
+        error(`Unhandled debug value ${val}`);
         break;
     }
   }

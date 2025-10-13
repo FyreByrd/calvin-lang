@@ -18,7 +18,8 @@ let q = not x in y; // This should be parsed the same as p // unknown
 {
     let q = 1; // should warn
     let r = 2;
-};
+}
+;;;
 let r = 2; // should not warn
 /**/
 /**

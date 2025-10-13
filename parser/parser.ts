@@ -234,11 +234,11 @@ export class CalvinParser extends EmbeddedActionsParser {
             const id = $.CONSUME(Tokens.ID);
             let meta: Meta | undefined = undefined;
             $.ACTION(() => {
-              const existing = this.scope.get(id.image);
+              const existing = this.scope.search(id.image);
               if (!existing) {
                 $.error(`undeclared variable ${id.image} used on line ${id.startLine}`);
               }
-              meta = existing?.meta;
+              meta = existing?.found?.meta;
             });
             return {
               type: 'id',

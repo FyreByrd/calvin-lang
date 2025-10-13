@@ -31,9 +31,11 @@ else {
 do {}
 while (x < 3);
 while (y > 4) {
-
+    if (a) {
+        continue;
+    }
 } finally {
-    
+    return 1 + 2 + 3;
 }
 do {} while(true) {}
 /**/

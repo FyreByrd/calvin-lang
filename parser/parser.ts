@@ -8,7 +8,8 @@ export type Stmt =
   | { type: 'body'; body: Stmt[] }
   | { type: 'empty' }
   | ({ type: 'if'; alts: IfStmt[]; else?: Stmt[] } & IfStmt)
-  | { type: 'while'; do?: Stmt[]; pred: Expr; while: Stmt[]; finally?: Stmt[] };
+  | { type: 'while'; do?: Stmt[]; pred: Expr; while: Stmt[]; finally?: Stmt[] }
+  | { type: 'control'; tok: IToken; expr?: Expr };
 
 type IfPred = ({ type: 'expr' } & Expr) | ({ type: 'decl' } & Decl);
 type IfStmt = { pred: IfPred; body: Stmt[] };
@@ -101,9 +102,22 @@ export class CalvinParser extends EmbeddedActionsParser {
                     }
                   },
                   {
+                    ALT: () => ({ type: 'control', tok: $.CONSUME(Tokens.BREAK) })
+                  },
+                  {
+                    ALT: () => ({ type: 'control', tok: $.CONSUME(Tokens.CONTINUE) })
+                  },
+                  {
+                    ALT: () => ({
+                      type: 'control',
+                      tok: $.CONSUME(Tokens.RETURN),
+                      expr: this.OPTION2(() => $.SUBRULE($.expression))
+                    })
+                  },
+                  {
                     ALT: () => ({
                       type: 'expr',
-                      ...$.SUBRULE($.expression)
+                      ...$.SUBRULE2($.expression)
                     })
                   }
                 ])
@@ -141,7 +155,7 @@ export class CalvinParser extends EmbeddedActionsParser {
         },
         {
           ALT: () => {
-            const _do = $.OPTION2(() => {
+            const _do = $.OPTION3(() => {
               $.CONSUME(Tokens.DO);
               return $.SUBRULE4($.body, { ARGS: [true, 'do'] });
             });
@@ -150,7 +164,7 @@ export class CalvinParser extends EmbeddedActionsParser {
             $.ACTION(() => {
               $._scope = $.scope.createChild('while');
             });
-            const pred = $.SUBRULE2($.expression);
+            const pred = $.SUBRULE3($.expression);
             const _while = $.OR2([
               {
                 ALT: () => {
@@ -166,7 +180,7 @@ export class CalvinParser extends EmbeddedActionsParser {
               $._scope = $.scope.parent!;
             });
 
-            const _finally = $.OPTION3(() => {
+            const _finally = $.OPTION4(() => {
               $.CONSUME(Tokens.FINALLY);
               return $.SUBRULE6($.body, { ARGS: [true, 'finally'] });
             });

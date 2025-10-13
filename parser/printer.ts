@@ -75,6 +75,15 @@ export class CalvinPrinter {
           tree('}', indent);
         }
         break;
+      case 'control':
+        if (stmt.expr) {
+          tree(`${stmt.tok.image} (`, indent);
+          this.expression(stmt.expr, indent + 2);
+          tree(')', indent);
+        } else {
+          tree(stmt.tok.image, indent);
+        }
+        break;
       default:
         error(`Unhandled debug stmt ${stmt}`);
         break;

@@ -136,7 +136,10 @@ export const ELSE = createToken({ name: 'ELSE', pattern: 'else' });
 export const DO = createToken({ name: 'DO', pattern: 'do' });
 export const WHILE = createToken({ name: 'WHILE', pattern: 'while' });
 export const FINALLY = createToken({ name: 'FINALLY', pattern: 'finally' });
-const keywords = [LET, IF, ELIF, ELSE, DO, WHILE, FINALLY];
+export const BREAK = createToken({ name: 'BREAK', pattern: 'break' });
+export const CONTINUE = createToken({ name: 'CONTINUE', pattern: 'continue' });
+export const RETURN = createToken({ name: 'RETURN', pattern: 'return' });
+const keywords = [LET, IF, ELIF, ELSE, DO, WHILE, FINALLY, BREAK, CONTINUE, RETURN];
 /* Ignored Tokens */
 const WS = createToken({
   name: 'WS',

@@ -194,7 +194,9 @@ export class CalvinParser extends EmbeddedActionsParser {
           ALT: () => {
             $.OPTION(() => {
               expr.operator = $.OR2([
-                ...Tokens.binopTokens.map((t) => ({ ALT: () => $.CONSUME(t) }))
+                ...[...Tokens.compAssgnTokens, ...Tokens.binopTokens].map((t) => ({
+                  ALT: () => $.CONSUME(t)
+                }))
               ]);
               expr.expr = $.SUBRULE($.expression);
               // TODO reorder based on precedence

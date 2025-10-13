@@ -12,6 +12,27 @@ export enum TypeClasses {
   Never
 }
 
+export function printType(t: TypeClasses): string {
+  switch (t) {
+    case TypeClasses.Unknown:
+      return 'unknown';
+    case TypeClasses.Integral:
+      return 'integer';
+    case TypeClasses.Real:
+      return 'real';
+    case TypeClasses.Complex:
+      return 'complex';
+    case TypeClasses.Boolean:
+      return 'boolean';
+    case TypeClasses.Binary:
+      return 'binary';
+    case TypeClasses.String:
+      return 'string';
+    case TypeClasses.Never:
+      return 'never';
+  }
+}
+
 export type Meta = {
   returnType: TypeClasses;
   source: IToken;
@@ -66,7 +87,7 @@ export class Scope {
     this.map.values().forEach((v) => {
       debug(
         prefix(
-          `${v.tok.image} on line ${v.tok.startLine} = ${v.meta.returnType} (from ${v.meta.source.image} on line ${v.meta.source.startLine})`,
+          `${v.tok.image} on line ${v.tok.startLine}: ${printType(v.meta.returnType)} (from ${v.meta.source.image} on line ${v.meta.source.startLine})`,
           indent + 2
         )
       );

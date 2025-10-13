@@ -15,6 +15,11 @@ let n = x in y; // unknown
 let o = not (x in y); // unknown
 let p = (not /* y */ x) in y /**/; // unknown
 let q = not x in y; // This should be parsed the same as p // unknown
+{
+    let q = 1; // should warn
+    let r = 2;
+};
+let r = 2; // should not warn
 /**/
 /**
 

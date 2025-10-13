@@ -89,6 +89,8 @@ export const unopTokens = [NOT, ...postfixUnopTokens];
 /* Other Tokens */
 export const LPAREN = createToken({ name: 'LPAREN', pattern: '(' });
 export const RPAREN = createToken({ name: 'RPAREN', pattern: ')' });
+export const LCURLY = createToken({ name: 'LCURLY', pattern: '{' });
+export const RCURLY = createToken({ name: 'RCURLY', pattern: '}' });
 export const SEMI = createToken({ name: 'SEMI', pattern: ';' });
 export const COLON = createToken({ name: 'COLON', pattern: ':' });
 /* Keywords */
@@ -131,6 +133,8 @@ export const allTokens = [
   ID,
   LPAREN,
   RPAREN,
+  LCURLY,
+  RCURLY,
   SEMI,
   COLON,
   ERROR

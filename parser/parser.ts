@@ -1,10 +1,13 @@
 import { EmbeddedActionsParser, type IToken } from 'chevrotain';
 import * as Tokens from './lexer.js';
-import { type Meta, TypeClasses, scope } from './semantics.js';
+import { error, warn } from './printers.js';
+import { type Meta, Scope, TypeClasses } from './semantics.js';
 
-export type Stmt = {
-  type: 'expr' | 'decl';
-} & (({ type: 'expr' } & Expr) | ({ type: 'decl' } & Decl));
+export type Stmt =
+  | ({
+      type: 'expr' | 'decl' | 'body';
+    } & (({ type: 'expr' } & Expr) | ({ type: 'decl' } & Decl)))
+  | { type: 'body'; body: Stmt[] };
 
 export type Decl = {
   id: IToken;
@@ -36,6 +39,7 @@ export class CalvinParser extends EmbeddedActionsParser {
   private readonly type;
   private _hasErrors: boolean;
   private _hasWarnings: boolean;
+  private _scope: Scope;
 
   get hasErrors() {
     return this._hasErrors;
@@ -43,21 +47,25 @@ export class CalvinParser extends EmbeddedActionsParser {
   get hasWarnings() {
     return this._hasWarnings;
   }
+  get scope() {
+    return this._scope;
+  }
 
   warn(msg: string) {
     this._hasWarnings = true;
-    console.warn('\x1b[33mWarning: %s\x1b[0m', msg);
+    warn(msg);
   }
 
   error(msg: string) {
     this._hasErrors = true;
-    console.error('\x1b[31mError: %s\x1b[0m', msg);
+    error(msg);
   }
 
   constructor() {
     super(Tokens.allTokens);
     this._hasErrors = false;
     this._hasWarnings = false;
+    this._scope = new Scope('ROOT');
 
     // eslint-disable-next-line @typescript-eslint/no-this-alias
     const $ = this;
@@ -86,6 +94,23 @@ export class CalvinParser extends EmbeddedActionsParser {
             type: 'expr',
             ...$.SUBRULE($.expression)
           })
+        },
+        {
+          ALT: () => {
+            $.CONSUME(Tokens.LCURLY);
+            $.ACTION(() => {
+              $._scope = $.scope.createChild('{anonymous body}');
+            });
+            const res: Stmt[] = [];
+            $.MANY(() => {
+              res.push($.SUBRULE($.statement));
+            });
+            $.CONSUME(Tokens.RCURLY);
+            $.ACTION(() => {
+              $._scope = $._scope.parent!;
+            });
+            return { type: 'body', body: res };
+          }
         }
       ]);
       $.CONSUME(Tokens.SEMI);
@@ -105,11 +130,18 @@ export class CalvinParser extends EmbeddedActionsParser {
       const meta =
         t ?? expr?.meta ?? ({ source: id, returnType: TypeClasses.Unknown } satisfies Meta);
       $.ACTION(() => {
-        const existing = scope.get(id.image);
-        if (existing) {
-          $.error(
-            `variable ${id.image} originally defined on line ${existing.tok.startLine}, redefined on line ${id.startLine}!`
-          );
+        const search = $.scope.search(id.image);
+        const existing = $.scope === search?.scope && search.found;
+        if (search) {
+          if (existing) {
+            $.error(
+              `variable ${id.image} originally defined on line ${existing.tok.startLine}, redefined on line ${id.startLine}!`
+            );
+          } else if (search.found) {
+            $.warn(
+              `variable ${id.image} on line ${id.startLine} shadows variable defined on line ${search.found.tok.startLine}`
+            );
+          }
         }
         if (t && expr?.meta) {
           if (t.returnType !== expr.meta.returnType) {
@@ -124,7 +156,7 @@ export class CalvinParser extends EmbeddedActionsParser {
           );
         }
         if (!existing) {
-          scope.set(id.image, { tok: id, meta });
+          this.scope.set(id.image, { tok: id, meta });
         }
       });
       return {
@@ -189,7 +221,7 @@ export class CalvinParser extends EmbeddedActionsParser {
             const id = $.CONSUME(Tokens.ID);
             let meta: Meta | undefined = undefined;
             $.ACTION(() => {
-              const existing = scope.get(id.image);
+              const existing = this.scope.get(id.image);
               if (!existing) {
                 $.error(`undeclared variable ${id.image} used on line ${id.startLine}`);
               }

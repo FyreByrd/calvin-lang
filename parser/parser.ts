@@ -121,12 +121,12 @@ export class CalvinParser extends EmbeddedActionsParser {
 
             $.MANY(() => {
               $.CONSUME(Tokens.ELIF);
-              alts.push($.SUBRULE2($.ifStatement));
+              alts.push($.SUBRULE2($.ifStatement, { ARGS: ['elif'] }));
             });
 
             const optElse = $.OPTION1(() => {
               $.CONSUME(Tokens.ELSE);
-              return $.SUBRULE3($.body);
+              return $.SUBRULE3($.body, { ARGS: [true, 'else'] });
             });
 
             return {
@@ -144,10 +144,10 @@ export class CalvinParser extends EmbeddedActionsParser {
       ]) satisfies Stmt;
     });
 
-    this.ifStatement = $.RULE('ifStatement', () => {
+    this.ifStatement = $.RULE('ifStatement', (scopeName: string = 'if') => {
       $.CONSUME(Tokens.LPAREN);
       $.ACTION(() => {
-        $._scope = $.scope.createChild('if');
+        $._scope = $.scope.createChild(scopeName);
       });
       const pred = $.OR<IfPred>([
         {
@@ -162,7 +162,7 @@ export class CalvinParser extends EmbeddedActionsParser {
       ]);
       $.CONSUME(Tokens.RPAREN);
 
-      const { body } = $.SUBRULE($.body);
+      const { body } = $.SUBRULE($.body, { ARGS: [false] });
 
       $.ACTION(() => {
         $._scope = $.scope.parent!;
@@ -171,10 +171,10 @@ export class CalvinParser extends EmbeddedActionsParser {
       return { pred, body } satisfies IfStmt;
     });
 
-    this.body = $.RULE('body', () => {
+    this.body = $.RULE('body', (createNewScope: boolean = true, scopeName?: string) => {
       $.CONSUME(Tokens.LCURLY);
       $.ACTION(() => {
-        $._scope = $.scope.createChild('{anonymous body}');
+        if (createNewScope) $._scope = $.scope.createChild(scopeName ?? '{anonymous body}');
       });
       const body: Stmt[] = [];
       $.MANY(() => {
@@ -182,7 +182,7 @@ export class CalvinParser extends EmbeddedActionsParser {
       });
       $.CONSUME(Tokens.RCURLY);
       $.ACTION(() => {
-        $._scope = $._scope.parent!;
+        if (createNewScope) $._scope = $._scope.parent!;
       });
       return { type: 'body', body };
     });

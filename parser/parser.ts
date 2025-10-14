@@ -392,6 +392,11 @@ export class CalvinParser extends EmbeddedActionsParser {
         },
         {
           ALT: () => {
+            return $.CONSUME(Tokens.BIN);
+          }
+        },
+        {
+          ALT: () => {
             return $.CONSUME(Tokens.INT);
           }
         },

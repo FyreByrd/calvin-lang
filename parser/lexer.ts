@@ -7,17 +7,17 @@ export const STRING = createToken({
   pattern: /("(\\"|[^"])*")|('(\\'|[^'])*')/
 });
 export const BOOL = createToken({ name: 'BOOL', pattern: /true|false/ });
-const digits = /0|[1-9]([\d_]+\d|\d)?/;
-export const INT = createToken({
-  name: 'INT',
-  pattern: RegExp(`(\\+|-)?(${digits.source})`)
-});
 const base16 = /0x([0-9a-fA-F][0-9a-fA-F_]*[0-9a-fA-F]|[0-9a-fA-F])/;
 const base8 = /0o([0-7][0-7_]*[0-7]|[0-7])/;
 const base2 = /0b([01][01_]*[01]|[01])/;
 export const BIN = createToken({
   name: 'BIN',
   pattern: RegExp(`(${base16.source})|(${base8.source})|(${base2.source})`)
+});
+const digits = /0|[1-9]([\d_]+\d|\d)?/;
+export const INT = createToken({
+  name: 'INT',
+  pattern: RegExp(`(\\+|-)?(${digits.source})`)
 });
 const real = RegExp(`((\\+|-)?((${digits.source})\\.\\d+|inf)|NaN)`);
 export const CMPX = createToken({
@@ -168,8 +168,8 @@ export const allTokens = [
   BOOL,
   CMPX,
   REAL,
-  INT,
   BIN,
+  INT,
   ...unopTokens,
   ...compAssgnTokens,
   ...binopTokens,

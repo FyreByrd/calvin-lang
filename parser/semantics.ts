@@ -1,4 +1,5 @@
 import type { IToken } from 'chevrotain';
+import { Globals } from './globals.js';
 import { debug, prefix } from './logging.js';
 
 export enum TypeClasses {
@@ -83,21 +84,23 @@ export class Scope {
   }
 
   public print(indent: number = 0) {
-    debug(
-      prefix(
-        `SCOPE: ${this.name} (parent: ${this.parent?.name ?? 'None'}, symbols: ${this.map.size}, children: ${this.children.length})`,
-        indent
-      )
-    );
-    this.map.values().forEach((v) => {
+    if (Globals.debugScopes) {
       debug(
         prefix(
-          `${v.tok.image} on line ${v.tok.startLine}: ${printType(v.meta.returnType)} (from ${v.meta.source.image} on line ${v.meta.source.startLine})`,
-          indent + 2
+          `SCOPE: ${this.name} (parent: ${this.parent?.name ?? 'None'}, symbols: ${this.map.size}, children: ${this.children.length})`,
+          indent
         )
       );
-    });
-    console.log('');
-    this.children.forEach((c) => c.print(indent + 2));
+      this.map.values().forEach((v) => {
+        debug(
+          prefix(
+            `${v.tok.image} on line ${v.tok.startLine}: ${printType(v.meta.returnType)} (from ${v.meta.source.image} on line ${v.meta.source.startLine})`,
+            indent + 2
+          )
+        );
+      });
+      console.log('');
+      this.children.forEach((c) => c.print(indent + 2));
+    }
   }
 }

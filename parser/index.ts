@@ -1,5 +1,6 @@
 import { readFileSync } from 'fs';
 import { join } from 'path';
+import { Globals } from './globals.js';
 import { CalvinLexer } from './lexer.js';
 import { error } from './logging.js';
 import { CalvinParser } from './parser.js';
@@ -31,6 +32,12 @@ const fileName = args.find((a) => !a.startsWith('-'));
 if (!fileName) {
   throw Error('No file name provided');
 }
+
+const debugs = args.filter((a) => a.startsWith('--debug'));
+
+Globals.debugAll = !!debugs.find((d) => d === '--debug-all');
+Globals.debugTrees = !!debugs.find((d) => d === '--debug-trees');
+Globals.debugScopes = !!debugs.find((d) => d === '--debug-scopes');
 
 const file = readFileSync(join(import.meta.dirname, fileName));
 parseInput(String(file));

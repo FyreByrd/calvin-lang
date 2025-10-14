@@ -1,3 +1,5 @@
+import { Globals } from './globals.js';
+
 export function debug(msg: string) {
   console.log('\x1b[36m%s\x1b[0m', msg);
 }
@@ -10,7 +12,9 @@ export function error(msg: string) {
 }
 
 export function tree(msg: string, indent: number) {
-  console.log('\x1b[%dm%s\x1b[0m', 91 + ((indent / 2) % 7), prefix(msg, indent));
+  if (Globals.debugTrees) {
+    console.log('\x1b[%dm%s\x1b[0m', 91 + ((indent / 2) % 7), prefix(msg, indent));
+  }
 }
 
 export function prefix(str: string, len: number, ch: string = ' ') {

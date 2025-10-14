@@ -39,9 +39,9 @@ export const GE = createToken({ name: 'GE', pattern: '>=' });
 export const LE = createToken({ name: 'LE', pattern: '<=' });
 export const LT = createToken({ name: 'LT', pattern: '<' });
 export const GT = createToken({ name: 'GT', pattern: '>' });
-export const AND = createToken({ name: 'AND', pattern: 'and' });
-export const OR = createToken({ name: 'OR', pattern: 'or' });
-export const IN = createToken({ name: 'IN', pattern: 'in' });
+export const AND = createToken({ name: 'AND', pattern: 'and', longer_alt: ID });
+export const OR = createToken({ name: 'OR', pattern: 'or', longer_alt: ID });
+export const IN = createToken({ name: 'IN', pattern: 'in', longer_alt: ID });
 // Arithmetic
 export const PLUS = createToken({ name: 'PLUS', pattern: '+' });
 export const MINUS = createToken({ name: 'MINUS', pattern: '-' });
@@ -114,7 +114,7 @@ export const compAssgnTokens = [
   NC_EQU
 ];
 /* Unary Operator Tokens */
-export const NOT = createToken({ name: 'NOT', pattern: 'not' });
+export const NOT = createToken({ name: 'NOT', pattern: 'not', longer_alt: ID });
 export const INC = createToken({ name: 'INC', pattern: '++' });
 export const DEC = createToken({ name: 'DEC', pattern: '--' });
 export const postfixUnopTokens = [INC, DEC];
@@ -127,18 +127,18 @@ export const RCURLY = createToken({ name: 'RCURLY', pattern: '}' });
 export const SEMI = createToken({ name: 'SEMI', pattern: ';' });
 export const COLON = createToken({ name: 'COLON', pattern: ':' });
 /* Keywords */
-export const LET = createToken({ name: 'LET', pattern: 'let' });
+export const LET = createToken({ name: 'LET', pattern: 'let', longer_alt: ID });
 // Selection
-export const IF = createToken({ name: 'IF', pattern: 'if' });
-export const ELIF = createToken({ name: 'ELIF', pattern: 'elif' });
-export const ELSE = createToken({ name: 'ELSE', pattern: 'else' });
+export const IF = createToken({ name: 'IF', pattern: 'if', longer_alt: ID });
+export const ELIF = createToken({ name: 'ELIF', pattern: 'elif', longer_alt: ID });
+export const ELSE = createToken({ name: 'ELSE', pattern: 'else', longer_alt: ID });
 // Loops
-export const DO = createToken({ name: 'DO', pattern: 'do' });
-export const WHILE = createToken({ name: 'WHILE', pattern: 'while' });
-export const FINALLY = createToken({ name: 'FINALLY', pattern: 'finally' });
-export const BREAK = createToken({ name: 'BREAK', pattern: 'break' });
-export const CONTINUE = createToken({ name: 'CONTINUE', pattern: 'continue' });
-export const RETURN = createToken({ name: 'RETURN', pattern: 'return' });
+export const DO = createToken({ name: 'DO', pattern: 'do', longer_alt: ID });
+export const WHILE = createToken({ name: 'WHILE', pattern: 'while', longer_alt: ID });
+export const FINALLY = createToken({ name: 'FINALLY', pattern: 'finally', longer_alt: ID });
+export const BREAK = createToken({ name: 'BREAK', pattern: 'break', longer_alt: ID });
+export const CONTINUE = createToken({ name: 'CONTINUE', pattern: 'continue', longer_alt: ID });
+export const RETURN = createToken({ name: 'RETURN', pattern: 'return', longer_alt: ID });
 const keywords = [LET, IF, ELIF, ELSE, DO, WHILE, FINALLY, BREAK, CONTINUE, RETURN];
 /* Ignored Tokens */
 const WS = createToken({

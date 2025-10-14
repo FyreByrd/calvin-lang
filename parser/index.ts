@@ -26,5 +26,11 @@ function parseInput(text: string) {
   parser.scope.print();
 }
 
-const file = readFileSync(join(import.meta.dirname, './tests/test.txt'));
+const args = process.argv.slice(2);
+const fileName = args.find((a) => !a.startsWith('-'));
+if (!fileName) {
+  throw Error('No file name provided');
+}
+
+const file = readFileSync(join(import.meta.dirname, fileName));
 parseInput(String(file));

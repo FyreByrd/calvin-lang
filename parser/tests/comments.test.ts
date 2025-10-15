@@ -69,18 +69,18 @@ describe('Comment parsing', () => {
   });
 });
 
-beforeAll(() => {
-  Globals.debugAll = true;
-  Globals.debugTrees = true;
-  Globals.debugScopes = true;
-
-  console.debug('Debugging activated!');
-});
-
-afterAll(() => {
+beforeAll((t) => {
   Globals.debugAll = false;
   Globals.debugTrees = false;
   Globals.debugScopes = false;
 
-  console.debug('Debugging deactivated!');
+  console.debug(`Debugging set for test file ${t.name}! Settings:`, { Globals });
+});
+
+afterAll((t) => {
+  Globals.debugAll = false;
+  Globals.debugTrees = false;
+  Globals.debugScopes = false;
+
+  console.debug(`Debugging reset for test file ${t.name}!`);
 });

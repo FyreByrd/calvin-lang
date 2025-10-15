@@ -4,14 +4,6 @@ import { CalvinParser } from '../parser.js';
 import { CalvinPrinter } from '../printer.js';
 import { testParsing } from './test-parsing.js';
 
-beforeAll(() => {
-  Globals.debugAll = true;
-  Globals.debugTrees = true;
-  Globals.debugScopes = true;
-
-  console.debug('Debugging activated!');
-});
-
 describe('Comment parsing', () => {
   const parser = new CalvinParser();
 
@@ -31,6 +23,14 @@ describe('Comment parsing', () => {
 
     expect(parserOutput).to.have.length(0, 'No output should be generated');
   });
+});
+
+beforeAll(() => {
+  Globals.debugAll = true;
+  Globals.debugTrees = true;
+  Globals.debugScopes = true;
+
+  console.debug('Debugging activated!');
 });
 
 afterAll(() => {

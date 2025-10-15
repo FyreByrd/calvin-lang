@@ -1,17 +1,25 @@
-import { expect, test } from 'vitest';
-import { CalvinLexer } from '../lexer.js';
+import { describe, test } from 'vitest';
 import { CalvinParser } from '../parser.js';
+import { CalvinPrinter } from '../printer.js';
+import { testParsing } from './test-parsing.js';
 
-test('Comment parsing', () => {
+describe('Comment parsing', () => {
   const parser = new CalvinParser();
 
-  const lexingResult = CalvinLexer.tokenize('// line comment');
-  parser.input = lexingResult.tokens;
-  const output = parser.file();
+  const printer = new CalvinPrinter();
 
-  console.debug({ lexingResult, output });
+  test('line comment', ({ expect }) => {
+    const testCaseOutputs = testParsing({
+      code: '// line comment',
+      parser,
+      printer
+    });
+    const { parserOutput } = testCaseOutputs;
 
-  expect(parser.errors).to.have.length(0, 'Parser should not error');
+    console.debug(testCaseOutputs);
 
-  expect(output).to.have.length(0, 'No output should be generated');
+    expect(parser.errors).to.have.length(0, 'Parser should not error');
+
+    expect(parserOutput).to.have.length(0, 'No output should be generated');
+  });
 });

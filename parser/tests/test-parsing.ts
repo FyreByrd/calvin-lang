@@ -1,4 +1,5 @@
 import type { ILexingResult } from 'chevrotain';
+import { Globals } from '../globals.js';
 import { CalvinLexer } from '../lexer.js';
 import type { CalvinParser, Stmt } from '../parser.js';
 import type { CalvinPrinter } from '../printer.js';
@@ -49,5 +50,11 @@ export function testParsing(params: TestCaseParameters): TestCaseOutputs {
   printer.file(parserOutput);
   parser.scope.print();
 
-  return { lexingResult, parserOutput };
+  const testCaseOutputs: TestCaseOutputs = { lexingResult, parserOutput };
+
+  if (Globals.debugAll) {
+    console.dir(testCaseOutputs, { depth: null });
+  }
+
+  return testCaseOutputs;
 }

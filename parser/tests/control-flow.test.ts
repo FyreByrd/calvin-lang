@@ -39,7 +39,7 @@ describe('Control flow parsing', () => {
       printer
     });
 
-    expect(parser.errors).to.have.length(1, 'Parser should report an error');
+    expect(parser.semanticErrors).to.equal(1, 'Parser should report an error');
 
     expect(parserOutput); // Discard parserOutput for now
   });

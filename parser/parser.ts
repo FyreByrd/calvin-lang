@@ -44,34 +44,34 @@ export class CalvinParser extends EmbeddedActionsParser {
   private readonly value;
   private readonly constant;
   private readonly type;
-  private _hasErrors: boolean;
-  private _hasWarnings: boolean;
+  private _semanticErrors: number;
+  private _warnings;
   private _scope: Scope;
 
-  get hasErrors() {
-    return this._hasErrors;
+  get semanticErrors() {
+    return this._semanticErrors;
   }
-  get hasWarnings() {
-    return this._hasWarnings;
+  get warnings() {
+    return this._warnings;
   }
   get scope() {
     return this._scope;
   }
 
   warn(msg: string) {
-    this._hasWarnings = true;
+    this._warnings++;
     warn(msg);
   }
 
   error(msg: string) {
-    this._hasErrors = true;
+    this._semanticErrors++;
     error(msg);
   }
 
   constructor() {
     super(Tokens.allTokens);
-    this._hasErrors = false;
-    this._hasWarnings = false;
+    this._semanticErrors = 0;
+    this._warnings = 0;
     this._scope = new Scope('ROOT');
 
     // eslint-disable-next-line @typescript-eslint/no-this-alias

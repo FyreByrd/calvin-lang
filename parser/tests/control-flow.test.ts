@@ -26,6 +26,7 @@ describe('Control flow parsing', () => {
       code: [
         'if (1) {',
         '    let b = 20; // should not be accessible to else block',
+        '}',
         'elif (let b = 10) {',
         '    a = b;',
         '    let a = 25; // should warn',

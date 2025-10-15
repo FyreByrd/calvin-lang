@@ -23,6 +23,50 @@ describe('Comment parsing', () => {
 
     expect(parserOutput).to.have.length(0, 'No output should be generated');
   });
+
+  test('collapsed multiline comment', ({ expect }) => {
+    const { parserOutput } = testParsing({
+      code: '/**/ // collapsed multiline comment',
+      parser,
+      printer
+    });
+
+    expect(parser.errors).to.have.length(0, 'Parser should not error');
+
+    expect(parserOutput).to.have.length(0, 'No output should be generated');
+  });
+
+  test('longer multiline comment', ({ expect }) => {
+    const { parserOutput } = testParsing({
+      code: [
+        '/*****************',
+        'let a = 1; // should not be parsed',
+        '',
+        '*  *',
+        '* longer multiline comment',
+        '',
+        '*/'
+      ].join('\n'),
+      parser,
+      printer
+    });
+
+    expect(parser.errors).to.have.length(0, 'Parser should not error');
+
+    expect(parserOutput).to.have.length(0, 'No output should be generated');
+  });
+
+  test('comments embedded in a string', ({ expect }) => {
+    const { parserOutput } = testParsing({
+      code: "let str = '/*****/  //'; // comments embedded in a string",
+      parser,
+      printer
+    });
+
+    expect(parser.errors).to.have.length(0, 'Parser should not error');
+
+    expect(parserOutput).to.have.length(1, 'One statement should be generated');
+  });
 });
 
 beforeAll(() => {

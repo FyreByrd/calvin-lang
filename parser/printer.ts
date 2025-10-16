@@ -61,6 +61,7 @@ export class CalvinPrinter extends BaseCstVisitor implements ICstNodeVisitor<num
       }
       if (stmt.ELSE && stmt.body) {
         tree('else {', indent);
+        this.body(stmt.body![0].children, indent + 2);
       }
     } else if (stmt.WHILE) {
       let bodyCount = 0;

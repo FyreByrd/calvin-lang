@@ -8,8 +8,8 @@
 	"main": "index.ts",
 	"scripts": {
 		"start": "npx tsx index.ts",
-		"gen-types": "npx tsx generate-types.ts",
-		"gen-diagrams": "npx tsx generate-diagrams.ts",
+		"gen-types": "npx tsx scripts/generate-types.ts",
+		"gen-diagrams": "npx tsx scripts/generate-diagrams.ts",
 		"format": "eslint --fix .",
 		"lint": "eslint .",
 		"test": "vitest run",

@@ -2,6 +2,7 @@ import { afterAll, beforeAll, describe, test } from 'vitest';
 import { Globals } from '../globals.js';
 import { CalvinParser } from '../parser.js';
 import { CalvinPrinter } from '../printer.js';
+import { CalvinTypeAnalyzer } from '../semantics.js';
 import { testParsing } from './test-parsing.js';
 
 describe('Control flow parsing', () => {
@@ -9,11 +10,14 @@ describe('Control flow parsing', () => {
 
   const printer = new CalvinPrinter();
 
+  const typeAnalyzer = new CalvinTypeAnalyzer();
+
   test('simple if statement', ({ expect }) => {
     const { parserOutput } = testParsing({
       code: ['let a = 0;', 'if (a > 1) {', '', '}', ''].join('\n'),
       parser,
-      printer
+      printer,
+      typeAnalyzer
     });
 
     expect(parser.errors).to.have.length(0, 'Parser should not error');
@@ -36,7 +40,8 @@ describe('Control flow parsing', () => {
         '}'
       ].join('\n'),
       parser,
-      printer
+      printer,
+      typeAnalyzer
     });
 
     //expect(parser.semanticErrors).to.equal(1, 'Parser should report an error');

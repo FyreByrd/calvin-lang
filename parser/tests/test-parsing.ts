@@ -4,6 +4,7 @@ import { Globals } from '../globals.js';
 import { CalvinLexer } from '../lexer.js';
 import type { CalvinParser } from '../parser.js';
 import type { CalvinPrinter } from '../printer.js';
+import type { CalvinTypeAnalyzer } from '../semantics.js';
 
 export interface TestCaseParameters {
   /**
@@ -19,6 +20,12 @@ export interface TestCaseParameters {
    */
   printer: CalvinPrinter;
   /**
+   * The type analyzer to use for type inference
+   *
+   * **Note:** We choose not to instantiate this ourselves in case we want to inject something else, e.g. a shim or an experimental impl
+   */
+  typeAnalyzer: CalvinTypeAnalyzer;
+  /**
    * The Calvin code to parse
    */
   code: string;
@@ -27,6 +34,10 @@ export interface TestCaseParameters {
 export interface TestCaseOutputs {
   lexingResult: ILexingResult;
   parserOutput: FileCstChildren;
+  typeOutput: {
+    errors: number;
+    warnings: number;
+  };
 }
 
 /**
@@ -40,7 +51,7 @@ export interface TestCaseOutputs {
  * @returns the results of executing the test procedure to be examined by assertions
  */
 export function testParsing(params: TestCaseParameters): TestCaseOutputs {
-  const { code, parser, printer } = params;
+  const { code, parser, printer, typeAnalyzer } = params;
 
   const lexingResult = CalvinLexer.tokenize(code);
   parser.input = lexingResult.tokens;
@@ -49,11 +60,17 @@ export function testParsing(params: TestCaseParameters): TestCaseOutputs {
   // If this doesn't respect global debugAll option, we should wrap this
   // in a `Globals.debugAll` check
   printer.visit(parserOutput);
-  //parser.scope.print();
+  typeAnalyzer.reset();
+  typeAnalyzer.visit(parserOutput);
+  typeAnalyzer.scope.print();
 
   const testCaseOutputs: TestCaseOutputs = {
     lexingResult,
-    parserOutput: parserOutput.children
+    parserOutput: parserOutput.children,
+    typeOutput: {
+      errors: typeAnalyzer.errors,
+      warnings: typeAnalyzer.warnings
+    }
   };
 
   if (Globals.debugAll) {

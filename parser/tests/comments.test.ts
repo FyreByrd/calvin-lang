@@ -2,6 +2,7 @@ import { afterAll, beforeAll, describe, test } from 'vitest';
 import { Globals } from '../globals.js';
 import { CalvinParser } from '../parser.js';
 import { CalvinPrinter } from '../printer.js';
+import { CalvinTypeAnalyzer } from '../semantics.js';
 import { testParsing } from './test-parsing.js';
 
 describe('Comment parsing', () => {
@@ -9,11 +10,14 @@ describe('Comment parsing', () => {
 
   const printer = new CalvinPrinter();
 
+  const typeAnalyzer = new CalvinTypeAnalyzer();
+
   test('line comment', ({ expect }) => {
     const testCaseOutputs = testParsing({
       code: '// line comment',
       parser,
-      printer
+      printer,
+      typeAnalyzer
     });
     const { parserOutput } = testCaseOutputs;
 
@@ -28,7 +32,8 @@ describe('Comment parsing', () => {
     const { parserOutput } = testParsing({
       code: '/**/ // collapsed multiline comment',
       parser,
-      printer
+      printer,
+      typeAnalyzer
     });
 
     expect(parser.errors).to.have.length(0, 'Parser should not error');
@@ -48,7 +53,8 @@ describe('Comment parsing', () => {
         '*/'
       ].join('\n'),
       parser,
-      printer
+      printer,
+      typeAnalyzer
     });
 
     expect(parser.errors).to.have.length(0, 'Parser should not error');
@@ -60,7 +66,8 @@ describe('Comment parsing', () => {
     const { parserOutput } = testParsing({
       code: "let str = '/*****/  //'; // comments embedded in a string",
       parser,
-      printer
+      printer,
+      typeAnalyzer
     });
 
     expect(parser.errors).to.have.length(0, 'Parser should not error');

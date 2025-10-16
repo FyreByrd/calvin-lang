@@ -11,10 +11,10 @@ import type {
   StatementCstNode,
   TypeCstChildren,
   ValueCstChildren
-} from './cst-types.js';
-import { Globals } from './globals.js';
-import { debug, error, prefix, warn } from './logging.js';
-import { BaseCstVisitor } from './parser.js';
+} from '../cst-types.js';
+import { Globals } from '../globals.js';
+import { debug, error, prefix, warn } from '../logging.js';
+import { BaseCstVisitor } from '../parser.js';
 
 export enum TypeClasses {
   Unknown,

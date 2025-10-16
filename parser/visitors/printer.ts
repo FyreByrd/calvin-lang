@@ -11,9 +11,9 @@ import type {
   StatementCstNode,
   TypeCstChildren,
   ValueCstChildren
-} from './cst-types.js';
-import { tree } from './logging.js';
-import { BaseCstVisitor } from './parser.js';
+} from '../cst-types.js';
+import { tree } from '../logging.js';
+import { BaseCstVisitor } from '../parser.js';
 
 export class CalvinPrinter extends BaseCstVisitor implements ICstNodeVisitor<number, void> {
   constructor() {

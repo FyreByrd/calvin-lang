@@ -1,8 +1,8 @@
 import { afterAll, beforeAll, describe, test } from 'vitest';
 import { Globals } from '../globals.js';
 import { CalvinParser } from '../parser.js';
-import { CalvinPrinter } from '../printer.js';
-import { CalvinTypeAnalyzer } from '../semantics.js';
+import { CalvinPrinter } from '../visitors/printer.js';
+import { CalvinTypeAnalyzer } from '../visitors/semantics.js';
 import { testParsing } from './test-parsing.js';
 
 describe('Comment parsing', () => {

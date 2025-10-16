@@ -3,8 +3,8 @@ import type { FileCstChildren, FileCstNode } from '../cst-types.js';
 import { Globals } from '../globals.js';
 import { CalvinLexer } from '../lexer.js';
 import type { CalvinParser } from '../parser.js';
-import type { CalvinPrinter } from '../printer.js';
-import type { CalvinTypeAnalyzer } from '../semantics.js';
+import type { CalvinPrinter } from '../visitors/printer.js';
+import type { CalvinTypeAnalyzer } from '../visitors/semantics.js';
 
 export interface TestCaseParameters {
   /**

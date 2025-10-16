@@ -4,7 +4,7 @@ import { Globals } from './globals.js';
 import { CalvinLexer } from './lexer.js';
 import { error } from './logging.js';
 import { CalvinParser } from './parser.js';
-import { CalvinPrinter } from './printer.js';
+import { CalvinPrinter } from './visitors/printer.js';
 
 const parser = new CalvinParser();
 

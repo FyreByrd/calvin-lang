@@ -23,8 +23,8 @@ function parseInput(text: string) {
     throw Error();
   }
 
-  printer.file(output);
-  parser.scope.print();
+  printer.visit(output);
+  //parser.scope.print();
 }
 
 const args = process.argv.slice(2);

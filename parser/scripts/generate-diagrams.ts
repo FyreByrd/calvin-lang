@@ -4,6 +4,6 @@ import { join } from 'path';
 import { parser } from '../parser.js';
 
 const diagrams = createSyntaxDiagramsCode(parser.getSerializedGastProductions());
-const path = join('../../docs/syntax-diagrams.html');
+const path = join(import.meta.dirname, '../../docs/syntax-diagrams.html');
 writeFileSync(path, diagrams);
 console.log(`Wrote output to ${path}`);

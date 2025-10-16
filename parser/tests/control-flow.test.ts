@@ -26,8 +26,9 @@ describe('Control flow parsing', () => {
   });
 
   test('incorrect variable access', ({ expect }) => {
-    const { parserOutput } = testParsing({
+    const { parserOutput, typeOutput } = testParsing({
       code: [
+        'let a = 0;',
         'if (1) {',
         '    let b = 20; // should not be accessible to else block',
         '}',
@@ -44,7 +45,8 @@ describe('Control flow parsing', () => {
       typeAnalyzer
     });
 
-    //expect(parser.semanticErrors).to.equal(1, 'Parser should report an error');
+    expect(typeOutput.errors).to.equal(1, 'TypeAnalyzer should report an error');
+    expect(typeOutput.warnings).to.equal(1, 'TypeAnalyzer should report a warning');
 
     expect(parserOutput); // Discard parserOutput for now
   });

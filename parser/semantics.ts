@@ -73,7 +73,7 @@ export class Scope {
     return ret;
   }
 
-  public set(key: string, value: { tok: IToken; meta: Meta }) {
+  public set(key: string, value: ScopeData) {
     return this.map.set(key, value);
   }
 
@@ -103,4 +103,19 @@ export class Scope {
       this.children.forEach((c) => c.print(indent + 2));
     }
   }
+
+  public reset(): Scope {
+    if (this.parent) {
+      return this.parent.reset();
+    } else {
+      this.resetHelp();
+      return this;
+    }
+  }
+  private resetHelp() {
+    this.children.forEach((c) => c.resetHelp());
+    this.children = [];
+    this.map.clear();
+  }
+}
 }

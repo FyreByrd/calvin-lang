@@ -1,1164 +1,694 @@
+
 <!-- This is a generated file -->
 <!DOCTYPE html>
-<meta charset="utf-8" />
+<meta charset="utf-8">
 <style>
   body {
-    background-color: hsl(30, 20%, 95%);
+    background-color: hsl(30, 20%, 95%)
   }
 </style>
 
-<link
-  rel="stylesheet"
-  href="https://unpkg.com/chevrotain@11.0.3/diagrams/diagrams.css"
-/>
 
-<script src="https://unpkg.com/chevrotain@11.0.3/diagrams/vendor/railroad-diagrams.js"></script>
-<script src="https://unpkg.com/chevrotain@11.0.3/diagrams/src/diagrams_builder.js"></script>
-<script src="https://unpkg.com/chevrotain@11.0.3/diagrams/src/diagrams_behavior.js"></script>
-<script src="https://unpkg.com/chevrotain@11.0.3/diagrams/src/main.js"></script>
+<link rel='stylesheet' href='https://unpkg.com/chevrotain@11.0.3/diagrams/diagrams.css'>
 
-<div id="diagrams" align="center"></div>
+<script src='https://unpkg.com/chevrotain@11.0.3/diagrams/vendor/railroad-diagrams.js'></script>
+<script src='https://unpkg.com/chevrotain@11.0.3/diagrams/src/diagrams_builder.js'></script>
+<script src='https://unpkg.com/chevrotain@11.0.3/diagrams/src/diagrams_behavior.js'></script>
+<script src='https://unpkg.com/chevrotain@11.0.3/diagrams/src/main.js'></script>
+
+<div id="diagrams" align="center"></div>    
 
 <script>
-  window.serializedGrammar = [
-    {
-      type: "Rule",
-      name: "file",
-      orgText: "",
-      definition: [
-        {
-          type: "Repetition",
-          idx: 0,
-          definition: [
-            {
-              type: "NonTerminal",
-              name: "statement",
-              idx: 0,
-            },
-          ],
-        },
-      ],
-    },
-    {
-      type: "Rule",
-      name: "statement",
-      orgText: "",
-      definition: [
-        {
-          type: "Alternation",
-          idx: 0,
-          definition: [
-            {
-              type: "Alternative",
-              definition: [
-                {
-                  type: "Option",
-                  idx: 0,
-                  definition: [
-                    {
-                      type: "Alternation",
-                      idx: 1,
-                      definition: [
-                        {
-                          type: "Alternative",
-                          definition: [
-                            {
-                              type: "Terminal",
-                              name: "LET",
-                              label: "LET",
-                              idx: 0,
-                              pattern: "let",
-                            },
-                            {
-                              type: "NonTerminal",
-                              name: "declaration",
-                              idx: 0,
-                            },
-                          ],
-                        },
-                        {
-                          type: "Alternative",
-                          definition: [
-                            {
-                              type: "Terminal",
-                              name: "BREAK",
-                              label: "BREAK",
-                              idx: 0,
-                              pattern: "break",
-                            },
-                          ],
-                        },
-                        {
-                          type: "Alternative",
-                          definition: [
-                            {
-                              type: "Terminal",
-                              name: "CONTINUE",
-                              label: "CONTINUE",
-                              idx: 0,
-                              pattern: "continue",
-                            },
-                          ],
-                        },
-                        {
-                          type: "Alternative",
-                          definition: [
-                            {
-                              type: "Terminal",
-                              name: "RETURN",
-                              label: "RETURN",
-                              idx: 0,
-                              pattern: "return",
-                            },
-                            {
-                              type: "Option",
-                              idx: 2,
-                              definition: [
-                                {
-                                  type: "NonTerminal",
-                                  name: "expression",
-                                  idx: 0,
-                                },
-                              ],
-                            },
-                          ],
-                        },
-                        {
-                          type: "Alternative",
-                          definition: [
-                            {
-                              type: "NonTerminal",
-                              name: "expression",
-                              idx: 2,
-                            },
-                          ],
-                        },
-                      ],
-                    },
-                  ],
-                },
-                {
-                  type: "Terminal",
-                  name: "SEMI",
-                  label: "SEMI",
-                  idx: 0,
-                  pattern: ";",
-                },
-              ],
-            },
-            {
-              type: "Alternative",
-              definition: [
-                {
-                  type: "Terminal",
-                  name: "IF",
-                  label: "IF",
-                  idx: 0,
-                  pattern: "if",
-                },
-                {
-                  type: "NonTerminal",
-                  name: "ifPredBody",
-                  idx: 1,
-                },
-                {
-                  type: "Repetition",
-                  idx: 0,
-                  definition: [
-                    {
-                      type: "Terminal",
-                      name: "ELIF",
-                      label: "ELIF",
-                      idx: 0,
-                      pattern: "elif",
-                    },
-                    {
-                      type: "NonTerminal",
-                      name: "ifPredBody",
-                      idx: 2,
-                    },
-                  ],
-                },
-                {
-                  type: "Option",
-                  idx: 1,
-                  definition: [
-                    {
-                      type: "Terminal",
-                      name: "ELSE",
-                      label: "ELSE",
-                      idx: 0,
-                      pattern: "else",
-                    },
-                    {
-                      type: "NonTerminal",
-                      name: "body",
-                      idx: 3,
-                    },
-                  ],
-                },
-              ],
-            },
-            {
-              type: "Alternative",
-              definition: [
-                {
-                  type: "Option",
-                  idx: 3,
-                  definition: [
-                    {
-                      type: "Terminal",
-                      name: "DO",
-                      label: "DO",
-                      idx: 0,
-                      pattern: "do",
-                    },
-                    {
-                      type: "NonTerminal",
-                      name: "body",
-                      idx: 4,
-                    },
-                  ],
-                },
-                {
-                  type: "Terminal",
-                  name: "WHILE",
-                  label: "WHILE",
-                  idx: 0,
-                  pattern: "while",
-                },
-                {
-                  type: "NonTerminal",
-                  name: "expression",
-                  idx: 3,
-                },
-                {
-                  type: "Alternation",
-                  idx: 2,
-                  definition: [
-                    {
-                      type: "Alternative",
-                      definition: [
-                        {
-                          type: "Terminal",
-                          name: "SEMI",
-                          label: "SEMI",
-                          idx: 2,
-                          pattern: ";",
-                        },
-                      ],
-                    },
-                    {
-                      type: "Alternative",
-                      definition: [
-                        {
-                          type: "NonTerminal",
-                          name: "body",
-                          idx: 5,
-                        },
-                      ],
-                    },
-                  ],
-                },
-                {
-                  type: "Option",
-                  idx: 4,
-                  definition: [
-                    {
-                      type: "Terminal",
-                      name: "FINALLY",
-                      label: "FINALLY",
-                      idx: 0,
-                      pattern: "finally",
-                    },
-                    {
-                      type: "NonTerminal",
-                      name: "body",
-                      idx: 6,
-                    },
-                  ],
-                },
-              ],
-            },
-            {
-              type: "Alternative",
-              definition: [
-                {
-                  type: "NonTerminal",
-                  name: "body",
-                  idx: 0,
-                },
-              ],
-            },
-          ],
-        },
-      ],
-    },
-    {
-      type: "Rule",
-      name: "ifPredBody",
-      orgText: "",
-      definition: [
-        {
-          type: "Terminal",
-          name: "LPAREN",
-          label: "LPAREN",
-          idx: 0,
-          pattern: "(",
-        },
-        {
-          type: "Alternation",
-          idx: 0,
-          definition: [
-            {
-              type: "Alternative",
-              definition: [
-                {
-                  type: "Terminal",
-                  name: "LET",
-                  label: "LET",
-                  idx: 0,
-                  pattern: "let",
-                },
-                {
-                  type: "NonTerminal",
-                  name: "declaration",
-                  idx: 0,
-                },
-              ],
-            },
-            {
-              type: "Alternative",
-              definition: [
-                {
-                  type: "NonTerminal",
-                  name: "expression",
-                  idx: 0,
-                },
-              ],
-            },
-          ],
-        },
-        {
-          type: "Terminal",
-          name: "RPAREN",
-          label: "RPAREN",
-          idx: 0,
-          pattern: ")",
-        },
-        {
-          type: "NonTerminal",
-          name: "body",
-          idx: 0,
-        },
-      ],
-    },
-    {
-      type: "Rule",
-      name: "body",
-      orgText: "",
-      definition: [
-        {
-          type: "Terminal",
-          name: "LCURLY",
-          label: "LCURLY",
-          idx: 0,
-          pattern: "{",
-        },
-        {
-          type: "Repetition",
-          idx: 0,
-          definition: [
-            {
-              type: "NonTerminal",
-              name: "statement",
-              idx: 0,
-            },
-          ],
-        },
-        {
-          type: "Terminal",
-          name: "RCURLY",
-          label: "RCURLY",
-          idx: 0,
-          pattern: "}",
-        },
-      ],
-    },
-    {
-      type: "Rule",
-      name: "declaration",
-      orgText: "",
-      definition: [
-        {
-          type: "Terminal",
-          name: "ID",
-          label: "ID",
-          idx: 0,
-          pattern: "[a-zA-Z_][a-zA-Z_\\d]*",
-        },
-        {
-          type: "Option",
-          idx: 0,
-          definition: [
-            {
-              type: "Terminal",
-              name: "COLON",
-              label: "COLON",
-              idx: 0,
-              pattern: ":",
-            },
-            {
-              type: "NonTerminal",
-              name: "type",
-              idx: 0,
-            },
-          ],
-        },
-        {
-          type: "Option",
-          idx: 1,
-          definition: [
-            {
-              type: "Terminal",
-              name: "EQU",
-              label: "EQU",
-              idx: 0,
-              pattern: "=",
-            },
-            {
-              type: "NonTerminal",
-              name: "expression",
-              idx: 0,
-            },
-          ],
-        },
-      ],
-    },
-    {
-      type: "Rule",
-      name: "expression",
-      orgText: "",
-      definition: [
-        {
-          type: "NonTerminal",
-          name: "value",
-          idx: 0,
-        },
-        {
-          type: "Alternation",
-          idx: 0,
-          definition: [
-            {
-              type: "Alternative",
-              definition: [
-                {
-                  type: "Alternation",
-                  idx: 1,
-                  definition: [
-                    {
-                      type: "Alternative",
-                      definition: [
-                        {
-                          type: "Terminal",
-                          name: "INC",
-                          label: "INC",
-                          idx: 0,
-                          pattern: "++",
-                        },
-                      ],
-                    },
-                    {
-                      type: "Alternative",
-                      definition: [
-                        {
-                          type: "Terminal",
-                          name: "DEC",
-                          label: "DEC",
-                          idx: 0,
-                          pattern: "--",
-                        },
-                      ],
-                    },
-                  ],
-                },
-              ],
-            },
-            {
-              type: "Alternative",
-              definition: [
-                {
-                  type: "Option",
-                  idx: 0,
-                  definition: [
-                    {
-                      type: "Alternation",
-                      idx: 2,
-                      definition: [
-                        {
-                          type: "Alternative",
-                          definition: [
-                            {
-                              type: "Terminal",
-                              name: "PL_EQU",
-                              label: "PL_EQU",
-                              idx: 0,
-                              pattern: "+=",
-                            },
-                          ],
-                        },
-                        {
-                          type: "Alternative",
-                          definition: [
-                            {
-                              type: "Terminal",
-                              name: "MIN_EQU",
-                              label: "MIN_EQU",
-                              idx: 0,
-                              pattern: "-=",
-                            },
-                          ],
-                        },
-                        {
-                          type: "Alternative",
-                          definition: [
-                            {
-                              type: "Terminal",
-                              name: "ST_EQU",
-                              label: "ST_EQU",
-                              idx: 0,
-                              pattern: "*=",
-                            },
-                          ],
-                        },
-                        {
-                          type: "Alternative",
-                          definition: [
-                            {
-                              type: "Terminal",
-                              name: "SL_EQU",
-                              label: "SL_EQU",
-                              idx: 0,
-                              pattern: "/=",
-                            },
-                          ],
-                        },
-                        {
-                          type: "Alternative",
-                          definition: [
-                            {
-                              type: "Terminal",
-                              name: "MD_EQU",
-                              label: "MD_EQU",
-                              idx: 0,
-                              pattern: "%=",
-                            },
-                          ],
-                        },
-                        {
-                          type: "Alternative",
-                          definition: [
-                            {
-                              type: "Terminal",
-                              name: "TL_EQU",
-                              label: "TL_EQU",
-                              idx: 0,
-                              pattern: "~=",
-                            },
-                          ],
-                        },
-                        {
-                          type: "Alternative",
-                          definition: [
-                            {
-                              type: "Terminal",
-                              name: "AM_EQU",
-                              label: "AM_EQU",
-                              idx: 0,
-                              pattern: "&=",
-                            },
-                          ],
-                        },
-                        {
-                          type: "Alternative",
-                          definition: [
-                            {
-                              type: "Terminal",
-                              name: "PI_EQU",
-                              label: "PI_EQU",
-                              idx: 0,
-                              pattern: "|=",
-                            },
-                          ],
-                        },
-                        {
-                          type: "Alternative",
-                          definition: [
-                            {
-                              type: "Terminal",
-                              name: "CR_EQU",
-                              label: "CR_EQU",
-                              idx: 0,
-                              pattern: "^=",
-                            },
-                          ],
-                        },
-                        {
-                          type: "Alternative",
-                          definition: [
-                            {
-                              type: "Terminal",
-                              name: "LS_EQU",
-                              label: "LS_EQU",
-                              idx: 0,
-                              pattern: "<<=",
-                            },
-                          ],
-                        },
-                        {
-                          type: "Alternative",
-                          definition: [
-                            {
-                              type: "Terminal",
-                              name: "RS_EQU",
-                              label: "RS_EQU",
-                              idx: 0,
-                              pattern: ">>=",
-                            },
-                          ],
-                        },
-                        {
-                          type: "Alternative",
-                          definition: [
-                            {
-                              type: "Terminal",
-                              name: "AS_EQU",
-                              label: "AS_EQU",
-                              idx: 0,
-                              pattern: ">>>=",
-                            },
-                          ],
-                        },
-                        {
-                          type: "Alternative",
-                          definition: [
-                            {
-                              type: "Terminal",
-                              name: "NC_EQU",
-                              label: "NC_EQU",
-                              idx: 0,
-                              pattern: "??=",
-                            },
-                          ],
-                        },
-                        {
-                          type: "Alternative",
-                          definition: [
-                            {
-                              type: "Terminal",
-                              name: "N_COAL",
-                              label: "N_COAL",
-                              idx: 0,
-                              pattern: "??",
-                            },
-                          ],
-                        },
-                        {
-                          type: "Alternative",
-                          definition: [
-                            {
-                              type: "Terminal",
-                              name: "EE",
-                              label: "EE",
-                              idx: 0,
-                              pattern: "==",
-                            },
-                          ],
-                        },
-                        {
-                          type: "Alternative",
-                          definition: [
-                            {
-                              type: "Terminal",
-                              name: "NE",
-                              label: "NE",
-                              idx: 0,
-                              pattern: "!=",
-                            },
-                          ],
-                        },
-                        {
-                          type: "Alternative",
-                          definition: [
-                            {
-                              type: "Terminal",
-                              name: "GE",
-                              label: "GE",
-                              idx: 0,
-                              pattern: ">=",
-                            },
-                          ],
-                        },
-                        {
-                          type: "Alternative",
-                          definition: [
-                            {
-                              type: "Terminal",
-                              name: "LE",
-                              label: "LE",
-                              idx: 0,
-                              pattern: "<=",
-                            },
-                          ],
-                        },
-                        {
-                          type: "Alternative",
-                          definition: [
-                            {
-                              type: "Terminal",
-                              name: "LT",
-                              label: "LT",
-                              idx: 0,
-                              pattern: "<",
-                            },
-                          ],
-                        },
-                        {
-                          type: "Alternative",
-                          definition: [
-                            {
-                              type: "Terminal",
-                              name: "GT",
-                              label: "GT",
-                              idx: 0,
-                              pattern: ">",
-                            },
-                          ],
-                        },
-                        {
-                          type: "Alternative",
-                          definition: [
-                            {
-                              type: "Terminal",
-                              name: "PLUS",
-                              label: "PLUS",
-                              idx: 0,
-                              pattern: "+",
-                            },
-                          ],
-                        },
-                        {
-                          type: "Alternative",
-                          definition: [
-                            {
-                              type: "Terminal",
-                              name: "MINUS",
-                              label: "MINUS",
-                              idx: 0,
-                              pattern: "-",
-                            },
-                          ],
-                        },
-                        {
-                          type: "Alternative",
-                          definition: [
-                            {
-                              type: "Terminal",
-                              name: "STAR",
-                              label: "STAR",
-                              idx: 0,
-                              pattern: "*",
-                            },
-                          ],
-                        },
-                        {
-                          type: "Alternative",
-                          definition: [
-                            {
-                              type: "Terminal",
-                              name: "SLASH",
-                              label: "SLASH",
-                              idx: 0,
-                              pattern: "/",
-                            },
-                          ],
-                        },
-                        {
-                          type: "Alternative",
-                          definition: [
-                            {
-                              type: "Terminal",
-                              name: "MOD",
-                              label: "MOD",
-                              idx: 0,
-                              pattern: "%",
-                            },
-                          ],
-                        },
-                        {
-                          type: "Alternative",
-                          definition: [
-                            {
-                              type: "Terminal",
-                              name: "TILDE",
-                              label: "TILDE",
-                              idx: 0,
-                              pattern: "~",
-                            },
-                          ],
-                        },
-                        {
-                          type: "Alternative",
-                          definition: [
-                            {
-                              type: "Terminal",
-                              name: "AMP",
-                              label: "AMP",
-                              idx: 0,
-                              pattern: "&",
-                            },
-                          ],
-                        },
-                        {
-                          type: "Alternative",
-                          definition: [
-                            {
-                              type: "Terminal",
-                              name: "PIPE",
-                              label: "PIPE",
-                              idx: 0,
-                              pattern: "|",
-                            },
-                          ],
-                        },
-                        {
-                          type: "Alternative",
-                          definition: [
-                            {
-                              type: "Terminal",
-                              name: "CARET",
-                              label: "CARET",
-                              idx: 0,
-                              pattern: "^",
-                            },
-                          ],
-                        },
-                        {
-                          type: "Alternative",
-                          definition: [
-                            {
-                              type: "Terminal",
-                              name: "LSHIFT",
-                              label: "LSHIFT",
-                              idx: 0,
-                              pattern: "<<",
-                            },
-                          ],
-                        },
-                        {
-                          type: "Alternative",
-                          definition: [
-                            {
-                              type: "Terminal",
-                              name: "RSHIFT",
-                              label: "RSHIFT",
-                              idx: 0,
-                              pattern: ">>",
-                            },
-                          ],
-                        },
-                        {
-                          type: "Alternative",
-                          definition: [
-                            {
-                              type: "Terminal",
-                              name: "ASHIFT",
-                              label: "ASHIFT",
-                              idx: 0,
-                              pattern: ">>>",
-                            },
-                          ],
-                        },
-                        {
-                          type: "Alternative",
-                          definition: [
-                            {
-                              type: "Terminal",
-                              name: "EQU",
-                              label: "EQU",
-                              idx: 0,
-                              pattern: "=",
-                            },
-                          ],
-                        },
-                        {
-                          type: "Alternative",
-                          definition: [
-                            {
-                              type: "Terminal",
-                              name: "AND",
-                              label: "AND",
-                              idx: 0,
-                              pattern: "and",
-                            },
-                          ],
-                        },
-                        {
-                          type: "Alternative",
-                          definition: [
-                            {
-                              type: "Terminal",
-                              name: "OR",
-                              label: "OR",
-                              idx: 0,
-                              pattern: "or",
-                            },
-                          ],
-                        },
-                        {
-                          type: "Alternative",
-                          definition: [
-                            {
-                              type: "Terminal",
-                              name: "IN",
-                              label: "IN",
-                              idx: 0,
-                              pattern: "in",
-                            },
-                          ],
-                        },
-                      ],
-                    },
-                    {
-                      type: "NonTerminal",
-                      name: "expression",
-                      idx: 0,
-                    },
-                  ],
-                },
-              ],
-            },
-          ],
-        },
-      ],
-    },
-    {
-      type: "Rule",
-      name: "value",
-      orgText: "",
-      definition: [
-        {
-          type: "Alternation",
-          idx: 0,
-          definition: [
-            {
-              type: "Alternative",
-              definition: [
-                {
-                  type: "Alternation",
-                  idx: 1,
-                  definition: [
-                    {
-                      type: "Alternative",
-                      definition: [
-                        {
-                          type: "Terminal",
-                          name: "NOT",
-                          label: "NOT",
-                          idx: 0,
-                          pattern: "not",
-                        },
-                      ],
-                    },
-                    {
-                      type: "Alternative",
-                      definition: [
-                        {
-                          type: "Terminal",
-                          name: "INC",
-                          label: "INC",
-                          idx: 0,
-                          pattern: "++",
-                        },
-                      ],
-                    },
-                    {
-                      type: "Alternative",
-                      definition: [
-                        {
-                          type: "Terminal",
-                          name: "DEC",
-                          label: "DEC",
-                          idx: 0,
-                          pattern: "--",
-                        },
-                      ],
-                    },
-                  ],
-                },
-                {
-                  type: "NonTerminal",
-                  name: "value",
-                  idx: 1,
-                },
-              ],
-            },
-            {
-              type: "Alternative",
-              definition: [
-                {
-                  type: "NonTerminal",
-                  name: "constant",
-                  idx: 0,
-                },
-              ],
-            },
-            {
-              type: "Alternative",
-              definition: [
-                {
-                  type: "Terminal",
-                  name: "ID",
-                  label: "ID",
-                  idx: 0,
-                  pattern: "[a-zA-Z_][a-zA-Z_\\d]*",
-                },
-              ],
-            },
-            {
-              type: "Alternative",
-              definition: [
-                {
-                  type: "Terminal",
-                  name: "LPAREN",
-                  label: "LPAREN",
-                  idx: 0,
-                  pattern: "(",
-                },
-                {
-                  type: "NonTerminal",
-                  name: "expression",
-                  idx: 0,
-                },
-                {
-                  type: "Terminal",
-                  name: "RPAREN",
-                  label: "RPAREN",
-                  idx: 0,
-                  pattern: ")",
-                },
-              ],
-            },
-          ],
-        },
-      ],
-    },
-    {
-      type: "Rule",
-      name: "constant",
-      orgText: "",
-      definition: [
-        {
-          type: "Alternation",
-          idx: 0,
-          definition: [
-            {
-              type: "Alternative",
-              definition: [
-                {
-                  type: "Terminal",
-                  name: "STRING",
-                  label: "STRING",
-                  idx: 0,
-                  pattern: "(\"(\\\\\"|[^\"])*\")|('(\\\\'|[^'])*')",
-                },
-              ],
-            },
-            {
-              type: "Alternative",
-              definition: [
-                {
-                  type: "Terminal",
-                  name: "BOOL",
-                  label: "BOOL",
-                  idx: 0,
-                  pattern: "true|false",
-                },
-              ],
-            },
-            {
-              type: "Alternative",
-              definition: [
-                {
-                  type: "Terminal",
-                  name: "BIN",
-                  label: "BIN",
-                  idx: 0,
-                  pattern:
-                    "(0x([0-9a-fA-F][0-9a-fA-F_]*[0-9a-fA-F]|[0-9a-fA-F]))|(0o([0-7][0-7_]*[0-7]|[0-7]))|(0b([01][01_]*[01]|[01]))",
-                },
-              ],
-            },
-            {
-              type: "Alternative",
-              definition: [
-                {
-                  type: "Terminal",
-                  name: "INT",
-                  label: "INT",
-                  idx: 0,
-                  pattern: "(\\+|-)?(0|[1-9]([\\d_]+\\d|\\d)?)",
-                },
-              ],
-            },
-            {
-              type: "Alternative",
-              definition: [
-                {
-                  type: "Terminal",
-                  name: "CMPX",
-                  label: "CMPX",
-                  idx: 0,
-                  pattern:
-                    "(((\\+|-)?((0|[1-9]([\\d_]+\\d|\\d)?)\\.\\d+|inf)|NaN)(\\+|-))?((\\+|-)?((0|[1-9]([\\d_]+\\d|\\d)?)\\.\\d+|inf)|NaN)(i|j|I|J)",
-                },
-              ],
-            },
-            {
-              type: "Alternative",
-              definition: [
-                {
-                  type: "Terminal",
-                  name: "REAL",
-                  label: "REAL",
-                  idx: 0,
-                  pattern:
-                    "((\\+|-)?((0|[1-9]([\\d_]+\\d|\\d)?)\\.\\d+|inf)|NaN)",
-                },
-              ],
-            },
-          ],
-        },
-      ],
-    },
-    {
-      type: "Rule",
-      name: "type",
-      orgText: "",
-      definition: [
-        {
-          type: "Terminal",
-          name: "BASIC_TYPE",
-          label: "BASIC_TYPE",
-          idx: 0,
-          pattern: "bool|(i|u|b)(8|16|32|64)|(r|x)(32|64)|string",
-        },
-      ],
-    },
-  ];
+    window.serializedGrammar = [
+  {
+    "type": "Rule",
+    "name": "file",
+    "orgText": "",
+    "definition": [
+      {
+        "type": "Repetition",
+        "idx": 0,
+        "definition": [
+          {
+            "type": "NonTerminal",
+            "name": "statement",
+            "idx": 0
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "type": "Rule",
+    "name": "statement",
+    "orgText": "",
+    "definition": [
+      {
+        "type": "Alternation",
+        "idx": 0,
+        "definition": [
+          {
+            "type": "Alternative",
+            "definition": [
+              {
+                "type": "Option",
+                "idx": 0,
+                "definition": [
+                  {
+                    "type": "Alternation",
+                    "idx": 1,
+                    "definition": [
+                      {
+                        "type": "Alternative",
+                        "definition": [
+                          {
+                            "type": "Terminal",
+                            "name": "LET",
+                            "label": "LET",
+                            "idx": 0,
+                            "pattern": "let"
+                          },
+                          {
+                            "type": "NonTerminal",
+                            "name": "declaration",
+                            "idx": 0
+                          }
+                        ]
+                      },
+                      {
+                        "type": "Alternative",
+                        "definition": [
+                          {
+                            "type": "Terminal",
+                            "name": "BREAK",
+                            "label": "BREAK",
+                            "idx": 0,
+                            "pattern": "break"
+                          }
+                        ]
+                      },
+                      {
+                        "type": "Alternative",
+                        "definition": [
+                          {
+                            "type": "Terminal",
+                            "name": "CONTINUE",
+                            "label": "CONTINUE",
+                            "idx": 0,
+                            "pattern": "continue"
+                          }
+                        ]
+                      },
+                      {
+                        "type": "Alternative",
+                        "definition": [
+                          {
+                            "type": "Terminal",
+                            "name": "RETURN",
+                            "label": "RETURN",
+                            "idx": 0,
+                            "pattern": "return"
+                          },
+                          {
+                            "type": "Option",
+                            "idx": 2,
+                            "definition": [
+                              {
+                                "type": "NonTerminal",
+                                "name": "expression",
+                                "idx": 0
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "type": "Alternative",
+                        "definition": [
+                          {
+                            "type": "NonTerminal",
+                            "name": "expression",
+                            "idx": 2
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "Terminal",
+                "name": "SEMI",
+                "label": "SEMI",
+                "idx": 0,
+                "pattern": ";"
+              }
+            ]
+          },
+          {
+            "type": "Alternative",
+            "definition": [
+              {
+                "type": "Terminal",
+                "name": "IF",
+                "label": "IF",
+                "idx": 0,
+                "pattern": "if"
+              },
+              {
+                "type": "NonTerminal",
+                "name": "ifPredBody",
+                "idx": 1
+              },
+              {
+                "type": "Repetition",
+                "idx": 0,
+                "definition": [
+                  {
+                    "type": "Terminal",
+                    "name": "ELIF",
+                    "label": "ELIF",
+                    "idx": 0,
+                    "pattern": "elif"
+                  },
+                  {
+                    "type": "NonTerminal",
+                    "name": "ifPredBody",
+                    "idx": 2
+                  }
+                ]
+              },
+              {
+                "type": "Option",
+                "idx": 1,
+                "definition": [
+                  {
+                    "type": "Terminal",
+                    "name": "ELSE",
+                    "label": "ELSE",
+                    "idx": 0,
+                    "pattern": "else"
+                  },
+                  {
+                    "type": "NonTerminal",
+                    "name": "body",
+                    "idx": 3
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "Alternative",
+            "definition": [
+              {
+                "type": "Option",
+                "idx": 3,
+                "definition": [
+                  {
+                    "type": "Terminal",
+                    "name": "DO",
+                    "label": "DO",
+                    "idx": 0,
+                    "pattern": "do"
+                  },
+                  {
+                    "type": "NonTerminal",
+                    "name": "body",
+                    "idx": 4
+                  }
+                ]
+              },
+              {
+                "type": "Terminal",
+                "name": "WHILE",
+                "label": "WHILE",
+                "idx": 0,
+                "pattern": "while"
+              },
+              {
+                "type": "NonTerminal",
+                "name": "expression",
+                "idx": 3
+              },
+              {
+                "type": "Alternation",
+                "idx": 2,
+                "definition": [
+                  {
+                    "type": "Alternative",
+                    "definition": [
+                      {
+                        "type": "Terminal",
+                        "name": "SEMI",
+                        "label": "SEMI",
+                        "idx": 2,
+                        "pattern": ";"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "Alternative",
+                    "definition": [
+                      {
+                        "type": "NonTerminal",
+                        "name": "body",
+                        "idx": 5
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "Option",
+                "idx": 4,
+                "definition": [
+                  {
+                    "type": "Terminal",
+                    "name": "FINALLY",
+                    "label": "FINALLY",
+                    "idx": 0,
+                    "pattern": "finally"
+                  },
+                  {
+                    "type": "NonTerminal",
+                    "name": "body",
+                    "idx": 6
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "Alternative",
+            "definition": [
+              {
+                "type": "NonTerminal",
+                "name": "body",
+                "idx": 0
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "type": "Rule",
+    "name": "ifPredBody",
+    "orgText": "",
+    "definition": [
+      {
+        "type": "Terminal",
+        "name": "LPAREN",
+        "label": "LPAREN",
+        "idx": 0,
+        "pattern": "("
+      },
+      {
+        "type": "Alternation",
+        "idx": 0,
+        "definition": [
+          {
+            "type": "Alternative",
+            "definition": [
+              {
+                "type": "Terminal",
+                "name": "LET",
+                "label": "LET",
+                "idx": 0,
+                "pattern": "let"
+              },
+              {
+                "type": "NonTerminal",
+                "name": "declaration",
+                "idx": 0
+              }
+            ]
+          },
+          {
+            "type": "Alternative",
+            "definition": [
+              {
+                "type": "NonTerminal",
+                "name": "expression",
+                "idx": 0
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "Terminal",
+        "name": "RPAREN",
+        "label": "RPAREN",
+        "idx": 0,
+        "pattern": ")"
+      },
+      {
+        "type": "NonTerminal",
+        "name": "body",
+        "idx": 0
+      }
+    ]
+  },
+  {
+    "type": "Rule",
+    "name": "body",
+    "orgText": "",
+    "definition": [
+      {
+        "type": "Terminal",
+        "name": "LCURLY",
+        "label": "LCURLY",
+        "idx": 0,
+        "pattern": "{"
+      },
+      {
+        "type": "Repetition",
+        "idx": 0,
+        "definition": [
+          {
+            "type": "NonTerminal",
+            "name": "statement",
+            "idx": 0
+          }
+        ]
+      },
+      {
+        "type": "Terminal",
+        "name": "RCURLY",
+        "label": "RCURLY",
+        "idx": 0,
+        "pattern": "}"
+      }
+    ]
+  },
+  {
+    "type": "Rule",
+    "name": "declaration",
+    "orgText": "",
+    "definition": [
+      {
+        "type": "Terminal",
+        "name": "ID",
+        "label": "ID",
+        "idx": 0,
+        "pattern": "[a-zA-Z_][a-zA-Z_\\d]*"
+      },
+      {
+        "type": "Option",
+        "idx": 0,
+        "definition": [
+          {
+            "type": "Terminal",
+            "name": "COLON",
+            "label": "COLON",
+            "idx": 0,
+            "pattern": ":"
+          },
+          {
+            "type": "NonTerminal",
+            "name": "type",
+            "idx": 0
+          }
+        ]
+      },
+      {
+        "type": "Option",
+        "idx": 1,
+        "definition": [
+          {
+            "type": "Terminal",
+            "name": "EQU",
+            "label": "EQU",
+            "idx": 0,
+            "pattern": "="
+          },
+          {
+            "type": "NonTerminal",
+            "name": "expression",
+            "idx": 0
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "type": "Rule",
+    "name": "expression",
+    "orgText": "",
+    "definition": [
+      {
+        "type": "NonTerminal",
+        "name": "value",
+        "idx": 0
+      },
+      {
+        "type": "Alternation",
+        "idx": 0,
+        "definition": [
+          {
+            "type": "Alternative",
+            "definition": [
+              {
+                "type": "Terminal",
+                "name": "PostFix",
+                "label": "PostFix",
+                "idx": 0,
+                "pattern": "NOT_APPLICABLE"
+              }
+            ]
+          },
+          {
+            "type": "Alternative",
+            "definition": [
+              {
+                "type": "Option",
+                "idx": 0,
+                "definition": [
+                  {
+                    "type": "Alternation",
+                    "idx": 2,
+                    "definition": [
+                      {
+                        "type": "Alternative",
+                        "definition": [
+                          {
+                            "type": "Terminal",
+                            "name": "CmpAsgn",
+                            "label": "CmpAsgn",
+                            "idx": 0,
+                            "pattern": "NOT_APPLICABLE"
+                          }
+                        ]
+                      },
+                      {
+                        "type": "Alternative",
+                        "definition": [
+                          {
+                            "type": "Terminal",
+                            "name": "BinOp",
+                            "label": "BinOp",
+                            "idx": 0,
+                            "pattern": "NOT_APPLICABLE"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "type": "NonTerminal",
+                    "name": "expression",
+                    "idx": 0
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "type": "Rule",
+    "name": "value",
+    "orgText": "",
+    "definition": [
+      {
+        "type": "Alternation",
+        "idx": 0,
+        "definition": [
+          {
+            "type": "Alternative",
+            "definition": [
+              {
+                "type": "Terminal",
+                "name": "UnOp",
+                "label": "UnOp",
+                "idx": 0,
+                "pattern": "NOT_APPLICABLE"
+              },
+              {
+                "type": "NonTerminal",
+                "name": "value",
+                "idx": 1
+              }
+            ]
+          },
+          {
+            "type": "Alternative",
+            "definition": [
+              {
+                "type": "NonTerminal",
+                "name": "constant",
+                "idx": 0
+              }
+            ]
+          },
+          {
+            "type": "Alternative",
+            "definition": [
+              {
+                "type": "Terminal",
+                "name": "ID",
+                "label": "ID",
+                "idx": 0,
+                "pattern": "[a-zA-Z_][a-zA-Z_\\d]*"
+              }
+            ]
+          },
+          {
+            "type": "Alternative",
+            "definition": [
+              {
+                "type": "Terminal",
+                "name": "LPAREN",
+                "label": "LPAREN",
+                "idx": 0,
+                "pattern": "("
+              },
+              {
+                "type": "NonTerminal",
+                "name": "expression",
+                "idx": 0
+              },
+              {
+                "type": "Terminal",
+                "name": "RPAREN",
+                "label": "RPAREN",
+                "idx": 0,
+                "pattern": ")"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "type": "Rule",
+    "name": "constant",
+    "orgText": "",
+    "definition": [
+      {
+        "type": "Alternation",
+        "idx": 0,
+        "definition": [
+          {
+            "type": "Alternative",
+            "definition": [
+              {
+                "type": "Terminal",
+                "name": "STRING",
+                "label": "STRING",
+                "idx": 0,
+                "pattern": "(\"(\\\\\"|[^\"])*\")|('(\\\\'|[^'])*')"
+              }
+            ]
+          },
+          {
+            "type": "Alternative",
+            "definition": [
+              {
+                "type": "Terminal",
+                "name": "BOOL",
+                "label": "BOOL",
+                "idx": 0,
+                "pattern": "true|false"
+              }
+            ]
+          },
+          {
+            "type": "Alternative",
+            "definition": [
+              {
+                "type": "Terminal",
+                "name": "BIN",
+                "label": "BIN",
+                "idx": 0,
+                "pattern": "(0x([0-9a-fA-F][0-9a-fA-F_]*[0-9a-fA-F]|[0-9a-fA-F]))|(0o([0-7][0-7_]*[0-7]|[0-7]))|(0b([01][01_]*[01]|[01]))"
+              }
+            ]
+          },
+          {
+            "type": "Alternative",
+            "definition": [
+              {
+                "type": "Terminal",
+                "name": "INT",
+                "label": "INT",
+                "idx": 0,
+                "pattern": "(\\+|-)?(0|[1-9]([\\d_]+\\d|\\d)?)"
+              }
+            ]
+          },
+          {
+            "type": "Alternative",
+            "definition": [
+              {
+                "type": "Terminal",
+                "name": "CMPX",
+                "label": "CMPX",
+                "idx": 0,
+                "pattern": "(((\\+|-)?((0|[1-9]([\\d_]+\\d|\\d)?)\\.\\d+|inf)|NaN)(\\+|-))?((\\+|-)?((0|[1-9]([\\d_]+\\d|\\d)?)\\.\\d+|inf)|NaN)(i|j|I|J)"
+              }
+            ]
+          },
+          {
+            "type": "Alternative",
+            "definition": [
+              {
+                "type": "Terminal",
+                "name": "REAL",
+                "label": "REAL",
+                "idx": 0,
+                "pattern": "((\\+|-)?((0|[1-9]([\\d_]+\\d|\\d)?)\\.\\d+|inf)|NaN)"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "type": "Rule",
+    "name": "type",
+    "orgText": "",
+    "definition": [
+      {
+        "type": "Terminal",
+        "name": "BASIC_TYPE",
+        "label": "BASIC_TYPE",
+        "idx": 0,
+        "pattern": "bool|(i|u|b)(8|16|32|64)|(r|x)(32|64)|string"
+      }
+    ]
+  }
+];
 </script>
 
 <script>
-  var diagramsDiv = document.getElementById("diagrams");
-  main.drawDiagramsFromSerializedGrammar(serializedGrammar, diagramsDiv);
+    var diagramsDiv = document.getElementById("diagrams");
+    main.drawDiagramsFromSerializedGrammar(serializedGrammar, diagramsDiv);
 </script>

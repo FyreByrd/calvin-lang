@@ -132,17 +132,18 @@ export class CalvinParser extends CstParser {
     this.SUBRULE(this.value);
     this.OR([
       {
-        ALT: () => {
-          this.OR1([...Tokens.postfixUnopTokens.map((t) => ({ ALT: () => this.CONSUME(t) }))]);
-        }
+        ALT: () => this.CONSUME(Tokens.PostFix)
       },
       {
         ALT: () => {
           this.OPTION(() => {
             this.OR2([
-              ...[...Tokens.compAssgnTokens, ...Tokens.binopTokens].map((t) => ({
-                ALT: () => this.CONSUME(t)
-              }))
+              {
+                ALT: () => this.CONSUME(Tokens.CmpAsgn)
+              },
+              {
+                ALT: () => this.CONSUME(Tokens.BinOp)
+              }
             ]);
             this.SUBRULE(this.expression);
             // TODO reorder based on precedence
@@ -156,7 +157,7 @@ export class CalvinParser extends CstParser {
     this.OR([
       {
         ALT: () => {
-          this.OR1([...Tokens.unopTokens.map((t) => ({ ALT: () => this.CONSUME(t) }))]);
+          this.CONSUME(Tokens.UnOp);
           this.SUBRULE1(this.value);
         }
       },

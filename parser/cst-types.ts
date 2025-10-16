@@ -77,44 +77,9 @@ export interface ExpressionCstNode extends CstNode {
 
 export type ExpressionCstChildren = {
   value: ValueCstNode[];
-  INC?: IToken[];
-  DEC?: IToken[];
-  PL_EQU?: IToken[];
-  MIN_EQU?: IToken[];
-  ST_EQU?: IToken[];
-  SL_EQU?: IToken[];
-  MD_EQU?: IToken[];
-  TL_EQU?: IToken[];
-  AM_EQU?: IToken[];
-  PI_EQU?: IToken[];
-  CR_EQU?: IToken[];
-  LS_EQU?: IToken[];
-  RS_EQU?: IToken[];
-  AS_EQU?: IToken[];
-  NC_EQU?: IToken[];
-  N_COAL?: IToken[];
-  EE?: IToken[];
-  NE?: IToken[];
-  GE?: IToken[];
-  LE?: IToken[];
-  LT?: IToken[];
-  GT?: IToken[];
-  PLUS?: IToken[];
-  MINUS?: IToken[];
-  STAR?: IToken[];
-  SLASH?: IToken[];
-  MOD?: IToken[];
-  TILDE?: IToken[];
-  AMP?: IToken[];
-  PIPE?: IToken[];
-  CARET?: IToken[];
-  LSHIFT?: IToken[];
-  RSHIFT?: IToken[];
-  ASHIFT?: IToken[];
-  EQU?: IToken[];
-  AND?: IToken[];
-  OR?: IToken[];
-  IN?: IToken[];
+  PostFix?: IToken[];
+  CmpAsgn?: IToken[];
+  BinOp?: IToken[];
   expression?: ExpressionCstNode[];
 };
 
@@ -124,9 +89,7 @@ export interface ValueCstNode extends CstNode {
 }
 
 export type ValueCstChildren = {
-  NOT?: IToken[];
-  INC?: IToken[];
-  DEC?: IToken[];
+  UnOp?: IToken[];
   value?: ValueCstNode[];
   constant?: ConstantCstNode[];
   ID?: IToken[];

@@ -130,7 +130,6 @@ export class CalvinParser extends CstParser {
 
   private expression = this.RULE('expression', () => {
     this.SUBRULE(this.value);
-    // TODO value operator mismatch
     this.OR([
       {
         ALT: () => {
@@ -158,7 +157,6 @@ export class CalvinParser extends CstParser {
       {
         ALT: () => {
           this.OR1([...Tokens.unopTokens.map((t) => ({ ALT: () => this.CONSUME(t) }))]);
-          // TODO value operator mismatch
           this.SUBRULE1(this.value);
         }
       },
@@ -187,3 +185,4 @@ export class CalvinParser extends CstParser {
 
 export const parser = new CalvinParser();
 export const BaseCstVisitor = parser.getBaseCstVisitorConstructor();
+export const BaseCstVisitorWithDefaults = parser.getBaseCstVisitorConstructorWithDefaults();

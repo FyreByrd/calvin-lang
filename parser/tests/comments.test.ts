@@ -21,7 +21,7 @@ describe('Comment parsing', () => {
 
     expect(parser.errors).to.have.length(0, 'Parser should not error');
 
-    expect(parserOutput).to.have.length(0, 'No output should be generated');
+    expect(parserOutput.statement).to.equal(undefined, 'No output should be generated');
   });
 
   test('collapsed multiline comment', ({ expect }) => {
@@ -33,7 +33,7 @@ describe('Comment parsing', () => {
 
     expect(parser.errors).to.have.length(0, 'Parser should not error');
 
-    expect(parserOutput).to.have.length(0, 'No output should be generated');
+    expect(parserOutput.statement).to.equal(undefined, 'No output should be generated');
   });
 
   test('longer multiline comment', ({ expect }) => {
@@ -53,7 +53,7 @@ describe('Comment parsing', () => {
 
     expect(parser.errors).to.have.length(0, 'Parser should not error');
 
-    expect(parserOutput).to.have.length(0, 'No output should be generated');
+    expect(parserOutput.statement).to.equal(undefined, 'No output should be generated');
   });
 
   test('comments embedded in a string', ({ expect }) => {
@@ -65,7 +65,7 @@ describe('Comment parsing', () => {
 
     expect(parser.errors).to.have.length(0, 'Parser should not error');
 
-    expect(parserOutput).to.have.length(1, 'One statement should be generated');
+    expect(parserOutput.statement).to.have.length(1, 'One statement should be generated');
   });
 });
 

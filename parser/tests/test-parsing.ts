@@ -1,7 +1,8 @@
 import type { ILexingResult } from 'chevrotain';
+import type { FileCstChildren, FileCstNode } from '../cst-types.js';
 import { Globals } from '../globals.js';
 import { CalvinLexer } from '../lexer.js';
-import type { CalvinParser, Stmt } from '../parser.js';
+import type { CalvinParser } from '../parser.js';
 import type { CalvinPrinter } from '../printer.js';
 
 export interface TestCaseParameters {
@@ -25,7 +26,7 @@ export interface TestCaseParameters {
 
 export interface TestCaseOutputs {
   lexingResult: ILexingResult;
-  parserOutput: Stmt[];
+  parserOutput: FileCstChildren;
 }
 
 /**
@@ -43,14 +44,17 @@ export function testParsing(params: TestCaseParameters): TestCaseOutputs {
 
   const lexingResult = CalvinLexer.tokenize(code);
   parser.input = lexingResult.tokens;
-  const parserOutput = parser.file();
+  const parserOutput = parser.file() as FileCstNode;
 
   // If this doesn't respect global debugAll option, we should wrap this
   // in a `Globals.debugAll` check
-  printer.file(parserOutput);
-  parser.scope.print();
+  printer.visit(parserOutput);
+  //parser.scope.print();
 
-  const testCaseOutputs: TestCaseOutputs = { lexingResult, parserOutput };
+  const testCaseOutputs: TestCaseOutputs = {
+    lexingResult,
+    parserOutput: parserOutput.children
+  };
 
   if (Globals.debugAll) {
     console.dir(testCaseOutputs, { depth: null });

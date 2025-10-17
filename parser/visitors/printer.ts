@@ -22,7 +22,7 @@ export class CalvinPrinter extends BaseCstVisitor implements ICstNodeVisitor<num
   }
   file(node: FileCstChildren, indent: number) {
     if (node.statement) {
-      tree('(', indent);
+      tree('(<file>', indent);
       this.statement_list(node.statement, indent + 2);
       tree(')', indent);
     }
@@ -126,9 +126,9 @@ export class CalvinPrinter extends BaseCstVisitor implements ICstNodeVisitor<num
   expression(expr: ExpressionCstChildren, indent: number) {
     const op = Object.values(expr).find((e) => 'tokenType' in e[0]) as IToken[] | undefined;
     if (op) {
-      tree(`(${op[0].image}`, indent);
+      tree(`(<expr>: ${op[0].image}`, indent);
     } else {
-      tree('(', indent);
+      tree('(<expr>', indent);
     }
     this.value(expr.value[0].children, indent + 2);
     if (expr.expression) {
@@ -139,27 +139,27 @@ export class CalvinPrinter extends BaseCstVisitor implements ICstNodeVisitor<num
 
   value(val: ValueCstChildren, indent: number) {
     if (val.expression) {
-      tree('(', indent);
+      tree('(<value>', indent);
       this.expression(val.expression[0].children, indent + 2);
       tree(')', indent);
     } else if (val.constant) {
       this.constant(val.constant[0].children, indent);
     } else if (val.ID) {
-      tree(val.ID[0].image, indent);
+      tree(`<id>: ${val.ID[0].image}`, indent);
     } else {
       const op = Object.values(val).find((v) => 'tokenType' in v[0]) as IToken[];
-      tree(`(${op[0].image}!`, indent);
+      tree(`(<value>: ${op[0].image}!`, indent);
       this.value(val.value![0].children, indent + 2);
       tree(`)`, indent);
     }
   }
 
   constant(c: ConstantCstChildren, indent: number) {
-    tree(Object.values(c)[0][0].image, indent);
+    tree(`<const>: ${Object.values(c)[0][0].image}`, indent);
   }
 
   type(t: TypeCstChildren, indent: number) {
-    tree(`: ${t.BASIC_TYPE[0].image}`, indent);
+    tree(`<type>: ${t.BASIC_TYPE[0].image}`, indent);
   }
 
   visit(node: CstNode, indent: number = 0) {

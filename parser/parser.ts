@@ -146,7 +146,6 @@ export class CalvinParser extends CstParser {
               }
             ]);
             this.SUBRULE(this.expression);
-            // TODO reorder based on precedence
           });
         }
       }

@@ -4,10 +4,11 @@ import { Globals } from './globals.js';
 import { CalvinLexer } from './lexer.js';
 import { error } from './logging.js';
 import { CalvinParser } from './parser.js';
+import { PrecedenceHandler } from './visitors/precedence.js';
 import { CalvinPrinter } from './visitors/printer.js';
 
 const parser = new CalvinParser();
-
+const precHandler = new PrecedenceHandler();
 const printer = new CalvinPrinter();
 
 function parseInput(text: string) {
@@ -23,6 +24,16 @@ function parseInput(text: string) {
     throw Error();
   }
 
+  printer.visit(output);
+
+  //console.log(JSON.stringify(output, null, 2));
+
+  console.log('\nBegin Reordering\n');
+
+  precHandler.visit(output);
+
+  //console.log(JSON.stringify(output, null, 2));
+  console.log('\nAfter Reordering\n');
   printer.visit(output);
   //parser.scope.print();
 }

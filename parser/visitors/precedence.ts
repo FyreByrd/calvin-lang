@@ -1,13 +1,20 @@
-import type { TokenType } from 'chevrotain';
+import type { CstNode, TokenType } from 'chevrotain';
 import type {
+  BodyCstChildren,
+  ConstantCstChildren,
+  DeclarationCstChildren,
   ExpressionCstChildren,
   ExpressionCstNode,
+  FileCstChildren,
+  IfPredBodyCstChildren,
+  StatementCstChildren,
+  StatementCstNode,
+  TypeCstChildren,
   ValueCstChildren,
   ValueCstNode
 } from '../cst-types.js';
 import * as Tokens from '../lexer.js';
-import { BaseCstVisitorWithDefaults } from '../parser.js';
-import { CalvinPrinter } from './printer.js';
+import { BaseCstVisitor } from '../parser.js';
 
 enum Prec {
   // ltr
@@ -58,9 +65,7 @@ function tok2Prec(tok: TokenType) {
   }
 }
 
-const printer = new CalvinPrinter();
-
-export class PrecedenceHandler extends BaseCstVisitorWithDefaults {
+export class PrecedenceHandler extends BaseCstVisitor {
   constructor() {
     super();
     this.validateVisitor();
@@ -70,26 +75,13 @@ export class PrecedenceHandler extends BaseCstVisitorWithDefaults {
     // greater precedence number is higher in tree
     // tree.left is value, tree.right is sub-expression
     if (tree.BinOp && tree.expression) {
-      const ln = tree.BinOp[0].startLine;
-      //console.log(`${ln}: ${tree.BinOp[0].image}`);
-      // tree.right (i.e. expression) = reordered expression
-      //console.log(`${ln}: enter recurse`);
       const right = (tree.expression[0].children = this.reorder(tree.expression[0].children));
-      //console.log(`${ln}: exit recurse`);
       if (right.BinOp) {
         if (tok2Prec(tree.BinOp[0].tokenType) <= tok2Prec(right.BinOp[0].tokenType)) {
-          console.log(`${ln}: reordering`);
-          console.log(`${ln}: before:`);
-          const indent = 2;
-          printer.expression(tree, indent);
           // keep reference to old tree
           const old = { ...tree };
-          console.log(`${ln}: old:`);
-          printer.expression(old, indent);
           // tree is now tree.right
           tree = { ...right };
-          console.log(`${ln}: tree = old.right:`);
-          printer.expression(tree, indent);
           // old tree.right is now tree.right.left
           const left = tree.value[0];
           old.expression![0] = {
@@ -97,33 +89,135 @@ export class PrecedenceHandler extends BaseCstVisitorWithDefaults {
             children: { value: [{ ...left }] },
             name: 'expression'
           } satisfies ExpressionCstNode;
-          console.log(`${ln}: old.right = tree.right.left:`);
-          printer.expression(old, indent);
           // new tree.left is now old tree
           tree.value[0] = {
             children: { expression: [{ name: 'expression', children: old }] },
             name: 'value'
           } satisfies ValueCstNode;
-          console.log(`${ln}: tree.left = old:`);
-          printer.expression(tree, indent);
         }
       }
     }
     return tree;
   }
 
-  expression(expr: ExpressionCstChildren) {
-    expr = this.reorder(expr);
-    this.value(expr.value[0].children);
+  expression(expr: ExpressionCstNode) {
+    expr.children = this.reorder(expr.children);
+    this.value(expr.children.value[0].children);
   }
 
   value(val: ValueCstChildren) {
     if (val.expression) {
       // nested expression
-      this.expression(val.expression[0].children);
-    } else if (!val.constant && !val.ID) {
+      this.expression(val.expression[0]);
+    } else if (!val.constant && !val.ID && val.value) {
       // Unop
-      this.value(val.value![0].children);
+      this.value(val.value[0].children);
+    }
+  }
+
+  file(node: FileCstChildren) {
+    if (node.statement) {
+      this.statement_list(node.statement);
+    }
+  }
+
+  statement_list(statements: StatementCstNode[]) {
+    for (const stmt of statements) {
+      this.statement(stmt.children);
+    }
+  }
+
+  statement(stmt: StatementCstChildren) {
+    if (stmt.declaration) {
+      this.declaration(stmt.declaration[0].children);
+    } else if (stmt.RETURN) {
+      if (stmt.expression) {
+        this.expression(stmt.expression[0]);
+      }
+    } else if (stmt.IF && stmt.ifPredBody) {
+      let bodyCount = 0;
+      this.ifPredBody(stmt.ifPredBody[bodyCount++].children);
+      if (stmt.ELIF) {
+        stmt.ELIF.forEach(() => {
+          this.ifPredBody(stmt.ifPredBody![bodyCount++].children);
+        });
+      }
+      if (stmt.ELSE && stmt.body) {
+        this.body(stmt.body![0].children);
+      }
+    } else if (stmt.WHILE) {
+      let bodyCount = 0;
+      if (stmt.DO) {
+        this.body(stmt.body![bodyCount++].children);
+      }
+      this.expression(stmt.expression![0]);
+      if (!stmt.SEMI) {
+        this.body(stmt.body![bodyCount++].children);
+      }
+      if (stmt.FINALLY) {
+        this.body(stmt.body![bodyCount++].children);
+      }
+    } else if (stmt.body) {
+      this.body(stmt.body[0].children);
+    } else if (stmt.expression) {
+      this.expression(stmt.expression[0]);
+    }
+  }
+
+  ifPredBody(predBody: IfPredBodyCstChildren) {
+    if (predBody.LET) {
+      this.declaration(predBody.declaration![0].children);
+    } else {
+      this.expression(predBody.expression![0]);
+    }
+    this.body(predBody.body[0].children);
+  }
+
+  declaration(decl: DeclarationCstChildren) {
+    if (decl.expression) {
+      this.expression(decl.expression[0]);
+    }
+  }
+
+  body(body: BodyCstChildren) {
+    if (body.statement) {
+      this.statement_list(body.statement);
+    }
+  }
+
+  constant(c: ConstantCstChildren) {}
+
+  type(t: TypeCstChildren) {}
+
+  visit(node: CstNode) {
+    switch (node.name) {
+      case 'file':
+        this.file(node.children as FileCstChildren);
+        break;
+      case 'statement':
+        this.statement(node.children as StatementCstChildren);
+        break;
+      case 'ifPredBody':
+        this.ifPredBody(node.children as IfPredBodyCstChildren);
+        break;
+      case 'body':
+        this.body(node.children as BodyCstChildren);
+        break;
+      case 'declaration':
+        this.declaration(node.children as DeclarationCstChildren);
+        break;
+      case 'expression':
+        this.expression(node as ExpressionCstNode);
+        break;
+      case 'value':
+        this.value(node.children as ValueCstChildren);
+        break;
+      case 'constant':
+        this.constant(node.children as ConstantCstChildren);
+        break;
+      case 'type':
+        this.type(node.children as TypeCstChildren);
+        break;
     }
   }
 }

@@ -130,27 +130,19 @@ export class CalvinParser extends CstParser {
 
   private expression = this.RULE('expression', () => {
     this.SUBRULE(this.value);
-    this.OR([
-      {
-        ALT: () => this.CONSUME(Tokens.PostFix)
-      },
-      {
-        ALT: () => {
-          this.OPTION(() => {
-            this.OR2([
-              {
-                ALT: () => this.CONSUME(Tokens.CmpAsgn)
-              },
-              {
-                ALT: () => this.CONSUME(Tokens.BinOp)
-              }
-            ]);
-            this.SUBRULE(this.expression);
-            // TODO reorder based on precedence
-          });
+    this.OPTION(() => this.CONSUME(Tokens.PostFix));
+
+    this.OPTION1(() => {
+      this.OR([
+        {
+          ALT: () => this.CONSUME(Tokens.CmpAsgn)
+        },
+        {
+          ALT: () => this.CONSUME(Tokens.BinOp)
         }
-      }
-    ]);
+      ]);
+      this.SUBRULE(this.expression);
+    });
   });
 
   private value = this.RULE('value', () => {

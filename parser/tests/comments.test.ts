@@ -1,12 +1,15 @@
 import { afterAll, beforeAll, describe, test } from 'vitest';
 import { Globals } from '../globals.js';
 import { CalvinParser } from '../parser.js';
+import { PrecedenceHandler } from '../visitors/precedence.js';
 import { CalvinPrinter } from '../visitors/printer.js';
 import { CalvinTypeAnalyzer } from '../visitors/semantics.js';
 import { testParsing } from './test-parsing.js';
 
 describe('Comment parsing', () => {
   const parser = new CalvinParser();
+
+  const precHandler = new PrecedenceHandler();
 
   const printer = new CalvinPrinter();
 
@@ -16,6 +19,7 @@ describe('Comment parsing', () => {
     const testCaseOutputs = testParsing({
       code: '// line comment',
       parser,
+      precHandler,
       printer,
       typeAnalyzer
     });
@@ -32,6 +36,7 @@ describe('Comment parsing', () => {
     const { parserOutput } = testParsing({
       code: '/**/ // collapsed multiline comment',
       parser,
+      precHandler,
       printer,
       typeAnalyzer
     });
@@ -53,6 +58,7 @@ describe('Comment parsing', () => {
         '*/'
       ].join('\n'),
       parser,
+      precHandler,
       printer,
       typeAnalyzer
     });
@@ -66,6 +72,7 @@ describe('Comment parsing', () => {
     const { parserOutput } = testParsing({
       code: "let str = '/*****/  //'; // comments embedded in a string",
       parser,
+      precHandler,
       printer,
       typeAnalyzer
     });

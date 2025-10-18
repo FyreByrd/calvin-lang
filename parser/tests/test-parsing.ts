@@ -2,7 +2,9 @@ import type { ILexingResult } from 'chevrotain';
 import type { FileCstChildren } from '../cst-types.js';
 import { Globals } from '../globals.js';
 import { CalvinLexer } from '../lexer.js';
+import { debug } from '../logging.js';
 import type { CalvinParser } from '../parser.js';
+import type { PrecedenceHandler } from '../visitors/precedence.js';
 import type { CalvinPrinter } from '../visitors/printer.js';
 import type { CalvinTypeAnalyzer } from '../visitors/semantics.js';
 
@@ -13,6 +15,12 @@ export interface TestCaseParameters {
    * **Note:** We choose not to instantiate this ourselves in case we want to inject something else, e.g. a shim or an experimental impl
    */
   parser: CalvinParser;
+  /**
+   * The parser to use for parsing Calvin code.
+   *
+   * **Note:** We choose not to instantiate this ourselves in case we want to inject something else, e.g. a shim or an experimental impl
+   */
+  precHandler: PrecedenceHandler;
   /**
    * The printer to use when debugging.
    *
@@ -34,6 +42,7 @@ export interface TestCaseParameters {
 export interface TestCaseOutputs {
   lexingResult: ILexingResult;
   parserOutput: FileCstChildren;
+  precOutput: number;
   typeOutput: {
     errors: number;
     warnings: number;
@@ -51,15 +60,23 @@ export interface TestCaseOutputs {
  * @returns the results of executing the test procedure to be examined by assertions
  */
 export function testParsing(params: TestCaseParameters): TestCaseOutputs {
-  const { code, parser, printer, typeAnalyzer } = params;
+  const { code, parser, printer, typeAnalyzer, precHandler } = params;
 
   const lexingResult = CalvinLexer.tokenize(code);
   parser.input = lexingResult.tokens;
   const parserOutput = parser.file();
 
+  debug('Before reordering:');
+  printer.visit(parserOutput);
+
+  precHandler.reset();
+  precHandler.visit(parserOutput);
+
   // If this doesn't respect global debugAll option, we should wrap this
   // in a `Globals.debugAll` check
+  debug('After reordering:');
   printer.visit(parserOutput);
+
   typeAnalyzer.reset();
   typeAnalyzer.visit(parserOutput);
   typeAnalyzer.scope.print();
@@ -67,6 +84,7 @@ export function testParsing(params: TestCaseParameters): TestCaseOutputs {
   const testCaseOutputs: TestCaseOutputs = {
     lexingResult,
     parserOutput: parserOutput.children,
+    precOutput: precHandler.reordered,
     typeOutput: {
       errors: typeAnalyzer.errors,
       warnings: typeAnalyzer.warnings
@@ -74,7 +92,7 @@ export function testParsing(params: TestCaseParameters): TestCaseOutputs {
   };
 
   if (Globals.debugAll) {
-    console.dir(testCaseOutputs, { depth: null });
+    //console.dir(testCaseOutputs, { depth: null });
   }
 
   return testCaseOutputs;

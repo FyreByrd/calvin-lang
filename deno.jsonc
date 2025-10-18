@@ -17,12 +17,11 @@
     "chevrotain": "npm:chevrotain@^11.0.3"
   },
 
-  // ported from .prettierrc
+  // Loosely ported from .prettierrc
   "fmt": {
     "useTabs": false,
     "indentWidth": 2,
     "singleQuote": true,
-    "trailingCommas": "never",
     "lineWidth": 100
   },
 

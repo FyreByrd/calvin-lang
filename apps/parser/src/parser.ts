@@ -130,27 +130,12 @@ export class EncodeParser extends CstParser {
 
   private expression = this.RULE('expression', () => {
     this.SUBRULE(this.value);
-    this.OR([
-      {
-        ALT: () => this.CONSUME(Tokens.PostFix),
-      },
-      {
-        ALT: () => {
-          this.OPTION(() => {
-            this.OR2([
-              {
-                ALT: () => this.CONSUME(Tokens.CmpAsgn),
-              },
-              {
-                ALT: () => this.CONSUME(Tokens.BinOp),
-              },
-            ]);
-            this.SUBRULE(this.expression);
-            // TODO reorder based on precedence
-          });
-        },
-      },
-    ]);
+    this.OPTION(() => this.CONSUME(Tokens.PostFix));
+
+    this.OPTION1(() => {
+      this.CONSUME(Tokens.BinOp); // Compound assignment is categorized as a Binary operation by the lexer now
+      this.SUBRULE(this.expression);
+    });
   });
 
   private value = this.RULE('value', () => {

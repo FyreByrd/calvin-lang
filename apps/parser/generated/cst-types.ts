@@ -78,7 +78,6 @@ export interface ExpressionCstNode extends CstNode {
 export type ExpressionCstChildren = {
   value: ValueCstNode[];
   PostFix?: IToken[];
-  CmpAsgn?: IToken[];
   BinOp?: IToken[];
   expression?: ExpressionCstNode[];
 };

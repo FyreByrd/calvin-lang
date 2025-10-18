@@ -143,8 +143,12 @@ export class XMLPrinter extends BasePrinter implements ICstNodeVisitor<number, v
   }
 
   expression(expr: ExpressionCstChildren, indent: number) {
-    const op = Object.values(expr).find((e) => 'tokenType' in e[0]) as IToken[] | undefined;
-    this.tree(`<expression op="${op?.[0].image ?? ''}">`, indent);
+    const op = expr.BinOp;
+    const pf = expr.PostFix;
+    this.tree(
+      `<expression${op ? ` op="${op[0].image}"` : ''} ${pf ? ` postfix="${pf[0].image}"` : ''}>`,
+      indent,
+    );
     this.value(expr.value[0].children, indent + 2);
     if (expr.expression) {
       this.expression(expr.expression[0].children, indent + 2);

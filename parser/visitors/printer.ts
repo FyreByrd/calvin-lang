@@ -124,13 +124,16 @@ export class CalvinPrinter extends BaseCstVisitor implements ICstNodeVisitor<num
   }
 
   expression(expr: ExpressionCstChildren, indent: number) {
-    const op = Object.values(expr).find((e) => 'tokenType' in e[0]) as IToken[] | undefined;
+    const op = expr.BinOp || expr.CmpAsgn;
     if (op) {
       tree(`(<expr>: ${op[0].image}`, indent);
     } else {
       tree('(<expr>', indent);
     }
     this.value(expr.value[0].children, indent + 2);
+    if (expr.PostFix) {
+      tree(expr.PostFix[0].image, indent + 2);
+    }
     if (expr.expression) {
       this.expression(expr.expression[0].children, indent + 2);
     }

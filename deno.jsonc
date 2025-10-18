@@ -1,7 +1,9 @@
 {
   "workspace": ["apps/*", "scripts/*", "packages/*"],
 
-  "tasks": {},
+  "tasks": {
+    "generate": "deno run --allow-write @calvin-lang/generate"
+  },
 
   "imports": {
     // Import alias

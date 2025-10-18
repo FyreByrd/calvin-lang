@@ -6,7 +6,7 @@ import { CalvinPrinter } from '../visitors/printer.js';
 import { CalvinTypeAnalyzer } from '../visitors/semantics.js';
 import { testParsing } from './test-parsing.js';
 
-describe('Control flow parsing', () => {
+describe('Expression Parsing/Reordering', () => {
   const parser = new CalvinParser();
 
   const precHandler = new PrecedenceHandler();
@@ -15,9 +15,9 @@ describe('Control flow parsing', () => {
 
   const typeAnalyzer = new CalvinTypeAnalyzer();
 
-  test('simple if statement', ({ expect }) => {
-    const { parserOutput } = testParsing({
-      code: ['let a = 0;', 'if (a > 1) {', '', '}', ''].join('\n'),
+  test('simple expression', ({ expect }) => {
+    const { parserOutput, precOutput } = testParsing({
+      code: 'let a = 1 * 2 + 3;',
       parser,
       precHandler,
       printer,
@@ -27,33 +27,8 @@ describe('Control flow parsing', () => {
     expect(parser.errors).to.have.length(0, 'Parser should not error');
 
     expect(parserOutput.statement).to.have.length.above(0, 'Statements should be generated');
-  });
 
-  test('incorrect variable access', ({ expect }) => {
-    const { parserOutput, typeOutput } = testParsing({
-      code: [
-        'let a = 0;',
-        'if (1) {',
-        '    let b = 20; // should not be accessible to else block',
-        '}',
-        'elif (let b = 10) {',
-        '    a = b;',
-        '    let a = 25; // should warn',
-        '}',
-        'else {',
-        '    b = 2; // should error',
-        '}'
-      ].join('\n'),
-      parser,
-      precHandler,
-      printer,
-      typeAnalyzer
-    });
-
-    expect(typeOutput.errors).to.equal(1, 'TypeAnalyzer should report an error');
-    expect(typeOutput.warnings).to.equal(1, 'TypeAnalyzer should report a warning');
-
-    expect(parserOutput); // Discard parserOutput for now
+    expect(precOutput).to.equal(1, 'Expression should be reorderd');
   });
 });
 

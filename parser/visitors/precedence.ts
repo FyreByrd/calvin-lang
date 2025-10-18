@@ -66,9 +66,18 @@ function tok2Prec(tok: TokenType) {
 }
 
 export class PrecedenceHandler extends BaseCstVisitor {
+  private _reordered;
+  public get reordered() {
+    return this._reordered;
+  }
   constructor() {
     super();
     this.validateVisitor();
+    this._reordered = 0;
+  }
+
+  reset() {
+    this._reordered = 0;
   }
 
   reorder(tree: ExpressionCstChildren) {
@@ -78,6 +87,7 @@ export class PrecedenceHandler extends BaseCstVisitor {
       const right = (tree.expression[0].children = this.reorder(tree.expression[0].children));
       if (right.BinOp) {
         if (tok2Prec(tree.BinOp[0].tokenType) <= tok2Prec(right.BinOp[0].tokenType)) {
+          this._reordered++;
           // keep reference to old tree
           const old = { ...tree };
           // tree is now tree.right

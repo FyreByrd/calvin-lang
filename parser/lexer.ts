@@ -25,7 +25,7 @@ export const CMPX = createToken({
   pattern: RegExp(`(${real.source}(\\+|-))?${real.source}(i|j|I|J)`)
 });
 export const REAL = createToken({ name: 'REAL', pattern: real });
-export const literals = [STRING, BOOL, BIN, INT, CMPX, REAL];
+export const literals = [STRING, BOOL, BIN, CMPX, REAL, INT];
 export const ID = createToken({ name: 'ID', pattern: /[a-zA-Z_][a-zA-Z_\d]*/ });
 /* Type Tokens */
 export const BASIC_TYPE = createToken({

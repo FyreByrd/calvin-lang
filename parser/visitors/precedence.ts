@@ -19,6 +19,7 @@ enum Prec {
   BinXor, // ^
   BinAnd, // &
   BinOr, // |
+  Coal, // ??
   // rtl
   Asgn // =, compound assignment
 }
@@ -50,6 +51,8 @@ function tok2Prec(tok: TokenType) {
       return Prec.BinAnd;
     case Tokens.PIPE:
       return Prec.BinOr;
+    case Tokens.N_COAL:
+      return Prec.Coal;
     default:
       return Prec.Asgn;
   }

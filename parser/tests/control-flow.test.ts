@@ -1,12 +1,15 @@
 import { afterAll, beforeAll, describe, test } from 'vitest';
 import { Globals } from '../globals.js';
 import { CalvinParser } from '../parser.js';
+import { PrecedenceHandler } from '../visitors/precedence.js';
 import { CalvinPrinter } from '../visitors/printer.js';
 import { CalvinTypeAnalyzer } from '../visitors/semantics.js';
 import { testParsing } from './test-parsing.js';
 
 describe('Control flow parsing', () => {
   const parser = new CalvinParser();
+
+  const precHandler = new PrecedenceHandler();
 
   const printer = new CalvinPrinter();
 
@@ -16,6 +19,7 @@ describe('Control flow parsing', () => {
     const { parserOutput } = testParsing({
       code: ['let a = 0;', 'if (a > 1) {', '', '}', ''].join('\n'),
       parser,
+      precHandler,
       printer,
       typeAnalyzer
     });
@@ -41,6 +45,7 @@ describe('Control flow parsing', () => {
         '}'
       ].join('\n'),
       parser,
+      precHandler,
       printer,
       typeAnalyzer
     });

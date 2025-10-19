@@ -1,0 +1,33 @@
+{
+  "workspace": ["apps/*", "scripts/*", "packages/*"],
+
+  "tasks": {
+    "generate": "deno run --allow-write @calvin-lang/generate"
+  },
+
+  "imports": {
+    // Import alias
+    "@root/": "./",
+    // External dependencies
+    "@biomejs/biome": "npm:@biomejs/biome@2.2.6",
+    "@std/assert": "jsr:@std/assert",
+    "@std/testing": "jsr:@std/testing",
+    "@std/fmt": "jsr:@std/fmt",
+    "@std/cli": "jsr:@std/cli",
+    "@std/fs": "jsr:@std/fs",
+    "@std/path": "jsr:@std/path",
+    "chevrotain": "npm:chevrotain@^11.0.3"
+  },
+
+  // Loosely ported from .prettierrc
+  "fmt": {
+    "useTabs": false,
+    "indentWidth": 2,
+    "singleQuote": true,
+    "lineWidth": 100
+  },
+
+  // See https://docs.deno.com/runtime/reference/ts_config_migration/#ts-compiler-options for default compiler options.
+  // TS kinda just works in Deno, so we don't configure anything here
+  "compilerOptions": {}
+}

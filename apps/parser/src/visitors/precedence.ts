@@ -67,7 +67,7 @@ function tok2Prec(tok: TokenType) {
 
 export class PrecedenceHandler extends BaseCstVisitor {
   private _reordered;
-  public get reordered() {
+  public get reordered(): number {
     return this._reordered;
   }
   constructor() {
@@ -80,7 +80,7 @@ export class PrecedenceHandler extends BaseCstVisitor {
     this._reordered = 0;
   }
 
-  reorder(tree: ExpressionCstChildren) {
+  reorder(tree: ExpressionCstChildren): ExpressionCstChildren {
     // greater precedence number is higher in tree
     // tree.left is value, tree.right is sub-expression
     if (tree.BinOp && tree.expression) {

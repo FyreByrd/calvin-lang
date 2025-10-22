@@ -2,7 +2,8 @@
   "workspace": ["apps/*", "scripts/*", "packages/*"],
 
   "tasks": {
-    "generate": "deno run --allow-write @calvin-lang/generate"
+    "generate": "deno run --allow-write @calvin-lang/generate",
+    "check": "deno run --allow-env --allow-run @biomejs/biome check"
   },
 
   "imports": {

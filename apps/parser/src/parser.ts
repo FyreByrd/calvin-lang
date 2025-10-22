@@ -38,7 +38,7 @@ export class CalvinParser extends CstParser {
               {
                 ALT: () => this.SUBRULE2(this.expression),
               },
-            ])
+            ]),
           );
           this.CONSUME(Tokens.SEMI);
         },
@@ -177,17 +177,16 @@ export class CalvinParser extends CstParser {
     ]);
   });
 
-  private constant = this.RULE(
-    'constant',
-    () => this.OR(Tokens.literals.map((t) => ({ ALT: () => this.CONSUME(t) }))),
+  private constant = this.RULE('constant', () =>
+    this.OR(Tokens.literals.map((t) => ({ ALT: () => this.CONSUME(t) }))),
   );
 
   private type = this.RULE('type', () => this.CONSUME(Tokens.BASIC_TYPE));
 }
 
 export const parser: CalvinParser = new CalvinParser();
-export const BaseCstVisitor: ReturnType<typeof parser.getBaseCstVisitorConstructor> = parser
-  .getBaseCstVisitorConstructor();
+export const BaseCstVisitor: ReturnType<typeof parser.getBaseCstVisitorConstructor> =
+  parser.getBaseCstVisitorConstructor();
 export const BaseCstVisitorWithDefaults: ReturnType<
   typeof parser.getBaseCstVisitorConstructorWithDefaults
 > = parser.getBaseCstVisitorConstructorWithDefaults();

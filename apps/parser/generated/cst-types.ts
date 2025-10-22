@@ -20,13 +20,13 @@ export type StatementCstChildren = {
   BREAK?: IToken[];
   CONTINUE?: IToken[];
   RETURN?: IToken[];
-  expression?: (ExpressionCstNode)[];
-  SEMI?: (IToken)[];
+  expression?: ExpressionCstNode[];
+  SEMI?: IToken[];
   IF?: IToken[];
-  ifPredBody?: (IfPredBodyCstNode)[];
+  ifPredBody?: IfPredBodyCstNode[];
   ELIF?: IToken[];
   ELSE?: IToken[];
-  body?: (BodyCstNode)[];
+  body?: BodyCstNode[];
   DO?: IToken[];
   WHILE?: IToken[];
   FINALLY?: IToken[];

@@ -111,9 +111,9 @@ export class Scope {
       this.map.values().forEach((v) => {
         debug(
           prefix(
-            `${v.tok.image} on line ${v.tok.startLine}: ${
-              printType(v.meta.returnType)
-            } (from ${v.meta.source.image} on line ${v.meta.source.startLine})`,
+            `${v.tok.image} on line ${v.tok.startLine}: ${printType(
+              v.meta.returnType,
+            )} (from ${v.meta.source.image} on line ${v.meta.source.startLine})`,
             indent,
           ),
         );
@@ -142,8 +142,10 @@ export class Scope {
   }
 }
 
-export class CalvinTypeAnalyzer extends BaseCstVisitor
-  implements ICstNodeVisitor<void, Meta | undefined> {
+export class CalvinTypeAnalyzer
+  extends BaseCstVisitor
+  implements ICstNodeVisitor<void, Meta | undefined>
+{
   private counts;
   private _errors;
   public get errors(): number {

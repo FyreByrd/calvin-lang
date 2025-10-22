@@ -114,7 +114,7 @@ export class Scope {
         );
       });
       console.log('');
-      this.children.forEach((c) => c.print(indent));
+      this.children.forEach((c) => { c.print(indent) });
     }
   }
 
@@ -126,8 +126,8 @@ export class Scope {
       return this;
     }
   }
-    this.children.forEach((c) => c.resetHelp());
   private resetHelp(): void {
+    this.children.forEach((c) => { c.resetHelp() });
     this.children = [];
     this.map.clear();
   }
@@ -165,6 +165,7 @@ export class CalvinTypeAnalyzer
     this._currentScope = this.scope.createChild(`${type}-${this.counts[type]++}`);
   }
   popScope() {
+    // biome-ignore lint/style/noNonNullAssertion: Assuming this follows a corresponding pushScope, scope.parent should never be null
     this._currentScope = this.scope.parent!;
   }
 
@@ -253,37 +254,38 @@ export class CalvinTypeAnalyzer
       }
     } else if (stmt.IF && stmt.ifPredBody) {
       let bodyCount = 0;
+      const ifPredBody = stmt.ifPredBody;
       this.pushScope('if');
       this.ifPredBody(stmt.ifPredBody[bodyCount++].children);
       this.popScope();
       if (stmt.ELIF) {
         stmt.ELIF.forEach(() => {
           this.pushScope('elif');
-          this.ifPredBody(stmt.ifPredBody![bodyCount++].children);
+          this.ifPredBody(ifPredBody[bodyCount++].children);
           this.popScope();
         });
       }
       if (stmt.ELSE && stmt.body) {
         this.pushScope('else');
-        this.body(stmt.body![0].children);
+        this.body(stmt.body[0].children);
         this.popScope();
       }
-    } else if (stmt.WHILE) {
+    } else if (stmt.WHILE && stmt.expression) {
       let bodyCount = 0;
-      if (stmt.DO) {
+      if (stmt.DO && stmt.body) {
         this.pushScope('do');
-        this.body(stmt.body![bodyCount++].children);
+        this.body(stmt.body[bodyCount++].children);
         this.popScope();
       }
-      this.expression(stmt.expression![0].children);
-      if (!stmt.SEMI) {
+      this.expression(stmt.expression[0].children);
+      if (!stmt.SEMI && stmt.body) {
         this.pushScope('while');
-        this.body(stmt.body![bodyCount++].children);
+        this.body(stmt.body[bodyCount++].children);
         this.popScope();
       }
-      if (stmt.FINALLY) {
+      if (stmt.FINALLY && stmt.body) {
         this.pushScope('finally');
-        this.body(stmt.body![bodyCount++].children);
+        this.body(stmt.body[bodyCount++].children);
         this.popScope();
       }
     } else if (stmt.body) {
@@ -295,11 +297,11 @@ export class CalvinTypeAnalyzer
     }
   }
 
-    if (predBody.LET) {
-      this.declaration(predBody.declaration![0].children);
-    } else {
-      this.expression(predBody.expression![0].children);
   ifPredBody(predBody: IfPredBodyCstChildren): undefined {
+    if (predBody.LET && predBody.declaration) {
+      this.declaration(predBody.declaration[0].children);
+    } else if (predBody.expression) {
+      this.expression(predBody.expression[0].children);
     }
     this.body(predBody.body[0].children);
   }
@@ -363,19 +365,19 @@ export class CalvinTypeAnalyzer
       return this.constant(val.constant[0].children);
     } else if (val.ID) {
       const id = val.ID[0];
-      let meta: Meta | undefined;
       const existing = this.scope.search(id.image);
       if (!existing) {
         this.error(`undeclared variable ${id.image} used on line ${id.startLine}`);
       }
-      meta = existing?.found?.meta;
+      const meta = existing?.found?.meta;
 
       return meta ?? ({ source: id, returnType: TypeClasses.Never } satisfies Meta);
-    } else {
+    } else if (val.value) {
       //const op = Object.values(val).find((v) => 'tokenType' in v[0]) as IToken[];
       // TODO value operator mismatch
-      return this.value(val.value![0].children);
+      return this.value(val.value[0].children);
     }
+    throw new Error(`TypeInference: unhandled value type ${JSON.stringify(val)}`);
   }
 
   constant(c: ConstantCstChildren): Meta {
@@ -409,7 +411,7 @@ export class CalvinTypeAnalyzer
           default:
             return TypeClasses.Unknown;
         }
-      })[0]!,
+      })[0],
     };
   }
 }

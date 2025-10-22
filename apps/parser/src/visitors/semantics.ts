@@ -15,6 +15,7 @@ import type {
 import { Globals } from '../globals.ts';
 import { debug, error, prefix, warn } from '../logging.ts';
 import { BaseCstVisitor } from '../parser.ts';
+import { assert } from '@std/assert';
 
 export enum TypeClasses {
   Unknown,
@@ -165,8 +166,8 @@ export class CalvinTypeAnalyzer
     this._currentScope = this.scope.createChild(`${type}-${this.counts[type]++}`);
   }
   popScope() {
-    // biome-ignore lint/style/noNonNullAssertion: Assuming this follows a corresponding pushScope, scope.parent should never be null
-    this._currentScope = this.scope.parent!;
+    assert(this.scope.parent, 'Scope push/pop mismatch!');
+    this._currentScope = this.scope.parent;
   }
 
   reset() {

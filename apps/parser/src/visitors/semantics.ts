@@ -68,11 +68,11 @@ export class Scope {
     this.children = [];
   }
 
-  get parent() {
+  get parent(): Scope | undefined {
     return this._parent;
   }
 
-  public get(key: string) {
+  public get(key: string): ScopeData | undefined {
     return this.map.get(key);
   }
 
@@ -87,17 +87,17 @@ export class Scope {
     return ret;
   }
 
-  public set(key: string, value: ScopeData) {
-    return this.map.set(key, value);
+  public set(key: string, value: ScopeData): void {
+    this.map.set(key, value);
   }
 
-  public createChild(name: string) {
+  public createChild(name: string): Scope {
     const scope = new Scope(name, this);
     this.children.push(scope);
     return scope;
   }
 
-  public print(indent: number = 0) {
+  public print(indent: number = 0): void {
     if (Globals.debugScopes) {
       debug(
         prefix(
@@ -126,8 +126,8 @@ export class Scope {
       return this;
     }
   }
-  private resetHelp() {
     this.children.forEach((c) => c.resetHelp());
+  private resetHelp(): void {
     this.children = [];
     this.map.clear();
   }
@@ -135,19 +135,19 @@ export class Scope {
 
 export class CalvinTypeAnalyzer
   extends BaseCstVisitor
-  implements ICstNodeVisitor<void, void | Meta>
+  implements ICstNodeVisitor<void, Meta | undefined>
 {
   private counts;
   private _errors;
-  public get errors() {
+  public get errors(): number {
     return this._errors;
   }
   private _warnings;
-  public get warnings() {
+  public get warnings(): number {
     return this._warnings;
   }
   private _currentScope: Scope;
-  public get scope() {
+  public get scope(): Scope {
     return this._currentScope;
   }
 
@@ -200,7 +200,7 @@ export class CalvinTypeAnalyzer
     this.validateVisitor();
   }
 
-  visit(node: CstNode) {
+  override visit(node: CstNode): undefined {
     switch (node.name) {
       case 'file':
         this.file(node.children as FileCstChildren);
@@ -232,19 +232,19 @@ export class CalvinTypeAnalyzer
     }
   }
 
-  file(node: FileCstChildren) {
+  file(node: FileCstChildren): undefined {
     if (node.statement) {
       this.statement_list(node.statement);
     }
   }
 
-  statement_list(statements: StatementCstNode[]) {
+  statement_list(statements: StatementCstNode[]): undefined {
     for (const stmt of statements) {
       this.statement(stmt.children);
     }
   }
 
-  statement(stmt: StatementCstChildren) {
+  statement(stmt: StatementCstChildren): undefined {
     if (stmt.declaration) {
       this.declaration(stmt.declaration[0].children);
     } else if (stmt.RETURN) {
@@ -295,16 +295,16 @@ export class CalvinTypeAnalyzer
     }
   }
 
-  ifPredBody(predBody: IfPredBodyCstChildren) {
     if (predBody.LET) {
       this.declaration(predBody.declaration![0].children);
     } else {
       this.expression(predBody.expression![0].children);
+  ifPredBody(predBody: IfPredBodyCstChildren): undefined {
     }
     this.body(predBody.body[0].children);
   }
 
-  declaration(decl: DeclarationCstChildren) {
+  declaration(decl: DeclarationCstChildren): undefined {
     const id = decl.ID[0];
     const t = decl.type ? this.type(decl.type[0].children) : null;
     const expr = decl.expression ? this.expression(decl.expression[0].children) : null;
@@ -339,7 +339,7 @@ export class CalvinTypeAnalyzer
     }
   }
 
-  body(body: BodyCstChildren) {
+  body(body: BodyCstChildren): undefined {
     if (body.statement) {
       this.statement_list(body.statement);
     }

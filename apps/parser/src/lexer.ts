@@ -41,8 +41,18 @@ export const GE: TokenType = createToken({ name: 'GE', pattern: '>=', categories
 export const LE: TokenType = createToken({ name: 'LE', pattern: '<=', categories: BinOp });
 export const LT: TokenType = createToken({ name: 'LT', pattern: '<', categories: BinOp });
 export const GT: TokenType = createToken({ name: 'GT', pattern: '>', categories: BinOp });
-export const AND: TokenType = createToken({ name: 'AND', pattern: 'and', longer_alt: ID, categories: BinOp });
-export const OR: TokenType = createToken({ name: 'OR', pattern: 'or', longer_alt: ID, categories: BinOp });
+export const AND: TokenType = createToken({
+  name: 'AND',
+  pattern: 'and',
+  longer_alt: ID,
+  categories: BinOp,
+});
+export const OR: TokenType = createToken({
+  name: 'OR',
+  pattern: 'or',
+  longer_alt: ID,
+  categories: BinOp,
+});
 // Arithmetic
 export const PLUS: TokenType = createToken({ name: 'PLUS', pattern: '+', categories: BinOp });
 export const MINUS: TokenType = createToken({ name: 'MINUS', pattern: '-', categories: BinOp });
@@ -60,7 +70,12 @@ export const ASHIFT: TokenType = createToken({ name: 'ASHIFT', pattern: '>>>', c
 // Miscellaneous
 export const N_COAL: TokenType = createToken({ name: 'N_COAL', pattern: '??', categories: BinOp });
 export const EQU: TokenType = createToken({ name: 'EQU', pattern: '=', categories: BinOp });
-export const IN: TokenType = createToken({ name: 'IN', pattern: 'in', longer_alt: ID, categories: BinOp });
+export const IN: TokenType = createToken({
+  name: 'IN',
+  pattern: 'in',
+  longer_alt: ID,
+  categories: BinOp,
+});
 export const binopTokens: TokenType[] = [
   BinOp,
   N_COAL,
@@ -89,19 +104,71 @@ export const binopTokens: TokenType[] = [
 ];
 /* Compound Assignment Tokens */
 export const CmpAsgn: TokenType = createToken({ name: 'CmpAsgn', pattern: Lexer.NA });
-export const PL_EQU: TokenType = createToken({ name: 'PL_EQU', pattern: '+=', categories: CmpAsgn });
-export const MIN_EQU: TokenType = createToken({ name: 'MIN_EQU', pattern: '-=', categories: CmpAsgn });
-export const ST_EQU: TokenType = createToken({ name: 'ST_EQU', pattern: '*=', categories: CmpAsgn });
-export const SL_EQU: TokenType = createToken({ name: 'SL_EQU', pattern: '/=', categories: CmpAsgn });
-export const MD_EQU: TokenType = createToken({ name: 'MD_EQU', pattern: '%=', categories: CmpAsgn });
-export const TL_EQU: TokenType = createToken({ name: 'TL_EQU', pattern: '~=', categories: CmpAsgn });
-export const AM_EQU: TokenType = createToken({ name: 'AM_EQU', pattern: '&=', categories: CmpAsgn });
-export const PI_EQU: TokenType = createToken({ name: 'PI_EQU', pattern: '|=', categories: CmpAsgn });
-export const CR_EQU: TokenType = createToken({ name: 'CR_EQU', pattern: '^=', categories: CmpAsgn });
-export const LS_EQU: TokenType = createToken({ name: 'LS_EQU', pattern: '<<=', categories: CmpAsgn });
-export const RS_EQU: TokenType = createToken({ name: 'RS_EQU', pattern: '>>=', categories: CmpAsgn });
-export const AS_EQU: TokenType = createToken({ name: 'AS_EQU', pattern: '>>>=', categories: CmpAsgn });
-export const NC_EQU: TokenType = createToken({ name: 'NC_EQU', pattern: '??=', categories: CmpAsgn });
+export const PL_EQU: TokenType = createToken({
+  name: 'PL_EQU',
+  pattern: '+=',
+  categories: CmpAsgn,
+});
+export const MIN_EQU: TokenType = createToken({
+  name: 'MIN_EQU',
+  pattern: '-=',
+  categories: CmpAsgn,
+});
+export const ST_EQU: TokenType = createToken({
+  name: 'ST_EQU',
+  pattern: '*=',
+  categories: CmpAsgn,
+});
+export const SL_EQU: TokenType = createToken({
+  name: 'SL_EQU',
+  pattern: '/=',
+  categories: CmpAsgn,
+});
+export const MD_EQU: TokenType = createToken({
+  name: 'MD_EQU',
+  pattern: '%=',
+  categories: CmpAsgn,
+});
+export const TL_EQU: TokenType = createToken({
+  name: 'TL_EQU',
+  pattern: '~=',
+  categories: CmpAsgn,
+});
+export const AM_EQU: TokenType = createToken({
+  name: 'AM_EQU',
+  pattern: '&=',
+  categories: CmpAsgn,
+});
+export const PI_EQU: TokenType = createToken({
+  name: 'PI_EQU',
+  pattern: '|=',
+  categories: CmpAsgn,
+});
+export const CR_EQU: TokenType = createToken({
+  name: 'CR_EQU',
+  pattern: '^=',
+  categories: CmpAsgn,
+});
+export const LS_EQU: TokenType = createToken({
+  name: 'LS_EQU',
+  pattern: '<<=',
+  categories: CmpAsgn,
+});
+export const RS_EQU: TokenType = createToken({
+  name: 'RS_EQU',
+  pattern: '>>=',
+  categories: CmpAsgn,
+});
+export const AS_EQU: TokenType = createToken({
+  name: 'AS_EQU',
+  pattern: '>>>=',
+  categories: CmpAsgn,
+});
+export const NC_EQU: TokenType = createToken({
+  name: 'NC_EQU',
+  pattern: '??=',
+  categories: CmpAsgn,
+});
 const compAssgnTokens: TokenType[] = [
   CmpAsgn,
   PL_EQU,
@@ -121,9 +188,22 @@ const compAssgnTokens: TokenType[] = [
 /* Unary Operator Tokens */
 export const PostFix: TokenType = createToken({ name: 'PostFix', pattern: Lexer.NA });
 export const UnOp: TokenType = createToken({ name: 'UnOp', pattern: Lexer.NA });
-export const NOT: TokenType = createToken({ name: 'NOT', pattern: 'not', longer_alt: ID, categories: UnOp });
-export const INC: TokenType = createToken({ name: 'INC', pattern: '++', categories: [PostFix, UnOp] });
-export const DEC: TokenType = createToken({ name: 'DEC', pattern: '--', categories: [PostFix, UnOp] });
+export const NOT: TokenType = createToken({
+  name: 'NOT',
+  pattern: 'not',
+  longer_alt: ID,
+  categories: UnOp,
+});
+export const INC: TokenType = createToken({
+  name: 'INC',
+  pattern: '++',
+  categories: [PostFix, UnOp],
+});
+export const DEC: TokenType = createToken({
+  name: 'DEC',
+  pattern: '--',
+  categories: [PostFix, UnOp],
+});
 const unopTokens: TokenType[] = [PostFix, UnOp, NOT, INC, DEC];
 /* Other Tokens */
 export const LPAREN: TokenType = createToken({ name: 'LPAREN', pattern: '(' });
@@ -141,9 +221,17 @@ export const ELSE: TokenType = createToken({ name: 'ELSE', pattern: 'else', long
 // Loops
 export const DO: TokenType = createToken({ name: 'DO', pattern: 'do', longer_alt: ID });
 export const WHILE: TokenType = createToken({ name: 'WHILE', pattern: 'while', longer_alt: ID });
-export const FINALLY: TokenType = createToken({ name: 'FINALLY', pattern: 'finally', longer_alt: ID });
+export const FINALLY: TokenType = createToken({
+  name: 'FINALLY',
+  pattern: 'finally',
+  longer_alt: ID,
+});
 export const BREAK: TokenType = createToken({ name: 'BREAK', pattern: 'break', longer_alt: ID });
-export const CONTINUE: TokenType = createToken({ name: 'CONTINUE', pattern: 'continue', longer_alt: ID });
+export const CONTINUE: TokenType = createToken({
+  name: 'CONTINUE',
+  pattern: 'continue',
+  longer_alt: ID,
+});
 export const RETURN: TokenType = createToken({ name: 'RETURN', pattern: 'return', longer_alt: ID });
 const keywords = [LET, IF, ELIF, ELSE, DO, WHILE, FINALLY, BREAK, CONTINUE, RETURN];
 /* Ignored Tokens */

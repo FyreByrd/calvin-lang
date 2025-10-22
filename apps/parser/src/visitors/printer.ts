@@ -10,7 +10,7 @@ import type {
   StatementCstChildren,
   StatementCstNode,
   TypeCstChildren,
-  ValueCstChildren
+  ValueCstChildren,
 } from '@/generated/cst-types.ts';
 import { tree } from '../logging.ts';
 import { BaseCstVisitor } from '../parser.ts';

@@ -11,7 +11,7 @@ import type {
   StatementCstNode,
   TypeCstChildren,
   ValueCstChildren,
-  ValueCstNode
+  ValueCstNode,
 } from '@/generated/cst-types.ts';
 import * as Tokens from '../lexer.ts';
 import { BaseCstVisitor } from '../parser.ts';
@@ -28,7 +28,7 @@ enum Prec {
   BinOr, // |
   Coal, // ??
   // rtl
-  Asgn // =, compound assignment
+  Asgn, // =, compound assignment
 }
 
 function tok2Prec(tok: TokenType) {
@@ -105,7 +105,7 @@ export class PrecedenceHandler extends BaseCstVisitor {
           // new tree.left is now old tree
           tree.value[0] = {
             children: { expression: [{ name: 'expression', children: old }] },
-            name: 'value'
+            name: 'value',
           } satisfies ValueCstNode;
         }
       }

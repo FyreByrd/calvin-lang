@@ -1,4 +1,4 @@
-import { Globals } from "./globals.ts";
+import { Globals } from './globals.ts';
 
 export function debug(msg: string) {
   console.log('\x1b[36m%s\x1b[0m', msg);

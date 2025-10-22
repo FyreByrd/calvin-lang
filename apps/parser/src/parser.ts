@@ -1,5 +1,5 @@
 import { type CstNode, CstParser, type ParserMethod } from 'chevrotain';
-import * as Tokens from "./lexer.ts";
+import * as Tokens from './lexer.ts';
 
 export class CalvinParser extends CstParser {
   constructor() {
@@ -21,27 +21,27 @@ export class CalvinParser extends CstParser {
                 ALT: () => {
                   this.CONSUME(Tokens.LET);
                   this.SUBRULE(this.declaration);
-                }
+                },
               },
               {
-                ALT: () => this.CONSUME(Tokens.BREAK)
+                ALT: () => this.CONSUME(Tokens.BREAK),
               },
               {
-                ALT: () => this.CONSUME(Tokens.CONTINUE)
+                ALT: () => this.CONSUME(Tokens.CONTINUE),
               },
               {
                 ALT: () => {
                   this.CONSUME(Tokens.RETURN);
                   this.OPTION2(() => this.SUBRULE(this.expression));
-                }
+                },
               },
               {
-                ALT: () => this.SUBRULE2(this.expression)
-              }
+                ALT: () => this.SUBRULE2(this.expression),
+              },
             ])
           );
           this.CONSUME(Tokens.SEMI);
-        }
+        },
       },
       {
         ALT: () => {
@@ -58,7 +58,7 @@ export class CalvinParser extends CstParser {
             this.CONSUME(Tokens.ELSE);
             this.SUBRULE3(this.body);
           });
-        }
+        },
       },
       {
         ALT: () => {
@@ -73,22 +73,22 @@ export class CalvinParser extends CstParser {
             {
               ALT: () => {
                 this.CONSUME2(Tokens.SEMI);
-              }
+              },
             },
             {
-              ALT: () => this.SUBRULE5(this.body)
-            }
+              ALT: () => this.SUBRULE5(this.body),
+            },
           ]);
 
           this.OPTION4(() => {
             this.CONSUME(Tokens.FINALLY);
             this.SUBRULE6(this.body);
           });
-        }
+        },
       },
       {
-        ALT: () => this.SUBRULE(this.body)
-      }
+        ALT: () => this.SUBRULE(this.body),
+      },
     ]);
   });
 
@@ -99,11 +99,11 @@ export class CalvinParser extends CstParser {
         ALT: () => {
           this.CONSUME(Tokens.LET);
           this.SUBRULE(this.declaration);
-        }
+        },
       },
       {
-        ALT: () => this.SUBRULE(this.expression)
-      }
+        ALT: () => this.SUBRULE(this.expression),
+      },
     ]);
     this.CONSUME(Tokens.RPAREN);
 
@@ -132,24 +132,24 @@ export class CalvinParser extends CstParser {
     this.SUBRULE(this.value);
     this.OR([
       {
-        ALT: () => this.CONSUME(Tokens.PostFix)
+        ALT: () => this.CONSUME(Tokens.PostFix),
       },
       {
         ALT: () => {
           this.OPTION(() => {
             this.OR2([
               {
-                ALT: () => this.CONSUME(Tokens.CmpAsgn)
+                ALT: () => this.CONSUME(Tokens.CmpAsgn),
               },
               {
-                ALT: () => this.CONSUME(Tokens.BinOp)
-              }
+                ALT: () => this.CONSUME(Tokens.BinOp),
+              },
             ]);
             this.SUBRULE(this.expression);
             // TODO reorder based on precedence
           });
-        }
-      }
+        },
+      },
     ]);
   });
 
@@ -159,31 +159,35 @@ export class CalvinParser extends CstParser {
         ALT: () => {
           this.CONSUME(Tokens.UnOp);
           this.SUBRULE1(this.value);
-        }
+        },
       },
       {
-        ALT: () => this.SUBRULE(this.constant)
+        ALT: () => this.SUBRULE(this.constant),
       },
       {
-        ALT: () => this.CONSUME(Tokens.ID)
+        ALT: () => this.CONSUME(Tokens.ID),
       },
       {
         ALT: () => {
           this.CONSUME(Tokens.LPAREN);
           this.SUBRULE(this.expression);
           this.CONSUME(Tokens.RPAREN);
-        }
-      }
+        },
+      },
     ]);
   });
 
-  private constant = this.RULE('constant', () =>
-    this.OR(Tokens.literals.map((t) => ({ ALT: () => this.CONSUME(t) })))
+  private constant = this.RULE(
+    'constant',
+    () => this.OR(Tokens.literals.map((t) => ({ ALT: () => this.CONSUME(t) }))),
   );
 
   private type = this.RULE('type', () => this.CONSUME(Tokens.BASIC_TYPE));
 }
 
 export const parser: CalvinParser = new CalvinParser();
-export const BaseCstVisitor: ReturnType<typeof parser.getBaseCstVisitorConstructor> = parser.getBaseCstVisitorConstructor();
-export const BaseCstVisitorWithDefaults: ReturnType<typeof parser.getBaseCstVisitorConstructorWithDefaults> = parser.getBaseCstVisitorConstructorWithDefaults();
+export const BaseCstVisitor: ReturnType<typeof parser.getBaseCstVisitorConstructor> = parser
+  .getBaseCstVisitorConstructor();
+export const BaseCstVisitorWithDefaults: ReturnType<
+  typeof parser.getBaseCstVisitorConstructorWithDefaults
+> = parser.getBaseCstVisitorConstructorWithDefaults();

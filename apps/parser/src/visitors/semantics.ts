@@ -102,20 +102,26 @@ export class Scope {
     if (Globals.debugScopes) {
       debug(
         prefix(
-          `SCOPE: ${this.name} (parent: ${this.parent?.name ?? 'None'}, symbols: ${this.map.size}, children: ${this.children.length})`,
+          `SCOPE: ${this.name} (parent: ${
+            this.parent?.name ?? 'None'
+          }, symbols: ${this.map.size}, children: ${this.children.length})`,
           indent,
         ),
       );
       this.map.values().forEach((v) => {
         debug(
           prefix(
-            `${v.tok.image} on line ${v.tok.startLine}: ${printType(v.meta.returnType)} (from ${v.meta.source.image} on line ${v.meta.source.startLine})`,
+            `${v.tok.image} on line ${v.tok.startLine}: ${
+              printType(v.meta.returnType)
+            } (from ${v.meta.source.image} on line ${v.meta.source.startLine})`,
             indent,
           ),
         );
       });
       console.log('');
-      this.children.forEach((c) => { c.print(indent) });
+      this.children.forEach((c) => {
+        c.print(indent);
+      });
     }
   }
 
@@ -128,16 +134,16 @@ export class Scope {
     }
   }
   private resetHelp(): void {
-    this.children.forEach((c) => { c.resetHelp() });
+    this.children.forEach((c) => {
+      c.resetHelp();
+    });
     this.children = [];
     this.map.clear();
   }
 }
 
-export class CalvinTypeAnalyzer
-  extends BaseCstVisitor
-  implements ICstNodeVisitor<void, Meta | undefined>
-{
+export class CalvinTypeAnalyzer extends BaseCstVisitor
+  implements ICstNodeVisitor<void, Meta | undefined> {
   private counts;
   private _errors;
   public get errors(): number {

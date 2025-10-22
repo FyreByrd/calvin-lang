@@ -17,7 +17,7 @@ export function tree(msg: string, indent: number) {
   }
 }
 
-export function prefix(str: string, len: number, ch: string = ' ') {
+export function prefix(str: string, len: number, ch: string = ' '): string {
   let i = 0;
   let pre = '';
   while (i++ < len) {

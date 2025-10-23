@@ -11,7 +11,7 @@ import type {
   StatementCstNode,
   TypeCstChildren,
   ValueCstChildren,
-  ValueCstNode
+  ValueCstNode,
 } from '@/generated/cst-types.ts';
 import * as Tokens from '../lexer.ts';
 import { BaseCstVisitor } from '../parser.ts';
@@ -28,7 +28,7 @@ enum Prec {
   BinOr, // |
   Coal, // ??
   // rtl
-  Asgn // =, compound assignment
+  Asgn, // =, compound assignment
 }
 
 function tok2Prec(tok: TokenType) {
@@ -67,7 +67,7 @@ function tok2Prec(tok: TokenType) {
 
 export class PrecedenceHandler extends BaseCstVisitor {
   private _reordered;
-  public get reordered() {
+  public get reordered(): number {
     return this._reordered;
   }
   constructor() {
@@ -80,11 +80,12 @@ export class PrecedenceHandler extends BaseCstVisitor {
     this._reordered = 0;
   }
 
-  reorder(tree: ExpressionCstChildren) {
+  reorder(tree: ExpressionCstChildren): ExpressionCstChildren {
     // greater precedence number is higher in tree
     // tree.left is value, tree.right is sub-expression
     if (tree.BinOp && tree.expression) {
-      const right = (tree.expression[0].children = this.reorder(tree.expression[0].children));
+      tree.expression[0].children = this.reorder(tree.expression[0].children);
+      const right = tree.expression[0].children;
       if (right.BinOp) {
         if (tok2Prec(tree.BinOp[0].tokenType) <= tok2Prec(right.BinOp[0].tokenType)) {
           this._reordered++;
@@ -94,15 +95,17 @@ export class PrecedenceHandler extends BaseCstVisitor {
           tree = { ...right };
           // old tree.right is now tree.right.left
           const left = tree.value[0];
-          old.expression![0] = {
-            ...left,
-            children: { value: [{ ...left }] },
-            name: 'expression'
-          } satisfies ExpressionCstNode;
+          old.expression = [
+            {
+              ...left,
+              children: { value: [{ ...left }] },
+              name: 'expression',
+            } satisfies ExpressionCstNode,
+          ];
           // new tree.left is now old tree
           tree.value[0] = {
             children: { expression: [{ name: 'expression', children: old }] },
-            name: 'value'
+            name: 'value',
           } satisfies ValueCstNode;
         }
       }
@@ -146,26 +149,27 @@ export class PrecedenceHandler extends BaseCstVisitor {
       }
     } else if (stmt.IF && stmt.ifPredBody) {
       let bodyCount = 0;
+      const ifPredBody = stmt.ifPredBody;
       this.ifPredBody(stmt.ifPredBody[bodyCount++].children);
       if (stmt.ELIF) {
         stmt.ELIF.forEach(() => {
-          this.ifPredBody(stmt.ifPredBody![bodyCount++].children);
+          this.ifPredBody(ifPredBody[bodyCount++].children);
         });
       }
       if (stmt.ELSE && stmt.body) {
-        this.body(stmt.body![0].children);
+        this.body(stmt.body[0].children);
       }
-    } else if (stmt.WHILE) {
+    } else if (stmt.WHILE && stmt.expression) {
       let bodyCount = 0;
-      if (stmt.DO) {
-        this.body(stmt.body![bodyCount++].children);
+      if (stmt.DO && stmt.body) {
+        this.body(stmt.body[bodyCount++].children);
       }
-      this.expression(stmt.expression![0]);
-      if (!stmt.SEMI) {
-        this.body(stmt.body![bodyCount++].children);
+      this.expression(stmt.expression[0]);
+      if (!stmt.SEMI && stmt.body) {
+        this.body(stmt.body[bodyCount++].children);
       }
-      if (stmt.FINALLY) {
-        this.body(stmt.body![bodyCount++].children);
+      if (stmt.FINALLY && stmt.body) {
+        this.body(stmt.body[bodyCount++].children);
       }
     } else if (stmt.body) {
       this.body(stmt.body[0].children);
@@ -175,10 +179,10 @@ export class PrecedenceHandler extends BaseCstVisitor {
   }
 
   ifPredBody(predBody: IfPredBodyCstChildren) {
-    if (predBody.LET) {
-      this.declaration(predBody.declaration![0].children);
-    } else {
-      this.expression(predBody.expression![0]);
+    if (predBody.LET && predBody.declaration) {
+      this.declaration(predBody.declaration[0].children);
+    } else if (predBody.expression) {
+      this.expression(predBody.expression[0]);
     }
     this.body(predBody.body[0].children);
   }
@@ -195,11 +199,11 @@ export class PrecedenceHandler extends BaseCstVisitor {
     }
   }
 
-  constant(c: ConstantCstChildren) {}
+  constant(_c: ConstantCstChildren) {}
 
-  type(t: TypeCstChildren) {}
+  type(_t: TypeCstChildren) {}
 
-  visit(node: CstNode) {
+  override visit(node: CstNode) {
     switch (node.name) {
       case 'file':
         this.file(node.children as FileCstChildren);

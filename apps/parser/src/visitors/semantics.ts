@@ -1,3 +1,4 @@
+import { assert } from '@std/assert';
 import type { CstNode, IToken } from 'chevrotain';
 import type {
   BodyCstChildren,
@@ -68,11 +69,11 @@ export class Scope {
     this.children = [];
   }
 
-  get parent() {
+  get parent(): Scope | undefined {
     return this._parent;
   }
 
-  public get(key: string) {
+  public get(key: string): ScopeData | undefined {
     return this.map.get(key);
   }
 
@@ -87,34 +88,40 @@ export class Scope {
     return ret;
   }
 
-  public set(key: string, value: ScopeData) {
-    return this.map.set(key, value);
+  public set(key: string, value: ScopeData): void {
+    this.map.set(key, value);
   }
 
-  public createChild(name: string) {
+  public createChild(name: string): Scope {
     const scope = new Scope(name, this);
     this.children.push(scope);
     return scope;
   }
 
-  public print(indent: number = 0) {
+  public print(indent: number = 0): void {
     if (Globals.debugScopes) {
       debug(
         prefix(
-          `SCOPE: ${this.name} (parent: ${this.parent?.name ?? 'None'}, symbols: ${this.map.size}, children: ${this.children.length})`,
+          `SCOPE: ${this.name} (parent: ${
+            this.parent?.name ?? 'None'
+          }, symbols: ${this.map.size}, children: ${this.children.length})`,
           indent,
         ),
       );
       this.map.values().forEach((v) => {
         debug(
           prefix(
-            `${v.tok.image} on line ${v.tok.startLine}: ${printType(v.meta.returnType)} (from ${v.meta.source.image} on line ${v.meta.source.startLine})`,
+            `${v.tok.image} on line ${v.tok.startLine}: ${printType(
+              v.meta.returnType,
+            )} (from ${v.meta.source.image} on line ${v.meta.source.startLine})`,
             indent,
           ),
         );
       });
       console.log('');
-      this.children.forEach((c) => c.print(indent));
+      this.children.forEach((c) => {
+        c.print(indent);
+      });
     }
   }
 
@@ -126,8 +133,10 @@ export class Scope {
       return this;
     }
   }
-  private resetHelp() {
-    this.children.forEach((c) => c.resetHelp());
+  private resetHelp(): void {
+    this.children.forEach((c) => {
+      c.resetHelp();
+    });
     this.children = [];
     this.map.clear();
   }
@@ -135,19 +144,19 @@ export class Scope {
 
 export class CalvinTypeAnalyzer
   extends BaseCstVisitor
-  implements ICstNodeVisitor<void, void | Meta>
+  implements ICstNodeVisitor<void, Meta | undefined>
 {
   private counts;
   private _errors;
-  public get errors() {
+  public get errors(): number {
     return this._errors;
   }
   private _warnings;
-  public get warnings() {
+  public get warnings(): number {
     return this._warnings;
   }
   private _currentScope: Scope;
-  public get scope() {
+  public get scope(): Scope {
     return this._currentScope;
   }
 
@@ -165,7 +174,8 @@ export class CalvinTypeAnalyzer
     this._currentScope = this.scope.createChild(`${type}-${this.counts[type]++}`);
   }
   popScope() {
-    this._currentScope = this.scope.parent!;
+    assert(this.scope.parent, 'Scope push/pop mismatch!');
+    this._currentScope = this.scope.parent;
   }
 
   reset() {
@@ -200,7 +210,7 @@ export class CalvinTypeAnalyzer
     this.validateVisitor();
   }
 
-  visit(node: CstNode) {
+  override visit(node: CstNode): undefined {
     switch (node.name) {
       case 'file':
         this.file(node.children as FileCstChildren);
@@ -232,19 +242,19 @@ export class CalvinTypeAnalyzer
     }
   }
 
-  file(node: FileCstChildren) {
+  file(node: FileCstChildren): undefined {
     if (node.statement) {
       this.statement_list(node.statement);
     }
   }
 
-  statement_list(statements: StatementCstNode[]) {
+  statement_list(statements: StatementCstNode[]): undefined {
     for (const stmt of statements) {
       this.statement(stmt.children);
     }
   }
 
-  statement(stmt: StatementCstChildren) {
+  statement(stmt: StatementCstChildren): undefined {
     if (stmt.declaration) {
       this.declaration(stmt.declaration[0].children);
     } else if (stmt.RETURN) {
@@ -253,37 +263,38 @@ export class CalvinTypeAnalyzer
       }
     } else if (stmt.IF && stmt.ifPredBody) {
       let bodyCount = 0;
+      const ifPredBody = stmt.ifPredBody;
       this.pushScope('if');
       this.ifPredBody(stmt.ifPredBody[bodyCount++].children);
       this.popScope();
       if (stmt.ELIF) {
         stmt.ELIF.forEach(() => {
           this.pushScope('elif');
-          this.ifPredBody(stmt.ifPredBody![bodyCount++].children);
+          this.ifPredBody(ifPredBody[bodyCount++].children);
           this.popScope();
         });
       }
       if (stmt.ELSE && stmt.body) {
         this.pushScope('else');
-        this.body(stmt.body![0].children);
+        this.body(stmt.body[0].children);
         this.popScope();
       }
-    } else if (stmt.WHILE) {
+    } else if (stmt.WHILE && stmt.expression) {
       let bodyCount = 0;
-      if (stmt.DO) {
+      if (stmt.DO && stmt.body) {
         this.pushScope('do');
-        this.body(stmt.body![bodyCount++].children);
+        this.body(stmt.body[bodyCount++].children);
         this.popScope();
       }
-      this.expression(stmt.expression![0].children);
-      if (!stmt.SEMI) {
+      this.expression(stmt.expression[0].children);
+      if (!stmt.SEMI && stmt.body) {
         this.pushScope('while');
-        this.body(stmt.body![bodyCount++].children);
+        this.body(stmt.body[bodyCount++].children);
         this.popScope();
       }
-      if (stmt.FINALLY) {
+      if (stmt.FINALLY && stmt.body) {
         this.pushScope('finally');
-        this.body(stmt.body![bodyCount++].children);
+        this.body(stmt.body[bodyCount++].children);
         this.popScope();
       }
     } else if (stmt.body) {
@@ -295,16 +306,16 @@ export class CalvinTypeAnalyzer
     }
   }
 
-  ifPredBody(predBody: IfPredBodyCstChildren) {
-    if (predBody.LET) {
-      this.declaration(predBody.declaration![0].children);
-    } else {
-      this.expression(predBody.expression![0].children);
+  ifPredBody(predBody: IfPredBodyCstChildren): undefined {
+    if (predBody.LET && predBody.declaration) {
+      this.declaration(predBody.declaration[0].children);
+    } else if (predBody.expression) {
+      this.expression(predBody.expression[0].children);
     }
     this.body(predBody.body[0].children);
   }
 
-  declaration(decl: DeclarationCstChildren) {
+  declaration(decl: DeclarationCstChildren): undefined {
     const id = decl.ID[0];
     const t = decl.type ? this.type(decl.type[0].children) : null;
     const expr = decl.expression ? this.expression(decl.expression[0].children) : null;
@@ -339,7 +350,7 @@ export class CalvinTypeAnalyzer
     }
   }
 
-  body(body: BodyCstChildren) {
+  body(body: BodyCstChildren): undefined {
     if (body.statement) {
       this.statement_list(body.statement);
     }
@@ -363,19 +374,19 @@ export class CalvinTypeAnalyzer
       return this.constant(val.constant[0].children);
     } else if (val.ID) {
       const id = val.ID[0];
-      let meta: Meta | undefined;
       const existing = this.scope.search(id.image);
       if (!existing) {
         this.error(`undeclared variable ${id.image} used on line ${id.startLine}`);
       }
-      meta = existing?.found?.meta;
+      const meta = existing?.found?.meta;
 
       return meta ?? ({ source: id, returnType: TypeClasses.Never } satisfies Meta);
-    } else {
+    } else if (val.value) {
       //const op = Object.values(val).find((v) => 'tokenType' in v[0]) as IToken[];
       // TODO value operator mismatch
-      return this.value(val.value![0].children);
+      return this.value(val.value[0].children);
     }
+    throw new Error(`TypeInference: unhandled value type ${JSON.stringify(val)}`);
   }
 
   constant(c: ConstantCstChildren): Meta {
@@ -409,7 +420,7 @@ export class CalvinTypeAnalyzer
           default:
             return TypeClasses.Unknown;
         }
-      })[0]!,
+      })[0],
     };
   }
 }

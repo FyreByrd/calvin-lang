@@ -1,4 +1,3 @@
-
 - concise but readable syntax
 - strict but usable type system
 - explicit but abstract memory management (i.e. allocators)

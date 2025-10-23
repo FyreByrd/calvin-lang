@@ -1,4 +1,4 @@
-import { Globals } from "./globals.ts";
+import { Globals } from './globals.ts';
 
 export function debug(msg: string) {
   console.log('\x1b[36m%s\x1b[0m', msg);
@@ -17,7 +17,7 @@ export function tree(msg: string, indent: number) {
   }
 }
 
-export function prefix(str: string, len: number, ch: string = ' ') {
+export function prefix(str: string, len: number, ch: string = ' '): string {
   let i = 0;
   let pre = '';
   while (i++ < len) {

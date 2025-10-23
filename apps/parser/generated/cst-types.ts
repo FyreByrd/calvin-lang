@@ -1,7 +1,7 @@
-import type { CstNode, ICstVisitor, IToken } from "chevrotain";
+import type { CstNode, ICstVisitor, IToken } from 'chevrotain';
 
 export interface FileCstNode extends CstNode {
-  name: "file";
+  name: 'file';
   children: FileCstChildren;
 }
 
@@ -10,7 +10,7 @@ export type FileCstChildren = {
 };
 
 export interface StatementCstNode extends CstNode {
-  name: "statement";
+  name: 'statement';
   children: StatementCstChildren;
 }
 
@@ -20,20 +20,20 @@ export type StatementCstChildren = {
   BREAK?: IToken[];
   CONTINUE?: IToken[];
   RETURN?: IToken[];
-  expression?: (ExpressionCstNode)[];
-  SEMI?: (IToken)[];
+  expression?: ExpressionCstNode[];
+  SEMI?: IToken[];
   IF?: IToken[];
-  ifPredBody?: (IfPredBodyCstNode)[];
+  ifPredBody?: IfPredBodyCstNode[];
   ELIF?: IToken[];
   ELSE?: IToken[];
-  body?: (BodyCstNode)[];
+  body?: BodyCstNode[];
   DO?: IToken[];
   WHILE?: IToken[];
   FINALLY?: IToken[];
 };
 
 export interface IfPredBodyCstNode extends CstNode {
-  name: "ifPredBody";
+  name: 'ifPredBody';
   children: IfPredBodyCstChildren;
 }
 
@@ -47,7 +47,7 @@ export type IfPredBodyCstChildren = {
 };
 
 export interface BodyCstNode extends CstNode {
-  name: "body";
+  name: 'body';
   children: BodyCstChildren;
 }
 
@@ -58,7 +58,7 @@ export type BodyCstChildren = {
 };
 
 export interface DeclarationCstNode extends CstNode {
-  name: "declaration";
+  name: 'declaration';
   children: DeclarationCstChildren;
 }
 
@@ -71,7 +71,7 @@ export type DeclarationCstChildren = {
 };
 
 export interface ExpressionCstNode extends CstNode {
-  name: "expression";
+  name: 'expression';
   children: ExpressionCstChildren;
 }
 
@@ -84,7 +84,7 @@ export type ExpressionCstChildren = {
 };
 
 export interface ValueCstNode extends CstNode {
-  name: "value";
+  name: 'value';
   children: ValueCstChildren;
 }
 
@@ -99,7 +99,7 @@ export type ValueCstChildren = {
 };
 
 export interface ConstantCstNode extends CstNode {
-  name: "constant";
+  name: 'constant';
   children: ConstantCstChildren;
 }
 
@@ -113,7 +113,7 @@ export type ConstantCstChildren = {
 };
 
 export interface TypeCstNode extends CstNode {
-  name: "type";
+  name: 'type';
   children: TypeCstChildren;
 }
 

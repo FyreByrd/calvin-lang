@@ -80,19 +80,20 @@ Deno.test('Control flow parsing #integration', async (t) => {
     assert(parserOutput.statement);
     assertGreater(parserOutput.statement.length, 0, 'Statements should be generated');
 
-    assertEquals(typeOutput.warnings, 1, 'TypeAnalyzer should report a warning (from before)');
-    assertEquals(typeOutput.errors, 1, 'TypeAnalyzer should report an error (from before)');
+    assertEquals(typeOutput.warnings, 0, 'TypeAnalyzer should not report any warnings');
+    assertEquals(typeOutput.errors, 1, 'TypeAnalyzer should report an error');
   });
 
   await t.step('incorrect variable access in while-finally block', () => {
     const { parserOutput, typeOutput } = performParsingTestCase({
       code: [
         'while (b > 4) {',
+        '    let c = 1;',
         '    if (a) {',
         '        continue;',
         '    }',
         '} finally {',
-        '    return 1 + 2 + 3;',
+        '    return 1 + 2 + c;',
         '}',
       ].join('\n'),
 
@@ -107,8 +108,8 @@ Deno.test('Control flow parsing #integration', async (t) => {
     assert(parserOutput.statement);
     assertGreater(parserOutput.statement.length, 0, 'Statements should be generated');
 
-    assertEquals(typeOutput.warnings, 1, 'TypeAnalyzer should report a warning (from before)');
-    assertEquals(typeOutput.errors, 2, 'TypeAnalyzer should now report 2 errors');
+    assertEquals(typeOutput.warnings, 0, 'TypeAnalyzer should not report any warnings');
+    assertEquals(typeOutput.errors, 3, 'TypeAnalyzer should report 3 errors');
   });
 
   await t.step('simple do-while loop', () => {
@@ -126,7 +127,7 @@ Deno.test('Control flow parsing #integration', async (t) => {
     assert(parserOutput.statement);
     assertGreater(parserOutput.statement.length, 0, 'Statements should be generated');
 
-    assertEquals(typeOutput.warnings, 1, 'TypeAnalyzer should report a warning (from before)');
-    assertEquals(typeOutput.errors, 2, 'TypeAnalyzer should report 2 errors (from before)');
+    assertEquals(typeOutput.warnings, 0, 'TypeAnalyzer should not report any warnings');
+    assertEquals(typeOutput.errors, 0, 'TypeAnalyzer should not report any errors');
   });
 });

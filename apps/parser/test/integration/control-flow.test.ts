@@ -88,11 +88,12 @@ Deno.test('Control flow parsing #integration', async (t) => {
     const { parserOutput, typeOutput } = performParsingTestCase({
       code: [
         'while (b > 4) {',
+        '    let c = 1;',
         '    if (a) {',
         '        continue;',
         '    }',
         '} finally {',
-        '    return 1 + 2 + 3;',
+        '    return 1 + 2 + c;',
         '}',
       ].join('\n'),
 
@@ -107,8 +108,8 @@ Deno.test('Control flow parsing #integration', async (t) => {
     assert(parserOutput.statement);
     assertGreater(parserOutput.statement.length, 0, 'Statements should be generated');
 
-    assertEquals(typeOutput.errors, 2, 'TypeAnalyzer should now report 2 errors');
     assertEquals(typeOutput.warnings, 0, 'TypeAnalyzer should not report any warnings');
+    assertEquals(typeOutput.errors, 3, 'TypeAnalyzer should report 3 errors');
   });
 
   await t.step('simple do-while loop', () => {

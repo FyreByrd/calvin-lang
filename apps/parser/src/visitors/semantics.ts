@@ -1,3 +1,4 @@
+import { assert } from '@std/assert';
 import type { CstNode, IToken } from 'chevrotain';
 import type {
   BodyCstChildren,
@@ -15,7 +16,6 @@ import type {
 import { Globals } from '../globals.ts';
 import { debug, error, prefix, warn } from '../logging.ts';
 import { BaseCstVisitor } from '../parser.ts';
-import { assert } from '@std/assert';
 
 export enum TypeClasses {
   Unknown,

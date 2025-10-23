@@ -15,7 +15,7 @@ Deno.test('Expression parsing #integration', async (t) => {
 
   await t.step('simple expression', () => {
     const { parserOutput, precOutput } = performParsingTestCase({
-      code: 'let a = 1 * 2 + 3',
+      code: 'let a = 1 * 2 + 3;',
 
       parser,
       precedenceHandler,

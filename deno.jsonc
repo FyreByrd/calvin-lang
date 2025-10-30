@@ -3,7 +3,8 @@
 
   "tasks": {
     "generate": "deno run --allow-write @calvin-lang/generate",
-    "check": "deno run --allow-env --allow-run @biomejs/biome check"
+    "check": "deno run --allow-env --allow-run @biomejs/biome check",
+    "fmt": "deno run --allow-env --allow-run --allow-write @biomejs/biome format --write"
   },
 
   "imports": {

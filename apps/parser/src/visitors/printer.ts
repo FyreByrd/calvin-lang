@@ -231,6 +231,12 @@ export class CalvinPrinter extends BaseCstVisitor implements ICstNodeVisitor<num
       case 'expression':
         this.expression(node.children as ExpressionCstChildren, indent);
         break;
+      case 'chainValue':
+        this.chainValue(node.children as ChainValueCstChildren, indent);
+        break;
+      case 'indexOrSlice':
+        this.indexOrSlice(node.children as IndexOrSliceCstChildren, indent);
+        break;
       case 'value':
         this.value(node.children as ValueCstChildren, indent);
         break;

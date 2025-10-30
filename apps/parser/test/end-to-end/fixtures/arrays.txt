@@ -4,3 +4,5 @@ let sliced = arr[1:2];
 let indexed = arr[0];
 let indexOfSliced = sliced[0];
 let check = indexed == indexOfSliced;
+let multi = [[1, 2], [3, 4]];
+let badMulti = [[1, 2], 3]; // should have semantic error

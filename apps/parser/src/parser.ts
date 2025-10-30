@@ -198,7 +198,19 @@ export class CalvinParser extends CstParser {
   });
 
   private constant = this.RULE('constant', () =>
-    this.OR(Tokens.literals.map((t) => ({ ALT: () => this.CONSUME(t) }))),
+    this.OR([
+      ...Tokens.literals.map((t) => ({ ALT: () => this.CONSUME(t) })),
+      {
+        ALT: () => {
+          this.CONSUME(Tokens.LBRACK);
+          this.MANY_SEP({
+            SEP: () => this.CONSUME(Tokens.COMMA),
+            DEF: () => this.SUBRULE(this.expression),
+          });
+          this.CONSUME(Tokens.RBRACK);
+        },
+      },
+    ]),
   );
 
   private type = this.RULE('type', () => this.CONSUME(Tokens.BASIC_TYPE));

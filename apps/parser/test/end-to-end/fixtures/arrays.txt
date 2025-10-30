@@ -1,0 +1,6 @@
+let arr = [1, 2];
+let empty = [];
+let sliced = arr[1:2];
+let indexed = arr[0];
+let indexOfSliced = sliced[0];
+let check = indexed == indexOfSliced;

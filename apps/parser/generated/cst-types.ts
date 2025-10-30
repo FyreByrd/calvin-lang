@@ -134,7 +134,7 @@ export type ConstantCstChildren = {
   INT?: IToken[];
   LBRACK?: IToken[];
   expression?: ExpressionCstNode[];
-  SEP?: IToken[];
+  COMMA?: IToken[];
   RBRACK?: IToken[];
 };
 

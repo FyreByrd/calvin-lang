@@ -208,7 +208,7 @@ export class CalvinParser extends CstParser {
         ALT: () => {
           this.CONSUME(Tokens.LBRACK);
           this.MANY_SEP({
-            SEP: () => this.CONSUME(Tokens.COMMA),
+            SEP: Tokens.COMMA,
             DEF: () => this.SUBRULE(this.expression),
           });
           this.CONSUME(Tokens.RBRACK);

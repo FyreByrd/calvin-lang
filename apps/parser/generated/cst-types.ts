@@ -90,10 +90,19 @@ export interface ChainValueCstNode extends CstNode {
 
 export type ChainValueCstChildren = {
   value: ValueCstNode[];
-  LBRACK?: IToken[];
+  indexOrSlice?: IndexOrSliceCstNode[];
+};
+
+export interface IndexOrSliceCstNode extends CstNode {
+  name: 'indexOrSlice';
+  children: IndexOrSliceCstChildren;
+}
+
+export type IndexOrSliceCstChildren = {
+  LBRACK: IToken[];
   expression?: ExpressionCstNode[];
   COLON?: IToken[];
-  RBRACK?: IToken[];
+  RBRACK: IToken[];
 };
 
 export interface ValueCstNode extends CstNode {
@@ -146,6 +155,7 @@ export interface ICstNodeVisitor<IN, OUT> extends ICstVisitor<IN, OUT> {
   declaration(children: DeclarationCstChildren, param?: IN): OUT;
   expression(children: ExpressionCstChildren, param?: IN): OUT;
   chainValue(children: ChainValueCstChildren, param?: IN): OUT;
+  indexOrSlice(children: IndexOrSliceCstChildren, param?: IN): OUT;
   value(children: ValueCstChildren, param?: IN): OUT;
   constant(children: ConstantCstChildren, param?: IN): OUT;
   type(children: TypeCstChildren, param?: IN): OUT;

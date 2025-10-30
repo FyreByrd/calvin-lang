@@ -214,6 +214,7 @@ export const LBRACK: TokenType = createToken({ name: 'LBRACK', pattern: '[' });
 export const RBRACK: TokenType = createToken({ name: 'RBRACK', pattern: ']' });
 export const SEMI: TokenType = createToken({ name: 'SEMI', pattern: ';' });
 export const COLON: TokenType = createToken({ name: 'COLON', pattern: ':' });
+export const COMMA: TokenType = createToken({ name: 'COMMA', pattern: ',' });
 /* Keywords */
 export const LET: TokenType = createToken({ name: 'LET', pattern: 'let', longer_alt: ID });
 // Selection
@@ -275,6 +276,7 @@ export const allTokens: TokenType[] = [
   RBRACK,
   SEMI,
   COLON,
+  COMMA,
   ERROR,
 ];
 

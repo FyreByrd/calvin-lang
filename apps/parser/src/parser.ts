@@ -129,7 +129,7 @@ export class CalvinParser extends CstParser {
   });
 
   private expression = this.RULE('expression', () => {
-    this.SUBRULE(this.value);
+    this.SUBRULE(this.chainValue);
     this.OR([
       {
         ALT: () => this.CONSUME(Tokens.PostFix),
@@ -153,12 +153,32 @@ export class CalvinParser extends CstParser {
     ]);
   });
 
+  private chainValue = this.RULE('chainValue', () => {
+    this.SUBRULE(this.value);
+    this.MANY(() => {
+      this.CONSUME(Tokens.LBRACK);
+      // This allows for expressions of the form arr[] to be syntactically valid
+      // I don't like it, but I guess this can be handled on the semantic level???
+      // This was the best way I could fix the common lookahead prefix error
+      this.OPTION(() => this.SUBRULE(this.expression));
+      this.OPTION1(() => {
+        this.CONSUME(Tokens.COLON);
+        this.OPTION2(() => this.SUBRULE1(this.expression));
+        this.OPTION3(() => {
+          this.CONSUME1(Tokens.COLON);
+          this.SUBRULE2(this.expression);
+        });
+      });
+      this.CONSUME(Tokens.RBRACK);
+    });
+  });
+
   private value = this.RULE('value', () => {
     this.OR([
       {
         ALT: () => {
           this.CONSUME(Tokens.UnOp);
-          this.SUBRULE1(this.value);
+          this.SUBRULE1(this.chainValue);
         },
       },
       {

@@ -37,14 +37,15 @@ export async function main(): Promise<void> {
   const lexingResult = CalvinLexer.tokenize(inputFile);
   // "input" is a setter which will reset the parser's state.
   parser.input = lexingResult.tokens;
+
+  const output = parser.file();
+
   if (parser.errors.length > 0) {
     throw new AggregateError(
       parser.errors,
       'One or more errors occurred during the parsing phase!',
     );
   }
-
-  const output = parser.file();
 
   printer.visit(output);
 }

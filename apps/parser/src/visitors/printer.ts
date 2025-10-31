@@ -143,6 +143,11 @@ export class CalvinPrinter extends BaseCstVisitor implements ICstNodeVisitor<num
 
   chainValue(cval: ChainValueCstChildren, indent: number) {
     this.value(cval.value[0].children, indent);
+    if (cval.indexOrSlice) {
+      cval.indexOrSlice.forEach((ios) => {
+        this.indexOrSlice(ios.children, indent);
+      });
+    }
   }
 
   indexOrSlice(ios: IndexOrSliceCstChildren, indent: number) {

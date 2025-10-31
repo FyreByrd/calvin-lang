@@ -1,5 +1,6 @@
 import type { CstNode, IToken } from 'chevrotain';
 import type {
+  ArrayTypeCstChildren,
   BodyCstChildren,
   ChainValueCstChildren,
   ConstantCstChildren,
@@ -209,6 +210,15 @@ export class CalvinPrinter extends BaseCstVisitor implements ICstNodeVisitor<num
 
   type(t: TypeCstChildren, indent: number) {
     tree(`: ${t.BASIC_TYPE[0].image}`, indent);
+    if (t.arrayType) {
+      t.arrayType.forEach((at) => {
+        this.arrayType(at.children, indent + 2);
+      });
+    }
+  }
+
+  arrayType(a: ArrayTypeCstChildren, indent: number) {
+    tree(`[${a.INT?.at(0)?.image ?? ''}]`, indent);
   }
 
   override visit(node: CstNode, indent: number = 0) {
@@ -245,6 +255,9 @@ export class CalvinPrinter extends BaseCstVisitor implements ICstNodeVisitor<num
         break;
       case 'type':
         this.type(node.children as TypeCstChildren, indent);
+        break;
+      case 'arrayType':
+        this.arrayType(node.children as ArrayTypeCstChildren, indent);
         break;
     }
   }

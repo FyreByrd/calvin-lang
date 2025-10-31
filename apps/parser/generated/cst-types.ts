@@ -145,6 +145,18 @@ export interface TypeCstNode extends CstNode {
 
 export type TypeCstChildren = {
   BASIC_TYPE: IToken[];
+  arrayType?: ArrayTypeCstNode[];
+};
+
+export interface ArrayTypeCstNode extends CstNode {
+  name: 'arrayType';
+  children: ArrayTypeCstChildren;
+}
+
+export type ArrayTypeCstChildren = {
+  LBRACK: IToken[];
+  INT?: IToken[];
+  RBRACK: IToken[];
 };
 
 export interface ICstNodeVisitor<IN, OUT> extends ICstVisitor<IN, OUT> {
@@ -159,4 +171,5 @@ export interface ICstNodeVisitor<IN, OUT> extends ICstVisitor<IN, OUT> {
   value(children: ValueCstChildren, param?: IN): OUT;
   constant(children: ConstantCstChildren, param?: IN): OUT;
   type(children: TypeCstChildren, param?: IN): OUT;
+  arrayType(children: ArrayTypeCstChildren, param?: IN): OUT;
 }

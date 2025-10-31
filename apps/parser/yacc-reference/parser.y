@@ -369,7 +369,7 @@ compound_assign: // DONE
     | value RS_EQU expression 
     | value AS_EQU expression
     | value NC_EQU expression;
-value: // 2/15
+value: // 5/15
     constant // DONE
     | ID // DONE
     | GLOBAL ID
@@ -380,10 +380,10 @@ value: // 2/15
     | function_call
     | value optional_chain DOT ID
     | value optional_chain DOT function_call
-    | value optional_chain LBRACK expression RBRACK
-    | value optional_chain LBRACK slice RBRACK
+    | value optional_chain LBRACK expression RBRACK // DONE
+    | value optional_chain LBRACK slice RBRACK // DONE
     | LBRACE list_expression RBRACE
-    | LPAREN expression RPAREN
+    | LPAREN expression RPAREN // DONE
     | type_signature LPAREN expression RPAREN;
 constant: // DONE
     BOOL { debug::log(drv.trace_parsing) << std::endl << "Parser push boolean: " << $1 << std::endl << std::endl; }
@@ -398,7 +398,7 @@ optional_chain:
     QUE
     | BANG
     |;
-slice:
+slice: // DONE
     optional_expression COLON optional_expression
     | optional_expression COLON optional_expression COLON expression;
 

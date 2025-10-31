@@ -217,7 +217,18 @@ export class CalvinParser extends CstParser {
     ]),
   );
 
-  private type = this.RULE('type', () => this.CONSUME(Tokens.BASIC_TYPE));
+  private type = this.RULE('type', () => {
+    this.CONSUME(Tokens.BASIC_TYPE);
+    this.MANY(() => {
+      this.SUBRULE(this.arrayType);
+    });
+  });
+
+  private arrayType = this.RULE('arrayType', () => {
+    this.CONSUME(Tokens.LBRACK);
+    this.OPTION(() => this.CONSUME(Tokens.INT));
+    this.CONSUME(Tokens.RBRACK);
+  });
 }
 
 export const parser: CalvinParser = new CalvinParser();

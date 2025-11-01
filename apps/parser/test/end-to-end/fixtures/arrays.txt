@@ -6,3 +6,4 @@ let indexOfSliced = sliced[0];
 let check = indexed == indexOfSliced;
 let multi: i32[2][] = [[1, 2], [3, 4]];
 let badMulti = [[1, 2], 3]; // should have semantic error
+let badIndex = arr[1][1];

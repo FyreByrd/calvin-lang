@@ -1,13 +1,16 @@
 import { assert } from '@std/assert';
 import type { CstNode, IToken } from 'chevrotain';
 import type {
+  ArrayTypeCstChildren,
   BodyCstChildren,
+  ChainValueCstChildren,
   ConstantCstChildren,
   DeclarationCstChildren,
   ExpressionCstChildren,
   FileCstChildren,
   ICstNodeVisitor,
   IfPredBodyCstChildren,
+  IndexOrSliceCstChildren,
   StatementCstChildren,
   StatementCstNode,
   TypeCstChildren,
@@ -17,7 +20,7 @@ import { Globals } from '../globals.ts';
 import { debug, error, prefix, warn } from '../logging.ts';
 import { BaseCstVisitor } from '../parser.ts';
 
-export enum TypeClasses {
+export enum TypeClass {
   Unknown,
   Integral,
   Real,
@@ -25,32 +28,55 @@ export enum TypeClasses {
   Boolean,
   Binary,
   String,
+  Container,
   Never,
 }
 
-export function printType(t: TypeClasses): string {
-  switch (t) {
-    case TypeClasses.Unknown:
+export type Type =
+  | {
+      class: TypeClass.Container;
+      type: Type;
+      size: number | null;
+    }
+  | {
+      class: Exclude<TypeClass, TypeClass.Container>;
+      type?: never;
+      size?: never;
+    };
+
+export function printType(t: Type): string {
+  switch (t.class) {
+    case TypeClass.Unknown:
       return 'unknown';
-    case TypeClasses.Integral:
+    case TypeClass.Integral:
       return 'integer';
-    case TypeClasses.Real:
+    case TypeClass.Real:
       return 'real';
-    case TypeClasses.Complex:
+    case TypeClass.Complex:
       return 'complex';
-    case TypeClasses.Boolean:
+    case TypeClass.Boolean:
       return 'boolean';
-    case TypeClasses.Binary:
+    case TypeClass.Binary:
       return 'binary';
-    case TypeClasses.String:
+    case TypeClass.String:
       return 'string';
-    case TypeClasses.Never:
+    case TypeClass.Container:
+      return `${printType(t.type)}[${t.size ?? '?'}]`;
+    case TypeClass.Never:
       return 'never';
   }
 }
 
+export function compareType(a: Type, b: Type): boolean {
+  if (a.class === TypeClass.Container && b.class === TypeClass.Container) {
+    return a.size === b.size && compareType(a.type, b.type);
+  } else {
+    return a.class === b.class;
+  }
+}
+
 export type Meta = {
-  returnType: TypeClasses;
+  returnType: Type;
   source: IToken;
 };
 
@@ -144,7 +170,7 @@ export class Scope {
 
 export class CalvinTypeAnalyzer
   extends BaseCstVisitor
-  implements ICstNodeVisitor<void, Meta | undefined>
+  implements ICstNodeVisitor<void, Meta | Type | undefined>
 {
   private counts;
   private _errors;
@@ -230,6 +256,12 @@ export class CalvinTypeAnalyzer
       case 'expression':
         this.expression(node.children as ExpressionCstChildren);
         break;
+      case 'chainValue':
+        this.chainValue(node.children as ChainValueCstChildren);
+        break;
+      case 'indexOrSlice':
+        this.indexOrSlice(node.children as IndexOrSliceCstChildren);
+        break;
       case 'value':
         this.value(node.children as ValueCstChildren);
         break;
@@ -238,6 +270,9 @@ export class CalvinTypeAnalyzer
         break;
       case 'type':
         this.type(node.children as TypeCstChildren);
+        break;
+      case 'arrayType':
+        this.arrayType(node.children as ArrayTypeCstChildren);
         break;
     }
   }
@@ -319,7 +354,8 @@ export class CalvinTypeAnalyzer
     const id = decl.ID[0];
     const t = decl.type ? this.type(decl.type[0].children) : null;
     const expr = decl.expression ? this.expression(decl.expression[0].children) : null;
-    const meta = t ?? expr ?? ({ source: id, returnType: TypeClasses.Unknown } satisfies Meta);
+    const meta =
+      t ?? expr ?? ({ source: id, returnType: { class: TypeClass.Unknown } } satisfies Meta);
     const search = this.scope.search(id.image);
     const existing = this.scope === search?.scope && search.found;
     if (search) {
@@ -334,7 +370,7 @@ export class CalvinTypeAnalyzer
       }
     }
     if (t && expr) {
-      if (t.returnType !== expr.returnType) {
+      if (!compareType(t.returnType, expr.returnType)) {
         // TODO type resolution algorithm
         this.error(
           `type declaration on line ${t.source.startLine} does not match assignment on line ${expr.source.startLine}`,
@@ -361,10 +397,60 @@ export class CalvinTypeAnalyzer
     if (op) {
       // TODO value operator mismatch
     }
-    const val = this.value(expr.value[0].children);
+    const val = this.chainValue(expr.chainValue[0].children);
     // TODO handle type mismatch
     const exprMeta = expr.expression ? this.expression(expr.expression[0].children) : null;
     return exprMeta ?? val;
+  }
+
+  chainValue(cval: ChainValueCstChildren): Meta {
+    const val = this.value(cval.value[0].children);
+    if (cval.indexOrSlice) {
+      return cval.indexOrSlice.reduce((val: Meta, ios) => {
+        this.indexOrSlice(ios.children);
+        const isSlice = !!ios.children.COLON;
+        if (val.returnType.class === TypeClass.Container) {
+          if (isSlice) {
+            val.source = ios.children.LBRACK[0];
+            return val;
+          } else {
+            return { source: ios.children.LBRACK[0], returnType: val.returnType.type };
+          }
+        } else {
+          this.error(`Bad array indexing at ${val.source.image} on line ${val.source.startLine}!`);
+          return {
+            source: ios.children.LBRACK[0],
+            returnType: { class: TypeClass.Never },
+          } satisfies Meta;
+        }
+      }, val);
+    } else {
+      return val;
+    }
+  }
+
+  indexOrSlice(ios: IndexOrSliceCstChildren): undefined {
+    if (ios.LBRACK && ios.RBRACK) {
+      if (ios.COLON) {
+        let exprCount = 0;
+        if (ios.expression?.at(exprCount)) {
+          // start
+          this.expression(ios.expression[exprCount++].children);
+        }
+        if (ios.expression?.at(exprCount)) {
+          // end
+          this.expression(ios.expression[exprCount++].children);
+        }
+        if (ios.COLON.at(1)) {
+          if (ios.expression?.at(exprCount)) {
+            // direction
+            this.expression(ios.expression[exprCount++].children);
+          }
+        }
+      } else if (ios.expression?.at(0)) {
+        this.expression(ios.expression[0].children);
+      }
+    }
   }
 
   value(val: ValueCstChildren): Meta {
@@ -380,47 +466,80 @@ export class CalvinTypeAnalyzer
       }
       const meta = existing?.found?.meta;
 
-      return meta ?? ({ source: id, returnType: TypeClasses.Never } satisfies Meta);
-    } else if (val.value) {
+      return meta ?? ({ source: id, returnType: { class: TypeClass.Never } } satisfies Meta);
+    } else if (val.chainValue) {
       //const op = Object.values(val).find((v) => 'tokenType' in v[0]) as IToken[];
       // TODO value operator mismatch
-      return this.value(val.value[0].children);
+      return this.chainValue(val.chainValue[0].children);
     }
     throw new Error(`TypeInference: unhandled value type ${JSON.stringify(val)}`);
   }
 
   constant(c: ConstantCstChildren): Meta {
-    if (c.BIN) return { source: c.BIN[0], returnType: TypeClasses.Binary };
-    else if (c.BOOL) return { source: c.BOOL[0], returnType: TypeClasses.Boolean };
-    else if (c.CMPX) return { source: c.CMPX[0], returnType: TypeClasses.Complex };
-    else if (c.REAL) return { source: c.REAL[0], returnType: TypeClasses.Real };
-    else if (c.INT) return { source: c.INT[0], returnType: TypeClasses.Integral };
-    else if (c.STRING) return { source: c.STRING[0], returnType: TypeClasses.String };
+    if (c.BIN) return { source: c.BIN[0], returnType: { class: TypeClass.Binary } };
+    else if (c.BOOL) return { source: c.BOOL[0], returnType: { class: TypeClass.Boolean } };
+    else if (c.CMPX) return { source: c.CMPX[0], returnType: { class: TypeClass.Complex } };
+    else if (c.REAL) return { source: c.REAL[0], returnType: { class: TypeClass.Real } };
+    else if (c.INT) return { source: c.INT[0], returnType: { class: TypeClass.Integral } };
+    else if (c.STRING) return { source: c.STRING[0], returnType: { class: TypeClass.String } };
+    else if (c.LBRACK && c.expression) {
+      // TODO handle type mismatch
+      return {
+        source: c.LBRACK[0],
+        returnType: {
+          class: TypeClass.Container,
+          type: this.expression(c.expression[0].children).returnType,
+          size: c.expression.length,
+        },
+      };
+    } else if (c.LBRACK)
+      return {
+        source: c.LBRACK[0],
+        returnType: { class: TypeClass.Container, type: { class: TypeClass.Unknown }, size: 0 },
+      };
     // this should never be reached, except maybe when adding a new literal type
     throw new Error(`Could not get type from constant token ${JSON.stringify(c, null, 4)}`);
   }
 
   type(t: TypeCstChildren): Meta {
     const source = t.BASIC_TYPE[0];
-    return {
-      source,
-      returnType: [source.image].map((t) => {
+    const tClass = {
+      class: [source.image].map((t) => {
         switch (t[0]) {
           case 'i':
           case 'u':
-            return TypeClasses.Integral;
+            return TypeClass.Integral;
           case 'x':
-            return TypeClasses.Complex;
+            return TypeClass.Complex;
           case 'r':
-            return TypeClasses.Real;
+            return TypeClass.Real;
           case 'b':
-            return t[1] === 'o' ? TypeClasses.Boolean : TypeClasses.Binary;
+            return t[1] === 'o' ? TypeClass.Boolean : TypeClass.Binary;
           case 's':
-            return TypeClasses.String;
+            return TypeClass.String;
           default:
-            return TypeClasses.Unknown;
+            return TypeClass.Unknown;
         }
       })[0],
+    } satisfies Type;
+    return {
+      source,
+      returnType:
+        t.arrayType?.reduce((p: Type, c) => ({ ...this.arrayType(c.children), type: p }), tClass) ??
+        tClass,
+    };
+  }
+
+  arrayType(a: ArrayTypeCstChildren): {
+    class: TypeClass.Container;
+    type: Type;
+    size: number | null;
+  } {
+    const size = parseInt(a.INT?.at(0)?.image ?? 'NaN', 10);
+    return {
+      class: TypeClass.Container,
+      type: { class: TypeClass.Unknown },
+      size: Number.isNaN(size) ? null : size,
     };
   }
 }

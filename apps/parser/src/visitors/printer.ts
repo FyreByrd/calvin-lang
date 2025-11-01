@@ -1,12 +1,15 @@
 import type { CstNode, IToken } from 'chevrotain';
 import type {
+  ArrayTypeCstChildren,
   BodyCstChildren,
+  ChainValueCstChildren,
   ConstantCstChildren,
   DeclarationCstChildren,
   ExpressionCstChildren,
   FileCstChildren,
   ICstNodeVisitor,
   IfPredBodyCstChildren,
+  IndexOrSliceCstChildren,
   StatementCstChildren,
   StatementCstNode,
   TypeCstChildren,
@@ -131,11 +134,48 @@ export class CalvinPrinter extends BaseCstVisitor implements ICstNodeVisitor<num
     } else {
       tree('(', indent);
     }
-    this.value(expr.value[0].children, indent + 2);
+    this.chainValue(expr.chainValue[0].children, indent + 2);
     if (expr.expression) {
       this.expression(expr.expression[0].children, indent + 2);
     }
     tree(')', indent);
+  }
+
+  chainValue(cval: ChainValueCstChildren, indent: number) {
+    this.value(cval.value[0].children, indent);
+    if (cval.indexOrSlice) {
+      cval.indexOrSlice.forEach((ios) => {
+        this.indexOrSlice(ios.children, indent);
+      });
+    }
+  }
+
+  indexOrSlice(ios: IndexOrSliceCstChildren, indent: number) {
+    if (ios.LBRACK && ios.RBRACK) {
+      tree('[', indent);
+      if (ios.COLON) {
+        let exprCount = 0;
+        if (ios.expression?.at(exprCount)) {
+          // start
+          this.expression(ios.expression[exprCount++].children, indent + 2);
+        }
+        tree(':', indent);
+        if (ios.expression?.at(exprCount)) {
+          // end
+          this.expression(ios.expression[exprCount++].children, indent + 2);
+        }
+        if (ios.COLON.at(1)) {
+          tree(':', indent);
+          if (ios.expression?.at(exprCount)) {
+            // direction
+            this.expression(ios.expression[exprCount++].children, indent + 2);
+          }
+        }
+      } else if (ios.expression?.at(0)) {
+        this.expression(ios.expression[0].children, indent + 2);
+      }
+      tree(']', indent);
+    }
   }
 
   value(val: ValueCstChildren, indent: number) {
@@ -147,10 +187,10 @@ export class CalvinPrinter extends BaseCstVisitor implements ICstNodeVisitor<num
       this.constant(val.constant[0].children, indent);
     } else if (val.ID) {
       tree(val.ID[0].image, indent);
-    } else if (val.value) {
+    } else if (val.chainValue) {
       const op = Object.values(val).find((v) => 'tokenType' in v[0]) as IToken[];
       tree(`(${op[0].image}!`, indent);
-      this.value(val.value[0].children, indent + 2);
+      this.chainValue(val.chainValue[0].children, indent + 2);
       tree(`)`, indent);
     } else {
       throw new Error(`TypeInference: unhandled value type ${JSON.stringify(val)}`);
@@ -158,11 +198,32 @@ export class CalvinPrinter extends BaseCstVisitor implements ICstNodeVisitor<num
   }
 
   constant(c: ConstantCstChildren, indent: number) {
-    tree(Object.values(c)[0][0].image, indent);
+    if (c.expression) {
+      // list
+      tree('[', indent);
+      c.expression.forEach((e) => {
+        this.expression(e.children, indent + 2);
+      });
+      tree(']', indent);
+    } else if (c.LBRACK) {
+      // empty list
+      tree('[]', indent);
+    } else {
+      tree((Object.values(c)[0][0] as IToken).image, indent);
+    }
   }
 
   type(t: TypeCstChildren, indent: number) {
     tree(`: ${t.BASIC_TYPE[0].image}`, indent);
+    if (t.arrayType) {
+      t.arrayType.forEach((at) => {
+        this.arrayType(at.children, indent + 2);
+      });
+    }
+  }
+
+  arrayType(a: ArrayTypeCstChildren, indent: number) {
+    tree(`[${a.INT?.at(0)?.image ?? ''}]`, indent);
   }
 
   override visit(node: CstNode, indent: number = 0) {
@@ -185,6 +246,12 @@ export class CalvinPrinter extends BaseCstVisitor implements ICstNodeVisitor<num
       case 'expression':
         this.expression(node.children as ExpressionCstChildren, indent);
         break;
+      case 'chainValue':
+        this.chainValue(node.children as ChainValueCstChildren, indent);
+        break;
+      case 'indexOrSlice':
+        this.indexOrSlice(node.children as IndexOrSliceCstChildren, indent);
+        break;
       case 'value':
         this.value(node.children as ValueCstChildren, indent);
         break;
@@ -193,6 +260,9 @@ export class CalvinPrinter extends BaseCstVisitor implements ICstNodeVisitor<num
         break;
       case 'type':
         this.type(node.children as TypeCstChildren, indent);
+        break;
+      case 'arrayType':
+        this.arrayType(node.children as ArrayTypeCstChildren, indent);
         break;
     }
   }

@@ -1,17 +1,20 @@
 import type { CstNode, TokenType } from 'chevrotain';
 import type {
+  ArrayTypeCstChildren,
   BodyCstChildren,
+  ChainValueCstChildren,
+  ChainValueCstNode,
   ConstantCstChildren,
   DeclarationCstChildren,
   ExpressionCstChildren,
   ExpressionCstNode,
   FileCstChildren,
   IfPredBodyCstChildren,
+  IndexOrSliceCstChildren,
   StatementCstChildren,
   StatementCstNode,
   TypeCstChildren,
   ValueCstChildren,
-  ValueCstNode,
 } from '@/generated/cst-types.ts';
 import * as Tokens from '../lexer.ts';
 import { BaseCstVisitor } from '../parser.ts';
@@ -94,19 +97,26 @@ export class PrecedenceHandler extends BaseCstVisitor {
           // tree is now tree.right
           tree = { ...right };
           // old tree.right is now tree.right.left
-          const left = tree.value[0];
+          const left = tree.chainValue[0];
           old.expression = [
             {
               ...left,
-              children: { value: [{ ...left }] },
+              children: { chainValue: [{ ...left }] },
               name: 'expression',
             } satisfies ExpressionCstNode,
           ];
           // new tree.left is now old tree
-          tree.value[0] = {
-            children: { expression: [{ name: 'expression', children: old }] },
-            name: 'value',
-          } satisfies ValueCstNode;
+          tree.chainValue[0] = {
+            children: {
+              value: [
+                {
+                  name: 'value',
+                  children: { expression: [{ name: 'expression', children: old }] },
+                },
+              ],
+            },
+            name: 'chainValue',
+          } satisfies ChainValueCstNode;
         }
       }
     }
@@ -115,16 +125,61 @@ export class PrecedenceHandler extends BaseCstVisitor {
 
   expression(expr: ExpressionCstNode) {
     expr.children = this.reorder(expr.children);
-    this.value(expr.children.value[0].children);
+    this.chainValue(expr.children.chainValue[0].children);
+  }
+
+  chainValue(cval: ChainValueCstChildren) {
+    this.value(cval.value[0].children);
+    if (cval.indexOrSlice) {
+      cval.indexOrSlice.forEach((ios) => {
+        this.indexOrSlice(ios.children);
+      });
+    }
+  }
+
+  indexOrSlice(ios: IndexOrSliceCstChildren) {
+    if (ios.LBRACK && ios.RBRACK) {
+      if (ios.COLON) {
+        let exprCount = 0;
+        if (ios.expression?.at(exprCount)) {
+          // start
+          this.expression(ios.expression[exprCount++]);
+        }
+        if (ios.expression?.at(exprCount)) {
+          // end
+          this.expression(ios.expression[exprCount++]);
+        }
+        if (ios.COLON.at(1)) {
+          if (ios.expression?.at(exprCount)) {
+            // direction
+            this.expression(ios.expression[exprCount++]);
+          }
+        }
+      } else if (ios.expression?.at(0)) {
+        this.expression(ios.expression[0]);
+      }
+    }
   }
 
   value(val: ValueCstChildren) {
     if (val.expression) {
       // nested expression
       this.expression(val.expression[0]);
-    } else if (!val.constant && !val.ID && val.value) {
+    } else if (val.constant) {
+      // possible array literal
+      this.constant(val.constant[0].children);
+    } else if (!val.ID && val.chainValue) {
       // Unop
-      this.value(val.value[0].children);
+      this.chainValue(val.chainValue[0].children);
+    }
+  }
+
+  constant(c: ConstantCstChildren) {
+    if (c.expression) {
+      // list
+      c.expression.forEach((e) => {
+        this.expression(e);
+      });
     }
   }
 
@@ -199,9 +254,9 @@ export class PrecedenceHandler extends BaseCstVisitor {
     }
   }
 
-  constant(_c: ConstantCstChildren) {}
-
   type(_t: TypeCstChildren) {}
+
+  arrayType(_at: ArrayTypeCstChildren) {}
 
   override visit(node: CstNode) {
     switch (node.name) {
@@ -223,6 +278,12 @@ export class PrecedenceHandler extends BaseCstVisitor {
       case 'expression':
         this.expression(node as ExpressionCstNode);
         break;
+      case 'chainValue':
+        this.chainValue(node.children as ChainValueCstChildren);
+        break;
+      case 'indexOrSlice':
+        this.indexOrSlice(node.children as IndexOrSliceCstChildren);
+        break;
       case 'value':
         this.value(node.children as ValueCstChildren);
         break;
@@ -231,6 +292,9 @@ export class PrecedenceHandler extends BaseCstVisitor {
         break;
       case 'type':
         this.type(node.children as TypeCstChildren);
+        break;
+      case 'arrayType':
+        this.arrayType(node.children as ArrayTypeCstChildren);
         break;
     }
   }

@@ -76,11 +76,33 @@ export interface ExpressionCstNode extends CstNode {
 }
 
 export type ExpressionCstChildren = {
-  value: ValueCstNode[];
+  chainValue: ChainValueCstNode[];
   PostFix?: IToken[];
   CmpAsgn?: IToken[];
   BinOp?: IToken[];
   expression?: ExpressionCstNode[];
+};
+
+export interface ChainValueCstNode extends CstNode {
+  name: 'chainValue';
+  children: ChainValueCstChildren;
+}
+
+export type ChainValueCstChildren = {
+  value: ValueCstNode[];
+  indexOrSlice?: IndexOrSliceCstNode[];
+};
+
+export interface IndexOrSliceCstNode extends CstNode {
+  name: 'indexOrSlice';
+  children: IndexOrSliceCstChildren;
+}
+
+export type IndexOrSliceCstChildren = {
+  LBRACK: IToken[];
+  expression?: ExpressionCstNode[];
+  COLON?: IToken[];
+  RBRACK: IToken[];
 };
 
 export interface ValueCstNode extends CstNode {
@@ -90,7 +112,7 @@ export interface ValueCstNode extends CstNode {
 
 export type ValueCstChildren = {
   UnOp?: IToken[];
-  value?: ValueCstNode[];
+  chainValue?: ChainValueCstNode[];
   constant?: ConstantCstNode[];
   ID?: IToken[];
   LPAREN?: IToken[];
@@ -107,9 +129,13 @@ export type ConstantCstChildren = {
   STRING?: IToken[];
   BOOL?: IToken[];
   BIN?: IToken[];
-  INT?: IToken[];
   CMPX?: IToken[];
   REAL?: IToken[];
+  INT?: IToken[];
+  LBRACK?: IToken[];
+  expression?: ExpressionCstNode[];
+  COMMA?: IToken[];
+  RBRACK?: IToken[];
 };
 
 export interface TypeCstNode extends CstNode {
@@ -119,6 +145,18 @@ export interface TypeCstNode extends CstNode {
 
 export type TypeCstChildren = {
   BASIC_TYPE: IToken[];
+  arrayType?: ArrayTypeCstNode[];
+};
+
+export interface ArrayTypeCstNode extends CstNode {
+  name: 'arrayType';
+  children: ArrayTypeCstChildren;
+}
+
+export type ArrayTypeCstChildren = {
+  LBRACK: IToken[];
+  INT?: IToken[];
+  RBRACK: IToken[];
 };
 
 export interface ICstNodeVisitor<IN, OUT> extends ICstVisitor<IN, OUT> {
@@ -128,7 +166,10 @@ export interface ICstNodeVisitor<IN, OUT> extends ICstVisitor<IN, OUT> {
   body(children: BodyCstChildren, param?: IN): OUT;
   declaration(children: DeclarationCstChildren, param?: IN): OUT;
   expression(children: ExpressionCstChildren, param?: IN): OUT;
+  chainValue(children: ChainValueCstChildren, param?: IN): OUT;
+  indexOrSlice(children: IndexOrSliceCstChildren, param?: IN): OUT;
   value(children: ValueCstChildren, param?: IN): OUT;
   constant(children: ConstantCstChildren, param?: IN): OUT;
   type(children: TypeCstChildren, param?: IN): OUT;
+  arrayType(children: ArrayTypeCstChildren, param?: IN): OUT;
 }

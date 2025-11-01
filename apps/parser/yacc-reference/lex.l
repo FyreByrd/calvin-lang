@@ -165,15 +165,15 @@ using   return yy::parser::make_USING   (loc);
 "}"     return yy::parser::make_RBRACE  (loc); // DONE
 "("     return yy::parser::make_LPAREN  (loc); // DONE
 ")"     return yy::parser::make_RPAREN  (loc); // DONE
-"["     return yy::parser::make_LBRACK  (loc);
-"]"     return yy::parser::make_RBRACK  (loc);
+"["     return yy::parser::make_LBRACK  (loc); // DONE
+"]"     return yy::parser::make_RBRACK  (loc); // DONE
 ";"     return yy::parser::make_SEMI    (loc); // DONE
 "_"     return yy::parser::make_USCORE  (loc);
 "?"     return yy::parser::make_QUE     (loc);
 "!"     return yy::parser::make_BANG    (loc);
 ":"     return yy::parser::make_COLON   (loc); // DONE
 "??"    return yy::parser::make_N_COAL  (loc); // DONE
-","     return yy::parser::make_COMMA   (loc);
+","     return yy::parser::make_COMMA   (loc); // DONE
 "."     return yy::parser::make_DOT     (loc);
 .       { throw yy::parser::syntax_error(loc, "invalid character: " + std::string(yytext));}
 <<EOF>> return yy::parser::make_YYEOF (loc);

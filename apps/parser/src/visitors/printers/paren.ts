@@ -12,8 +12,8 @@ import type {
   TypeCstChildren,
   ValueCstChildren,
 } from '@/generated/cst-types.ts';
-import { tree } from '../logging.ts';
-import { BaseCstVisitor } from '../parser.ts';
+import { tree } from '@/src/logging.ts';
+import { BaseCstVisitor } from '@/src/parser.ts';
 
 export class CalvinPrinter extends BaseCstVisitor implements ICstNodeVisitor<number, void> {
   constructor() {

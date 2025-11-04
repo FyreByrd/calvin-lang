@@ -2,6 +2,16 @@
 
 This is the README for your extension "encode". After writing up a brief description, we recommend including the following sections.
 
+## Development
+
+You will need to create a symbolic link in the vscode extensions folder to point to this folder.
+
+On Linux:
+```sh
+cd ~/.vscode/extensions # this location depends on the system
+ln -s ~/repos/encode/apps/extension/ encode-lang.encode-alpha
+```
+
 ## Features
 
 Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.

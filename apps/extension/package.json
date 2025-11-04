@@ -1,0 +1,33 @@
+{
+  "name": "encode-lang",
+  "displayName": "Encode Language Support",
+  "description": "",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.105.0"
+  },
+  "categories": [
+    "Programming Languages"
+  ],
+  "contributes": {
+    "languages": [
+      {
+        "id": "encode",
+        "aliases": [
+          "Encode"
+        ],
+        "extensions": [
+          "ec"
+        ],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "encode",
+        "scopeName": "source.encode",
+        "path": "./syntaxes/encode.tmLanguage.json"
+      }
+    ]
+  }
+}

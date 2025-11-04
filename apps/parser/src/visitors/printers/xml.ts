@@ -161,7 +161,7 @@ export class XMLPrinter extends BasePrinter implements ICstNodeVisitor<number, v
     } else if (val.constant) {
       this.constant(val.constant[0].children, indent + 2);
     } else if (val.ID) {
-      this.tree(val.ID[0].image, indent);
+      this.tree(val.ID[0].image, indent + 2);
     } else if (val.value) {
       const op = Object.values(val).find((v) => 'tokenType' in v[0]) as IToken[];
       this.tree(`<prefix op="${op[0].image}">`, indent + 2);

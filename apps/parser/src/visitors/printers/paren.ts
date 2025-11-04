@@ -18,10 +18,9 @@ import { BasePrinter } from './printer.ts';
 const start = ANSIColor.BrightRed;
 const range = ANSIColor.BrightWhite - start;
 
-export class CalvinPrinter extends Printer implements ICstNodeVisitor<number, void> {
-  constructor(output: Logger | null = console.log, colors: boolean = true) {
-    super(output, colors);
-    this.validateVisitor();
+export class CalvinPrinter extends BasePrinter implements ICstNodeVisitor<number, void> {
+  constructor(colors: boolean = true, output: Logger | null = console.log) {
+    super(colors, output);
   }
 
   private tree(msg: string, indent: number) {

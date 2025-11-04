@@ -3,6 +3,9 @@
   "name": "Encode",
   "patterns": [
     {
+      "include": "#comments"
+    },
+    {
       "include": "#keywords"
     },
     {
@@ -10,6 +13,19 @@
     }
   ],
   "repository": {
+    "comments": {
+      "patterns": [
+        {
+          "name": "comment.block.encode",
+          "begin": "/\\*",
+          "end": "\\*/"
+        },
+        {
+          "name": "comment.line.double-slash.encode",
+          "match": "//[^\n]*"
+        }
+      ]
+    },
     "keywords": {
       "patterns": [
         {

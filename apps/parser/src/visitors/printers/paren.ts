@@ -13,19 +13,23 @@ import type {
   ValueCstChildren,
 } from '@/generated/cst-types.ts';
 import { ANSIColor, color, type Logger, prefix } from '@/src/logging.ts';
-import { BaseCstVisitor } from '@/src/parser.ts';
+import { Printer } from './printer.ts';
 
 const start = ANSIColor.BrightRed;
 const range = ANSIColor.BrightWhite - start;
 
-export class CalvinPrinter extends BaseCstVisitor implements ICstNodeVisitor<number, void> {
-  constructor(private readonly output: Logger | null = console.log) {
-    super();
+export class CalvinPrinter extends Printer implements ICstNodeVisitor<number, void> {
+  constructor(output: Logger | null = console.log, colors: boolean = true) {
+    super(output, colors);
     this.validateVisitor();
   }
 
-  tree(msg: string, indent: number) {
-    this.output?.(color(start + ((indent / 2) % range), prefix(msg, indent)));
+  private tree(msg: string, indent: number) {
+    if (this.colors) {
+      this.output?.(color(start + ((indent / 2) % range), prefix(msg, indent)));
+    } else {
+      this.output?.(prefix(msg, indent));
+    }
   }
 
   file(node: FileCstChildren, indent: number) {

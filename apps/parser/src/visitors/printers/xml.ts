@@ -13,15 +13,14 @@ import type {
   ValueCstChildren,
 } from '@/generated/cst-types.ts';
 import { ANSIColor, color, type Logger, prefix } from '@/src/logging.ts';
-import { Printer } from './printer.ts';
+import { BasePrinter } from './printer.ts';
 
 const start = ANSIColor.BrightRed;
 const range = ANSIColor.BrightWhite - start;
 
-export class XMLPrinter extends Printer implements ICstNodeVisitor<number, void> {
-  constructor(output: Logger | null = console.log, colors: boolean = true) {
-    super(output, colors);
-    this.validateVisitor();
+export class XMLPrinter extends BasePrinter implements ICstNodeVisitor<number, void> {
+  constructor(colors: boolean = true, output: Logger | null = console.log) {
+    super(colors, output);
   }
 
   private tree(msg: string, indent: number) {

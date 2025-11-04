@@ -13,7 +13,7 @@ import type {
   ValueCstChildren,
 } from '@/generated/cst-types.ts';
 import { ANSIColor, color, type Logger, prefix } from '@/src/logging.ts';
-import { Printer } from './printer.ts';
+import { BasePrinter } from './printer.ts';
 
 const start = ANSIColor.BrightRed;
 const range = ANSIColor.BrightWhite - start;

@@ -30,7 +30,11 @@
       "patterns": [
         {
           "name": "keyword.control.encode",
-          "match": "\\b(if|while|for|return)\\b"
+          "match": "\\b(if|elif|else|do|while|finally|return|break|continue)\\b"
+        },
+        {
+          "name": "keyword.other.encode",
+          "match": "\\b(let)\\b"
         }
       ]
     },

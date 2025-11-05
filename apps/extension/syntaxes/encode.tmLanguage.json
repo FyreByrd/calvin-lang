@@ -39,13 +39,28 @@
       ]
     },
     "strings": {
-      "name": "string.quoted.double.encode",
-      "begin": "\"",
-      "end": "\"",
       "patterns": [
         {
-          "name": "constant.character.escape.encode",
-          "match": "\\\\."
+          "name": "string.quoted.double.encode",
+          "begin": "\"",
+          "end": "\"",
+          "patterns": [
+            {
+              "name": "constant.character.escape.encode",
+              "match": "\\\\."
+            }
+          ]
+        },
+        {
+          "name": "string.quoted.single.encode",
+          "begin": "'",
+          "end": "'",
+          "patterns": [
+            {
+              "name": "constant.character.escape.encode",
+              "match": "\\\\."
+            }
+          ]
         }
       ]
     }

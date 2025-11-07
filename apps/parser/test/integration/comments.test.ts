@@ -9,12 +9,12 @@ Deno.test('Comment parsing #integration', async (t) => {
 
   const precedenceHandler = new TestSubject.PrecedenceHandler();
 
-  const printer = new TestSubject.CalvinPrinter();
+  const printer = new TestSubject.JSONPrinter(false, null, 0);
 
   const typeAnalyzer = new TestSubject.CalvinTypeAnalyzer();
 
   await t.step('line comment', () => {
-    const { parserOutput } = performParsingTestCase({
+    const { parserOutput, afterReorder } = performParsingTestCase({
       code: '// line comment',
 
       parser,
@@ -25,11 +25,13 @@ Deno.test('Comment parsing #integration', async (t) => {
 
     assertEquals(parser.errors.length, 0, 'Parser should not error');
 
+    assertEquals(afterReorder, JSON.stringify({ file: {} }));
+
     assert(!parserOutput.statement, 'No output should be generated');
   });
 
   await t.step('collapsed multiline comment', () => {
-    const { parserOutput } = performParsingTestCase({
+    const { parserOutput, afterReorder } = performParsingTestCase({
       code: [
         '/**/ // collapsed multiline comment',
         '/*****************',
@@ -50,11 +52,13 @@ Deno.test('Comment parsing #integration', async (t) => {
 
     assertEquals(parser.errors.length, 0, 'Parser should not error');
 
+    assertEquals(afterReorder, JSON.stringify({ file: {} }));
+
     assert(!parserOutput.statement, 'No output should be generated');
   });
 
   await t.step('comments embedded in a string', () => {
-    const { parserOutput } = performParsingTestCase({
+    const { parserOutput, afterReorder } = performParsingTestCase({
       code: "let str = '/*****/  //'; // comments embedded in a string",
 
       parser,
@@ -66,6 +70,29 @@ Deno.test('Comment parsing #integration', async (t) => {
     assertEquals(parser.errors.length, 0, 'Parser should not error');
 
     assert(!!parserOutput.statement);
+
+    assertEquals(
+      afterReorder,
+      JSON.stringify({
+        file: {
+          statements: [
+            {
+              type: 'declaration',
+              declaration: {
+                image: 'str',
+                expression: {
+                  op: '',
+                  value: {
+                    constant: "'/*****/  //'",
+                  },
+                },
+              },
+            },
+          ],
+        },
+      }),
+    );
+
     assertEquals(parserOutput.statement.length, 1, 'One statement should be generated');
   });
 });

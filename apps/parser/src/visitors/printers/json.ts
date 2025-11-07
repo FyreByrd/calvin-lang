@@ -32,7 +32,10 @@ export class JSONPrinter extends BasePrinter implements ICstNodeVisitor<number, 
   private tree(msg: string, indent: number, trail: boolean = false) {
     if (this.colors) {
       this.output?.(
-        color(start + ((indent) % range), prefix(`${msg}${trail ? ',' : ''}`, indent * this.indentLevel)),
+        color(
+          start + (indent % range),
+          prefix(`${msg}${trail ? ',' : ''}`, indent * this.indentLevel),
+        ),
       );
     } else {
       this.output?.(prefix(`${msg}${trail ? ',' : ''}`, indent * this.indentLevel));
@@ -132,7 +135,11 @@ export class JSONPrinter extends BasePrinter implements ICstNodeVisitor<number, 
 
   declaration(decl: DeclarationCstChildren, indent: number, trail: boolean = false) {
     this.tree(`"declaration":${this.pretty}{`, indent);
-    this.tree(`"image":${this.pretty}"${decl.ID[0].image}"`, indent + 1, !!(decl.type || decl.expression));
+    this.tree(
+      `"image":${this.pretty}"${decl.ID[0].image}"`,
+      indent + 1,
+      !!(decl.type || decl.expression),
+    );
     if (decl.type) {
       this.type(decl.type[0].children, indent + 1, !!decl.expression);
     }
@@ -162,7 +169,7 @@ export class JSONPrinter extends BasePrinter implements ICstNodeVisitor<number, 
   }
 
   value(val: ValueCstChildren, indent: number, trail: boolean = false) {
-    this.tree('"value": {', indent);
+    this.tree(`"value":${this.pretty}{`, indent);
     if (val.expression) {
       this.tree(`"nested":${this.pretty}{`, indent + 1);
       this.expression(val.expression[0].children, indent + 2);

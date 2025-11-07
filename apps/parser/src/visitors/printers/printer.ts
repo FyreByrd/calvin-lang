@@ -4,9 +4,17 @@ import { BaseCstVisitor } from '@/src/parser.ts';
 export abstract class BasePrinter extends BaseCstVisitor {
   constructor(
     protected readonly colors: boolean = true,
-    protected readonly output: Logger | null = console.log,
+    protected _output: Logger | null = console.log,
   ) {
     super();
     this.validateVisitor();
+  }
+
+  public get output() {
+    return this._output;
+  }
+
+  public setOutput(output: Logger | null) {
+    this._output = output;
   }
 }

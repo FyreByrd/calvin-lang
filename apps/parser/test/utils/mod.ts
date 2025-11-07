@@ -1,7 +1,7 @@
 import {
+  type BasePrinter,
   CalvinLexer,
   type CalvinParser,
-  type CalvinPrinter,
   type CalvinTypeAnalyzer,
   debug,
   Globals,
@@ -28,7 +28,7 @@ export interface TestCaseParameters {
    *
    * **Note:** We choose not to instantiate this ourselves in case we want to inject something else, e.g. a shim or an experimental impl
    */
-  printer: CalvinPrinter;
+  printer: BasePrinter;
   /**
    * The type analyzer to use for type inference
    *
@@ -44,6 +44,8 @@ export interface TestCaseParameters {
 export interface TestCaseOutputs {
   lexingResult: ILexingResult;
   parserOutput: FileCstChildren;
+  beforeReorder: string;
+  afterReorder: string;
   precOutput: number;
   typeOutput: {
     errors: number;
@@ -68,7 +70,14 @@ export function performParsingTestCase(params: TestCaseParameters): TestCaseOutp
   parser.input = lexingResult.tokens;
   const parserOutput = parser.file();
 
+  // cache printer.output
+  const printerOutput = printer.output;
+
   debug('Before reordering:');
+  let beforeReorder = '';
+  printer.setOutput((msg) => {
+    beforeReorder = beforeReorder.concat(msg);
+  });
   printer.visit(parserOutput);
 
   precedenceHandler.reset();
@@ -77,7 +86,14 @@ export function performParsingTestCase(params: TestCaseParameters): TestCaseOutp
   // If this doesn't respect global debugAll option, we should wrap this
   // in a `Globals.debugAll` check
   debug('After reordering:');
+  let afterReorder = '';
+  printer.setOutput((msg) => {
+    afterReorder = afterReorder.concat(msg);
+  });
   printer.visit(parserOutput);
+
+  // restore printer.output
+  printer.setOutput(printerOutput);
 
   typeAnalyzer.reset();
   typeAnalyzer.visit(parserOutput);
@@ -86,6 +102,8 @@ export function performParsingTestCase(params: TestCaseParameters): TestCaseOutp
   const testCaseOutputs: TestCaseOutputs = {
     lexingResult,
     parserOutput: parserOutput.children,
+    beforeReorder,
+    afterReorder,
     precOutput: precedenceHandler.reordered,
     typeOutput: {
       errors: typeAnalyzer.errors,

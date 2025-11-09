@@ -12,19 +12,30 @@ import type {
   TypeCstChildren,
   ValueCstChildren,
 } from '@/generated/cst-types.ts';
-import { tree } from '../logging.ts';
-import { BaseCstVisitor } from '../parser.ts';
+import { ANSIColor, color, type Logger, prefix } from '@/src/logging.ts';
+import { BasePrinter } from './printer.ts';
 
-export class CalvinPrinter extends BaseCstVisitor implements ICstNodeVisitor<number, void> {
-  constructor() {
-    super();
-    this.validateVisitor();
+const start = ANSIColor.BrightRed;
+const range = ANSIColor.BrightWhite - start;
+
+export class CalvinPrinter extends BasePrinter implements ICstNodeVisitor<number, void> {
+  constructor(colors: boolean = true, output: Logger | null = console.log) {
+    super(colors, output);
   }
+
+  private tree(msg: string, indent: number) {
+    if (this.colors) {
+      this.output?.(color(start + ((indent / 2) % range), prefix(msg, indent)));
+    } else {
+      this.output?.(prefix(msg, indent));
+    }
+  }
+
   file(node: FileCstChildren, indent: number) {
     if (node.statement) {
-      tree('(', indent);
+      this.tree('(', indent);
       this.statement_list(node.statement, indent + 2);
-      tree(')', indent);
+      this.tree(')', indent);
     }
   }
 
@@ -38,61 +49,61 @@ export class CalvinPrinter extends BaseCstVisitor implements ICstNodeVisitor<num
     if (stmt.declaration) {
       this.declaration(stmt.declaration[0].children, indent);
     } else if (stmt.BREAK) {
-      tree('break;', indent);
+      this.tree('break;', indent);
     } else if (stmt.CONTINUE) {
-      tree('continue;', indent);
+      this.tree('continue;', indent);
     } else if (stmt.RETURN) {
       if (stmt.expression) {
-        tree('return (', indent);
+        this.tree('return (', indent);
         this.expression(stmt.expression[0].children, indent + 2);
-        tree(')', indent);
+        this.tree(')', indent);
       } else {
-        tree('return;', indent);
+        this.tree('return;', indent);
       }
     } else if (stmt.IF && stmt.ifPredBody) {
-      tree('if (', indent);
+      this.tree('if (', indent);
       let bodyCount = 0;
       const ifPredBody = stmt.ifPredBody;
       this.ifPredBody(ifPredBody[bodyCount++].children, indent);
       if (stmt.ELIF) {
         stmt.ELIF.forEach(() => {
-          tree('elif (', indent);
+          this.tree('elif (', indent);
           this.ifPredBody(ifPredBody[bodyCount++].children, indent);
         });
       }
       if (stmt.ELSE && stmt.body) {
-        tree('else {', indent);
+        this.tree('else {', indent);
         this.body(stmt.body[0].children, indent + 2);
       }
     } else if (stmt.WHILE && stmt.expression) {
       let bodyCount = 0;
       if (stmt.DO && stmt.body) {
-        tree('do {', indent);
+        this.tree('do {', indent);
         this.body(stmt.body[bodyCount++].children, indent + 2);
-        tree('} while (', indent);
+        this.tree('} while (', indent);
       } else {
-        tree('while (', indent);
+        this.tree('while (', indent);
       }
       this.expression(stmt.expression[0].children, indent + 2);
-      tree(') {', indent);
+      this.tree(') {', indent);
       if (!stmt.SEMI && stmt.body) {
         this.body(stmt.body[bodyCount++].children, indent + 2);
       }
       if (stmt.FINALLY && stmt.body) {
-        tree('} finally {', indent);
+        this.tree('} finally {', indent);
         this.body(stmt.body[bodyCount++].children, indent + 2);
-        tree('}', indent);
+        this.tree('}', indent);
       } else {
-        tree('}', indent);
+        this.tree('}', indent);
       }
     } else if (stmt.body) {
-      tree('{', indent);
+      this.tree('{', indent);
       this.body(stmt.body[0].children, indent + 2);
-      tree('}', indent);
+      this.tree('}', indent);
     } else if (stmt.expression) {
       this.expression(stmt.expression[0].children, indent);
     } else {
-      tree(';', indent);
+      this.tree(';', indent);
     }
   }
 
@@ -102,19 +113,19 @@ export class CalvinPrinter extends BaseCstVisitor implements ICstNodeVisitor<num
     } else if (predBody.expression) {
       this.expression(predBody.expression[0].children, indent + 2);
     }
-    tree(') {', indent);
+    this.tree(') {', indent);
     this.body(predBody.body[0].children, indent + 2);
-    tree('}', indent);
+    this.tree('}', indent);
   }
 
   declaration(decl: DeclarationCstChildren, indent: number) {
-    tree(`let ${decl.ID[0].image}${decl.expression ? ' = (' : ''}`, indent);
+    this.tree(`let ${decl.ID[0].image}${decl.expression ? ' = (' : ''}`, indent);
     if (decl.type) {
       this.type(decl.type[0].children, indent + 2);
     }
     if (decl.expression) {
       this.expression(decl.expression[0].children, indent + 2);
-      tree(')', indent);
+      this.tree(')', indent);
     }
   }
 
@@ -127,42 +138,42 @@ export class CalvinPrinter extends BaseCstVisitor implements ICstNodeVisitor<num
   expression(expr: ExpressionCstChildren, indent: number) {
     const op = Object.values(expr).find((e) => 'tokenType' in e[0]) as IToken[] | undefined;
     if (op) {
-      tree(`(${op[0].image}`, indent);
+      this.tree(`(${op[0].image}`, indent);
     } else {
-      tree('(', indent);
+      this.tree('(', indent);
     }
     this.value(expr.value[0].children, indent + 2);
     if (expr.expression) {
       this.expression(expr.expression[0].children, indent + 2);
     }
-    tree(')', indent);
+    this.tree(')', indent);
   }
 
   value(val: ValueCstChildren, indent: number) {
     if (val.expression) {
-      tree('(', indent);
+      this.tree('(', indent);
       this.expression(val.expression[0].children, indent + 2);
-      tree(')', indent);
+      this.tree(')', indent);
     } else if (val.constant) {
       this.constant(val.constant[0].children, indent);
     } else if (val.ID) {
-      tree(val.ID[0].image, indent);
+      this.tree(val.ID[0].image, indent);
     } else if (val.value) {
       const op = Object.values(val).find((v) => 'tokenType' in v[0]) as IToken[];
-      tree(`(${op[0].image}!`, indent);
+      this.tree(`(${op[0].image}!`, indent);
       this.value(val.value[0].children, indent + 2);
-      tree(`)`, indent);
+      this.tree(`)`, indent);
     } else {
       throw new Error(`TypeInference: unhandled value type ${JSON.stringify(val)}`);
     }
   }
 
   constant(c: ConstantCstChildren, indent: number) {
-    tree(Object.values(c)[0][0].image, indent);
+    this.tree(Object.values(c)[0][0].image, indent);
   }
 
   type(t: TypeCstChildren, indent: number) {
-    tree(`: ${t.BASIC_TYPE[0].image}`, indent);
+    this.tree(`: ${t.BASIC_TYPE[0].image}`, indent);
   }
 
   override visit(node: CstNode, indent: number = 0) {

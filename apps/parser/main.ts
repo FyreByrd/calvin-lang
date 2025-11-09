@@ -7,13 +7,15 @@ export async function main(): Promise<void> {
     'debug-all': debugAll,
     'debug-scopes': debugScopes,
     'debug-trees': debugTrees,
+    'debug-colors': debugColors,
     _,
   } = parseArgs(Deno.args, {
-    boolean: ['debug-all', 'debug-scopes', 'debug-trees'],
+    boolean: ['debug-all', 'debug-scopes', 'debug-trees', 'debug-colors'],
     default: {
       'debug-all': false,
       'debug-scopes': false,
       'debug-trees': false,
+      'debug-colors': false,
     },
   });
 
@@ -32,7 +34,7 @@ export async function main(): Promise<void> {
 
   const parser = new CalvinParser();
 
-  const printer = new CalvinPrinter();
+  const printer = new CalvinPrinter(debugColors);
 
   const lexingResult = CalvinLexer.tokenize(inputFile);
   // "input" is a setter which will reset the parser's state.

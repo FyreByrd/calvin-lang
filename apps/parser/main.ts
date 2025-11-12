@@ -1,4 +1,4 @@
-import { EncodeLexer, EncodeParser, CalvinPrinter, Globals } from '@encode/parser/lib';
+import { EncodeLexer, EncodeParser, ParenPrinter, Globals } from '@encode/parser/lib';
 import { parseArgs } from '@std/cli/parse-args';
 import { join, toFileUrl } from '@std/path';
 
@@ -34,7 +34,7 @@ export async function main(): Promise<void> {
 
   const parser = new EncodeParser();
 
-  const printer = new CalvinPrinter(debugColors);
+  const printer = new ParenPrinter(debugColors);
 
   const lexingResult = EncodeLexer.tokenize(inputFile);
   // "input" is a setter which will reset the parser's state.

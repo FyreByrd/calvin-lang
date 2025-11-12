@@ -25,7 +25,7 @@ Deno.test('Loading & parsing', async (t) => {
 
       const precedenceHandler = new TestSubject.PrecedenceHandler();
 
-      const printer = new TestSubject.CalvinPrinter();
+      const printer = new TestSubject.ParenPrinter();
 
       const typeAnalyzer = new TestSubject.TypeAnalyzer();
 

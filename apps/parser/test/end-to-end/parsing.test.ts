@@ -21,7 +21,7 @@ Deno.test('Loading & parsing', async (t) => {
     await t.step(file.name, async () => {
       using _globalSettings = useGlobalSettings({ debugTrees: false });
 
-      const parser = new TestSubject.CalvinParser();
+      const parser = new TestSubject.EncodeParser();
 
       const precedenceHandler = new TestSubject.PrecedenceHandler();
 

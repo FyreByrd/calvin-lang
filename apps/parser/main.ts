@@ -1,4 +1,4 @@
-import { CalvinLexer, CalvinParser, CalvinPrinter, Globals } from '@encode/parser/lib';
+import { EncodeLexer, EncodeParser, CalvinPrinter, Globals } from '@encode/parser/lib';
 import { parseArgs } from '@std/cli/parse-args';
 import { join, toFileUrl } from '@std/path';
 
@@ -32,11 +32,11 @@ export async function main(): Promise<void> {
 
   const inputFile = await Deno.readTextFile(toFileUrl(join(Deno.cwd(), inputFilePath)));
 
-  const parser = new CalvinParser();
+  const parser = new EncodeParser();
 
   const printer = new CalvinPrinter(debugColors);
 
-  const lexingResult = CalvinLexer.tokenize(inputFile);
+  const lexingResult = EncodeLexer.tokenize(inputFile);
   // "input" is a setter which will reset the parser's state.
   parser.input = lexingResult.tokens;
 

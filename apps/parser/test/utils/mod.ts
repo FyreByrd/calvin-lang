@@ -1,7 +1,7 @@
 import {
   type BasePrinter,
-  CalvinLexer,
-  type CalvinParser,
+  EncodeLexer,
+  type EncodeParser,
   type CalvinTypeAnalyzer,
   debug,
   Globals,
@@ -16,7 +16,7 @@ export interface TestCaseParameters {
    *
    * **Note:** We choose not to instantiate this ourselves in case we want to inject something else, e.g. a shim or an experimental impl
    */
-  parser: CalvinParser;
+  parser: EncodeParser;
   /**
    * The parser to use for parsing Encode code.
    *
@@ -66,7 +66,7 @@ export interface TestCaseOutputs {
 export function performParsingTestCase(params: TestCaseParameters): TestCaseOutputs {
   const { code, parser, printer, typeAnalyzer, precedenceHandler } = params;
 
-  const lexingResult = CalvinLexer.tokenize(code);
+  const lexingResult = EncodeLexer.tokenize(code);
   parser.input = lexingResult.tokens;
   const parserOutput = parser.file();
 

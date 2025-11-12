@@ -274,4 +274,4 @@ export const allTokens: TokenType[] = [
   ERROR,
 ];
 
-export const CalvinLexer: Lexer = new Lexer(allTokens);
+export const EncodeLexer: Lexer = new Lexer(allTokens);

@@ -5,7 +5,7 @@ import { performParsingTestCase, useGlobalSettings } from '@/test/utils/mod.ts';
 Deno.test('Control flow parsing #integration', async (t) => {
   using _globalSettings = useGlobalSettings({ debugTrees: true });
 
-  const parser = new TestSubject.CalvinParser();
+  const parser = new TestSubject.EncodeParser();
 
   const precedenceHandler = new TestSubject.PrecedenceHandler();
 

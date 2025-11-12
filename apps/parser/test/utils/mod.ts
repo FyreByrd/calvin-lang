@@ -12,13 +12,13 @@ import type { FileCstChildren } from '@/generated/cst-types.ts';
 
 export interface TestCaseParameters {
   /**
-   * The parser to use for parsing Calvin code.
+   * The parser to use for parsing Encode code.
    *
    * **Note:** We choose not to instantiate this ourselves in case we want to inject something else, e.g. a shim or an experimental impl
    */
   parser: CalvinParser;
   /**
-   * The parser to use for parsing Calvin code.
+   * The parser to use for parsing Encode code.
    *
    * **Note:** We choose not to instantiate this ourselves in case we want to inject something else, e.g. a shim or an experimental impl
    */
@@ -36,7 +36,7 @@ export interface TestCaseParameters {
    */
   typeAnalyzer: CalvinTypeAnalyzer;
   /**
-   * The Calvin code to parse
+   * The Encode code to parse
    */
   code: string;
 }
@@ -54,7 +54,7 @@ export interface TestCaseOutputs {
 }
 
 /**
- * Executes a standard procedure to parse Calvin code.
+ * Executes a standard procedure to parse Encode code.
  *
  * **Caveats:**
  *

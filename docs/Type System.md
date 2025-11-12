@@ -58,7 +58,7 @@ An arbitrary precision complex type can be expressed as `Complex`.
 
 ## References
 
-Calvin has two reference types: references (`T&`), which will always be valid,
+Encode has two reference types: references (`T&`), which will always be valid,
 and `Maybe<T>` (`T?`), which can hold `null`. Both are implemented as pointers under the hood.
 
 ## Enums
@@ -69,7 +69,7 @@ to `u8`. An enum can take strings as the underlying data type for easier printi
 
 ## Unions
 
-Calvin provides tagged unions as a data type. Tagged unions will require either a programmer defined
+Encode provides tagged unions as a data type. Tagged unions will require either a programmer defined
 enum to be specified, or will create a hidden enum under the hood to handle the options. If there is
 no enum provided, the types provided in the options must be distinct from each other (there is no
 such constraint when the programmer provides an enum). Accessing a member of a tagged union will

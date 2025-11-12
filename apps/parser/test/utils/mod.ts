@@ -6,7 +6,7 @@ import {
   debug,
   Globals,
   type PrecedenceHandler,
-} from '@calvin-lang/parser/lib';
+} from '@encode/parser/lib';
 import type { ILexingResult } from 'chevrotain';
 import type { FileCstChildren } from '@/generated/cst-types.ts';
 

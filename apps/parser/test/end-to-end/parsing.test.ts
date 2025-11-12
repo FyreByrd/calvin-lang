@@ -1,4 +1,4 @@
-import * as TestSubject from '@calvin-lang/parser/lib';
+import * as TestSubject from '@encode/parser/lib';
 import { bold, dim, yellow } from '@std/fmt/colors';
 import { walk } from '@std/fs';
 import { toFileUrl } from '@std/path';

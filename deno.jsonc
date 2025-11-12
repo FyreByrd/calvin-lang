@@ -2,7 +2,7 @@
   "workspace": ["apps/*", "scripts/*", "packages/*"],
 
   "tasks": {
-    "generate": "deno run --allow-write @calvin-lang/generate",
+    "generate": "deno run --allow-write @encode/generate",
     "check": "deno run --allow-env --allow-run @biomejs/biome check",
     "fmt": "deno run --allow-env --allow-run --allow-write @biomejs/biome format --write"
   },

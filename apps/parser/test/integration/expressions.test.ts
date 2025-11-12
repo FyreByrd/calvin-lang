@@ -1,4 +1,4 @@
-import * as TestSubject from '@calvin-lang/parser/lib';
+import * as TestSubject from '@encode/parser/lib';
 import { assert, assertEquals, assertGreater } from '@std/assert';
 import { performParsingTestCase, useGlobalSettings } from '@/test/utils/mod.ts';
 

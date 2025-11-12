@@ -1,4 +1,4 @@
-import { CalvinLexer, CalvinParser, CalvinPrinter, Globals } from '@calvin-lang/parser/lib';
+import { CalvinLexer, CalvinParser, CalvinPrinter, Globals } from '@encode/parser/lib';
 import { parseArgs } from '@std/cli/parse-args';
 import { join, toFileUrl } from '@std/path';
 

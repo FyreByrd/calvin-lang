@@ -1,24 +1,24 @@
 import {
   type BasePrinter,
-  CalvinLexer,
-  type CalvinParser,
-  type CalvinTypeAnalyzer,
   debug,
+  EncodeLexer,
+  type EncodeParser,
   Globals,
   type PrecedenceHandler,
-} from '@calvin-lang/parser/lib';
+  type TypeAnalyzer,
+} from '@encode/parser/lib';
 import type { ILexingResult } from 'chevrotain';
 import type { FileCstChildren } from '@/generated/cst-types.ts';
 
 export interface TestCaseParameters {
   /**
-   * The parser to use for parsing Calvin code.
+   * The parser to use for parsing Encode code.
    *
    * **Note:** We choose not to instantiate this ourselves in case we want to inject something else, e.g. a shim or an experimental impl
    */
-  parser: CalvinParser;
+  parser: EncodeParser;
   /**
-   * The parser to use for parsing Calvin code.
+   * The parser to use for parsing Encode code.
    *
    * **Note:** We choose not to instantiate this ourselves in case we want to inject something else, e.g. a shim or an experimental impl
    */
@@ -34,9 +34,9 @@ export interface TestCaseParameters {
    *
    * **Note:** We choose not to instantiate this ourselves in case we want to inject something else, e.g. a shim or an experimental impl
    */
-  typeAnalyzer: CalvinTypeAnalyzer;
+  typeAnalyzer: TypeAnalyzer;
   /**
-   * The Calvin code to parse
+   * The Encode code to parse
    */
   code: string;
 }
@@ -54,7 +54,7 @@ export interface TestCaseOutputs {
 }
 
 /**
- * Executes a standard procedure to parse Calvin code.
+ * Executes a standard procedure to parse Encode code.
  *
  * **Caveats:**
  *
@@ -66,7 +66,7 @@ export interface TestCaseOutputs {
 export function performParsingTestCase(params: TestCaseParameters): TestCaseOutputs {
   const { code, parser, printer, typeAnalyzer, precedenceHandler } = params;
 
-  const lexingResult = CalvinLexer.tokenize(code);
+  const lexingResult = EncodeLexer.tokenize(code);
   parser.input = lexingResult.tokens;
   const parserOutput = parser.file();
 

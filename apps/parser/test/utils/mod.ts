@@ -1,11 +1,11 @@
 import {
   type BasePrinter,
+  debug,
   EncodeLexer,
   type EncodeParser,
-  type TypeAnalyzer,
-  debug,
   Globals,
   type PrecedenceHandler,
+  type TypeAnalyzer,
 } from '@encode/parser/lib';
 import type { ILexingResult } from 'chevrotain';
 import type { FileCstChildren } from '@/generated/cst-types.ts';

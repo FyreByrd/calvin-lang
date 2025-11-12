@@ -1,4 +1,4 @@
-import { EncodeLexer, EncodeParser, ParenPrinter, Globals } from '@encode/parser/lib';
+import { EncodeLexer, EncodeParser, Globals, ParenPrinter } from '@encode/parser/lib';
 import { parseArgs } from '@std/cli/parse-args';
 import { join, toFileUrl } from '@std/path';
 

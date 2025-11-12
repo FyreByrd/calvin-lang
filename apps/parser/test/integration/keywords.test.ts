@@ -11,7 +11,7 @@ Deno.test('Keyword parsing #integration', async (t) => {
 
   const printer = new TestSubject.CalvinPrinter();
 
-  const typeAnalyzer = new TestSubject.CalvinTypeAnalyzer();
+  const typeAnalyzer = new TestSubject.TypeAnalyzer();
 
   await t.step('if-elif-else block and do-while-finally block keywords', () => {
     const { parserOutput } = performParsingTestCase({

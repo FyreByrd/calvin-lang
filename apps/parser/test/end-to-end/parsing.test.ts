@@ -27,7 +27,7 @@ Deno.test('Loading & parsing', async (t) => {
 
       const printer = new TestSubject.CalvinPrinter();
 
-      const typeAnalyzer = new TestSubject.CalvinTypeAnalyzer();
+      const typeAnalyzer = new TestSubject.TypeAnalyzer();
 
       const _testCaseOutputs = performParsingTestCase({
         code: await Deno.readTextFile(toFileUrl(file.path)),

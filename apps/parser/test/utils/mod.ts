@@ -2,7 +2,7 @@ import {
   type BasePrinter,
   EncodeLexer,
   type EncodeParser,
-  type CalvinTypeAnalyzer,
+  type TypeAnalyzer,
   debug,
   Globals,
   type PrecedenceHandler,
@@ -34,7 +34,7 @@ export interface TestCaseParameters {
    *
    * **Note:** We choose not to instantiate this ourselves in case we want to inject something else, e.g. a shim or an experimental impl
    */
-  typeAnalyzer: CalvinTypeAnalyzer;
+  typeAnalyzer: TypeAnalyzer;
   /**
    * The Encode code to parse
    */

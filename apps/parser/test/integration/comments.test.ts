@@ -11,7 +11,7 @@ Deno.test('Comment parsing #integration', async (t) => {
 
   const printer = new TestSubject.JSONPrinter(false, null, 0);
 
-  const typeAnalyzer = new TestSubject.CalvinTypeAnalyzer();
+  const typeAnalyzer = new TestSubject.TypeAnalyzer();
 
   await t.step('line comment', () => {
     const { parserOutput, afterReorder } = performParsingTestCase({

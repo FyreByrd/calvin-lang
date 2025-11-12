@@ -11,7 +11,7 @@ Deno.test('Control flow parsing #integration', async (t) => {
 
   const printer = new TestSubject.CalvinPrinter();
 
-  const typeAnalyzer = new TestSubject.CalvinTypeAnalyzer();
+  const typeAnalyzer = new TestSubject.TypeAnalyzer();
 
   await t.step('simple if statement', () => {
     const { parserOutput, typeOutput } = performParsingTestCase({

@@ -25,7 +25,7 @@ Deno.test('Comment parsing #integration', async (t) => {
 
     assertEquals(parser.errors.length, 0, 'Parser should not error');
 
-    assertEquals(afterReorder, JSON.stringify({ file: {} }));
+    assertEquals(JSON.parse(afterReorder), { file: {} });
 
     assert(!parserOutput.statement, 'No output should be generated');
   });
@@ -52,7 +52,7 @@ Deno.test('Comment parsing #integration', async (t) => {
 
     assertEquals(parser.errors.length, 0, 'Parser should not error');
 
-    assertEquals(afterReorder, JSON.stringify({ file: {} }));
+    assertEquals(JSON.parse(afterReorder), { file: {} });
 
     assert(!parserOutput.statement, 'No output should be generated');
   });
@@ -71,27 +71,23 @@ Deno.test('Comment parsing #integration', async (t) => {
 
     assert(!!parserOutput.statement);
 
-    assertEquals(
-      afterReorder,
-      JSON.stringify({
-        file: {
-          statements: [
-            {
-              type: 'declaration',
-              declaration: {
-                image: 'str',
-                expression: {
-                  op: '',
-                  value: {
-                    constant: "'/*****/  //'",
-                  },
+    assertEquals(JSON.parse(afterReorder), {
+      file: {
+        statements: [
+          {
+            type: 'declaration',
+            declaration: {
+              image: 'str',
+              expression: {
+                value: {
+                  constant: "'/*****/  //'",
                 },
               },
             },
-          ],
-        },
-      }),
-    );
+          },
+        ],
+      },
+    });
 
     assertEquals(parserOutput.statement.length, 1, 'One statement should be generated');
   });

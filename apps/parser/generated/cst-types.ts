@@ -29,6 +29,8 @@ export type StatementCstChildren = {
   body?: BodyCstNode[];
   DO?: IToken[];
   WHILE?: IToken[];
+  LPAREN?: IToken[];
+  RPAREN?: IToken[];
   FINALLY?: IToken[];
 };
 
@@ -106,9 +108,9 @@ export type ConstantCstChildren = {
   STRING?: IToken[];
   BOOL?: IToken[];
   BIN?: IToken[];
-  INT?: IToken[];
   CMPX?: IToken[];
   REAL?: IToken[];
+  INT?: IToken[];
 };
 
 export interface TypeCstNode extends CstNode {

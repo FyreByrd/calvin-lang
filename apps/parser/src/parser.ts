@@ -68,7 +68,9 @@ export class EncodeParser extends CstParser {
           });
 
           this.CONSUME(Tokens.WHILE);
+          this.CONSUME(Tokens.LPAREN);
           this.SUBRULE3(this.expression);
+          this.CONSUME(Tokens.RPAREN);
           this.OR2([
             {
               ALT: () => {

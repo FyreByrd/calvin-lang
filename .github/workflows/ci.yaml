@@ -10,16 +10,12 @@ env:
 
 jobs:
   setup:
-    name: Setup
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v5
-      - name: Set up Repository
-        uses: ./.github/workflows/fn-setup.yaml
-        with:
-          cache-version: ${{ env.CACHE_VERSION }}
-          deno-deps-cache-slice-name: ${{ env.CACHE_SLICE_NAME }}
+    name: Setup Repository
+    uses: ./.github/workflows/fn-setup.yaml
+    with:
+      cache-version: v1
+      deno-deps-cache-slice-name: ci
+
   test:
     name: Test
     needs: [setup]

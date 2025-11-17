@@ -10,7 +10,7 @@ on:
         default: v1
       deno-deps-cache-slice-name:
         description:
-          A string to differentiate the Deno dependencies slice from other slices of the cache. \
+          A string to differentiate the Deno dependencies slice from other slices of the cache.
           This is needed only if there are other slices that shouldn't be confused with this slice.
         type: string
         required: false

@@ -19,7 +19,7 @@ jobs:
         uses: denoland/setup-deno@v2
         with:
           deno-version: 2.x
-          cache: true
+          cache-hash: ${{ runner.os }}-${{ env.CACHE_KEY_BASE }}-${{ hashFiles('deno.lock') }}
 
       # - name: Set up Deno dependencies cache
       #   id: deno-deps-cache

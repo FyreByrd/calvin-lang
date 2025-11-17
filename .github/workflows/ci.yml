@@ -16,7 +16,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v5
 
-      - name: Set up Repository
+      - name: Set up repository
         uses: ./.github/actions/fn-setup
         with:
           cache-version: ${{ env.CACHE_VERSION }}
@@ -31,7 +31,7 @@ jobs:
         uses: actions/checkout@v5
 
       # Now the Deno cache should be warmed up, so this should be much faster
-      - name: Set up Repository
+      - name: Set up repository
         uses: ./.github/actions/fn-setup
         with:
           cache-version: ${{ env.CACHE_VERSION }}

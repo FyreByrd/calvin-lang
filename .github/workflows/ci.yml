@@ -21,16 +21,6 @@ jobs:
           deno-version: 2.x
           cache-hash: ${{ runner.os }}-${{ env.CACHE_KEY_BASE }}-${{ hashFiles('deno.lock') }}
 
-      # - name: Set up Deno dependencies cache
-      #   id: deno-deps-cache
-      #   uses: actions/cache@v3
-      #   with:
-      #     path: |
-      #       ~/.deno
-      #       ~/.cache/deno
-      #     key: ${{ env.CACHE_KEY_BASE }}-${{ hashFiles('deno.lock') }}
-      #     restore-keys: ${{ env.CACHE_KEY_BASE }}
-
       - name: Install dependencies
         id: deno-deps-install
         run: deno install
@@ -50,16 +40,6 @@ jobs:
         with:
           deno-version: 2.x
           cache-hash: ${{ runner.os }}-${{ env.CACHE_KEY_BASE }}-${{ hashFiles('deno.lock') }}
-
-      # - name: Set up Deno dependencies cache
-      #   id: deno-deps-cache
-      #   uses: actions/cache@v3
-      #   with:
-      #     path: |
-      #       ~/.deno
-      #       ~/.cache/deno
-      #     key: ${{ env.CACHE_KEY_BASE }}-${{ hashFiles('deno.lock') }}
-      #     restore-keys: ${{ env.CACHE_KEY_BASE }}
 
       - name: Install dependencies
         id: deno-deps-install

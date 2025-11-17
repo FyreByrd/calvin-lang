@@ -19,7 +19,7 @@ jobs:
         uses: denoland/setup-deno@v2
         with:
           deno-version: 2.x
-          cache-hash: ${{ runner.os }}-${{ env.CACHE_KEY_BASE }}-${{ hashFiles('deno.lock') }}
+          cache-hash: ${{ env.CACHE_KEY_BASE }}-${{ hashFiles('deno.lock') }}
 
       - name: Install dependencies
         id: deno-deps-install
@@ -39,7 +39,7 @@ jobs:
         uses: denoland/setup-deno@v2
         with:
           deno-version: 2.x
-          cache-hash: ${{ runner.os }}-${{ env.CACHE_KEY_BASE }}-${{ hashFiles('deno.lock') }}
+          cache-hash: ${{ env.CACHE_KEY_BASE }}-${{ hashFiles('deno.lock') }}
 
       - name: Install dependencies
         id: deno-deps-install

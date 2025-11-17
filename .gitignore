@@ -1,3 +1,6 @@
+# Deno coverage report directory
+coverage
+
 hide*
 .vscode
 *.s

@@ -7,7 +7,6 @@ env:
   CACHE_VERSION: v1
   # Used to differentiate from other slices of the cache for other workflow runs
   CACHE_SLICE_NAME: ci
-  DENO_DIR: ~/.deno
 
 jobs:
   setup:
@@ -19,8 +18,6 @@ jobs:
         with:
           deno-version: 2.x
           cache: true
-        env:
-          DENO_DIR: ${{ env.DENO_DIR }}
       - name: Checkout repository
         uses: actions/checkout@v5
       - name: Set up Deno dependencies cache
@@ -33,7 +30,7 @@ jobs:
             ${{ runner.os }}-${{ env.CACHE_SLICE_NAME }}@${{ env.CACHE_VERSION }}
       - name: Install dependencies
         run: deno install
-      - run: echo $DENO_DIR
+      - run: which deno
   test-cache:
     name: Test caching
     needs: [setup]

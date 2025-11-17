@@ -10,11 +10,17 @@ env:
 
 jobs:
   setup:
-    name: Setup Repository
-    uses: ./.github/workflows/fn-setup.yaml
-    with:
-      cache-version: v1
-      deno-deps-cache-slice-name: ci
+    name: Setup
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Set up Repository
+        uses: ./.github/actions/fn-setup
+        with:
+          cache-version: ${{ env.CACHE_VERSION }}
+          deno-deps-cache-slice-name: ${{ env.CACHE_SLICE_NAME }}
 
   test:
     name: Test
@@ -23,11 +29,13 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v5
+
       # Now the Deno cache should be warmed up, so this should be much faster
       - name: Set up Repository
-        uses: ./.github/workflows/fn-setup.yaml
+        uses: ./.github/actions/fn-setup
         with:
           cache-version: ${{ env.CACHE_VERSION }}
           deno-deps-cache-slice-name: ${{ env.CACHE_SLICE_NAME }}
+
       - name: Test
         run: deno test --allow-read

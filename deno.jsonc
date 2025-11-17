@@ -21,6 +21,19 @@
     "chevrotain": "npm:chevrotain@^11.0.3"
   },
 
+  "test": {
+    "permissions": {
+      "read": true
+    }
+  },
+
+  "permissions": {
+    "biome": {
+      "env": true,
+      "run": true
+    }
+  },
+
   // Loosely ported from .prettierrc
   "fmt": {
     "useTabs": false,

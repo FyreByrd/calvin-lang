@@ -29,6 +29,8 @@ jobs:
     name: Test
     needs: [setup]
     runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
     steps:
       - name: Checkout repository
         uses: actions/checkout@v5
@@ -41,7 +43,22 @@ jobs:
           cache-hash: ${{ env.CACHE_KEY_BASE }}-${{ hashFiles('deno.lock') }}
 
       - name: Test
-        run: deno test --allow-read --no-prompt
+        run: deno test -P --no-prompt --coverage
+
+      - name: Report code coverage
+        uses: zgosalvez/github-actions-report-lcov@v4
+        with:
+          coverage-files: coverage/lcov.*.info
+          minimum-coverage: 50
+          artifact-name: coverage-report
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          update-comment: true
+
+      - name: Upload coverage reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: raw-coverage-reports
+          path: coverage
 
   lint:
     name: Lint

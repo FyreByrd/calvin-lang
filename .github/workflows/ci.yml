@@ -40,3 +40,21 @@ jobs:
 
       - name: Test
         run: deno test --allow-read
+
+  lint:
+    name: Lint
+    needs: [setup]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      # Now the Deno cache should be warmed up, so this should be much faster
+      - name: Set up Deno
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: 2.x
+          cache-hash: ${{ env.CACHE_KEY_BASE }}-${{ hashFiles('deno.lock') }}
+
+      - name: Test
+        run: deno run --allow-read --allow-env --allow-run npm:@biomejs/biome ci

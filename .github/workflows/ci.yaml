@@ -11,6 +11,7 @@ jobs:
         uses: denoland/setup-deno@v2
         with:
           cache: true
+      - uses: actions/checkout@v5
       # This should warm up the Deno cache for subsequent jobs
       - name: Install dependencies
         run: deno install
@@ -24,5 +25,6 @@ jobs:
         uses: denoland/setup-deno@v2
         with:
           cache: true
+      - uses: actions/checkout@v5
       - name: Install dependencies
         run: deno install

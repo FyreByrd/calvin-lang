@@ -41,9 +41,5 @@ jobs:
           deno-version: 2.x
           cache-hash: ${{ env.CACHE_KEY_BASE }}-${{ hashFiles('deno.lock') }}
 
-      # - name: Install dependencies
-      #   id: deno-deps-install
-      #   run: deno install
-
       - name: Test
         run: deno test --allow-read

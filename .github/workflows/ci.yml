@@ -50,7 +50,7 @@ jobs:
           cache-hash: ${{ env.CACHE_KEY_BASE }}-${{ hashFiles('deno.lock') }}
 
       - name: Test
-        run: deno test --allow-read
+        run: deno test --allow-read --no-prompt
 
   lint:
     name: Lint
@@ -67,5 +67,5 @@ jobs:
           deno-version: 2.x
           cache-hash: ${{ env.CACHE_KEY_BASE }}-${{ hashFiles('deno.lock') }}
 
-      - name: Test
-        run: deno run --allow-read --allow-env --allow-run npm:@biomejs/biome ci
+      - name: Lint
+        run: deno run --allow-env --allow-run --no-prompt npm:@biomejs/biome ci

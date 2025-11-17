@@ -2,6 +2,12 @@ name: CI
 
 on: [push, pull_request]
 
+env:
+  # Used to forcefully bust the cache
+  CACHE_VERSION: v1
+  # Used to differentiate from other slices of the cache for other workflow runs
+  CACHE_SLICE_NAME: ci
+
 jobs:
   setup:
     name: Setup
@@ -11,8 +17,16 @@ jobs:
         uses: denoland/setup-deno@v2
         with:
           cache: true
-      - uses: actions/checkout@v5
-      # This should warm up the Deno cache for subsequent jobs
+      - name: Checkout repository
+        uses: actions/checkout@v5
+      - name: Set up Deno dependencies cache
+        uses: actions/cache@v3
+        with:
+          # Don't add more paths below, since they'll be invalidated whenever Deno deps change
+          path: ~/.deno
+          key: ${{ runner.os }}-${{ env.CACHE_SLICE_NAME }}@${{ env.CACHE_VERSION }}-${{ hashFiles('deno.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-${{ env.CACHE_SLICE_NAME }}@${{ env.CACHE_VERSION }}
       - name: Install dependencies
         run: deno install
   test-cache:
@@ -24,7 +38,18 @@ jobs:
       - name: Set up Deno
         uses: denoland/setup-deno@v2
         with:
+          deno-version: 2.x
           cache: true
-      - uses: actions/checkout@v5
+      - name: Checkout repository
+        uses: actions/checkout@v5
+      - name: Set up or restore Deno dependencies cache
+        uses: actions/cache@v3
+        with:
+          # Don't add more paths below, since they'll be invalidated whenever Deno deps change
+          path: ~/.deno
+          key: ${{ runner.os }}-${{ env.CACHE_SLICE_NAME }}@${{ env.CACHE_VERSION }}-${{ hashFiles('deno.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-${{ env.CACHE_SLICE_NAME }}@${{ env.CACHE_VERSION }}
+      # Now the Deno dependencies cache should be warmed up, so this should be much faster
       - name: Install dependencies
         run: deno install

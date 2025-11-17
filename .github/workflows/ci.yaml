@@ -1,0 +1,28 @@
+name: CI
+
+on: [push, pull_request]
+
+jobs:
+  setup:
+    name: Setup
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up Deno
+        uses: denoland/setup-deno@v2
+        with:
+          cache: true
+      # This should warm up the Deno cache for subsequent jobs
+      - name: Install dependencies
+        run: deno install
+  test-cache:
+    name: Test caching
+    needs: [setup]
+    runs-on: ubuntu-latest
+    steps:
+      # Now the Deno cache should be warmed up, so this should be much faster
+      - name: Set up Deno
+        uses: denoland/setup-deno@v2
+        with:
+          cache: true
+      - name: Install dependencies
+        run: deno install

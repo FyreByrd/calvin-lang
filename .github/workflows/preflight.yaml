@@ -1,0 +1,19 @@
+name: Preflight
+
+on:
+  push:
+    branches:
+      # - main
+      # - dev
+      # This allows us to test our actions as soon as we push them
+      - actions/**/*
+
+jobs:
+  main:
+    name: Main
+    runs-on: ubuntu-latest
+    steps:
+      - name: Log event name
+        run: echo "This workflow was automatically triggered by a ${{ github.event_name }} event"
+      - name: Log ref data
+        run: echo "The ref that triggered this workflow is ${{ github.ref }}"

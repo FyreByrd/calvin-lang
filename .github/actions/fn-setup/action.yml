@@ -22,19 +22,19 @@ runs:
         cache: true
         cache-hash: ${{ runner.os }}-${{ env.DENO_CACHE_SLICE_NAME }}@${{ inputs.cache-version }}
 
-    - name: Set up Deno dependencies cache
-      uses: actions/cache@v3
-      env:
-        # Don't add more paths below, since they'll be invalidated whenever Deno deps change
-        # Yoinked from https://github.com/actions/cache/blob/main/examples.md#linux
-        DENO_DEPS_CACHE_PATH: |
-          ~/.deno
-          ~/.cache/deno
-      with:
-        path: ${{ env.DENO_DEPS_CACHE_PATH }}
-        key: ${{ runner.os }}-${{ inputs.deno-deps-cache-slice-name }}@${{ inputs.cache-version }}-${{ hashFiles('deno.lock') }}
-        restore-keys: |
-          ${{ runner.os }}-${{ inputs.deno-deps-cache-slice-name }}@${{ inputs.cache-version }}
+    # - name: Set up Deno dependencies cache
+    #   uses: actions/cache@v3
+    #   env:
+    #     # Don't add more paths below, since they'll be invalidated whenever Deno deps change
+    #     # Yoinked from https://github.com/actions/cache/blob/main/examples.md#linux
+    #     DENO_DEPS_CACHE_PATH: |
+    #       ~/.deno
+    #       ~/.cache/deno
+    #   with:
+    #     path: ${{ env.DENO_DEPS_CACHE_PATH }}
+    #     key: ${{ runner.os }}-${{ inputs.deno-deps-cache-slice-name }}@${{ inputs.cache-version }}-${{ hashFiles('deno.lock') }}
+    #     restore-keys: |
+    #       ${{ runner.os }}-${{ inputs.deno-deps-cache-slice-name }}@${{ inputs.cache-version }}
 
     - name: Install dependencies
       run: deno install

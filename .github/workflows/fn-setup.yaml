@@ -1,0 +1,39 @@
+name: Setup
+
+on:
+  workflow_call:
+    inputs:
+      cache-version:
+        description: A string to forcefully bust the cache
+        type: string
+        required: false
+        default: v1
+      cache-slice-name:
+        description: A string to differentiate from other slices of the cache for other workflow runs
+        type: string
+        required: false
+
+jobs:
+  setup:
+    name: Setup
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up Deno
+        uses: denoland/setup-deno@v2
+        with:
+          cache: true
+
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Set up Deno dependencies cache
+        uses: actions/cache@v3
+        with:
+          # Don't add more paths below, since they'll be invalidated whenever Deno deps change
+          path: ~/.deno
+          key: ${{ runner.os }}-${{ inputs.cache-slice-name }}@${{ inputs.cache-version }}-${{ hashFiles('deno.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-${{ inputs.cache-slice-name }}@${{ inputs.cache-version }}
+
+      - name: Install dependencies
+        run: deno install

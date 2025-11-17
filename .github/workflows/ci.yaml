@@ -13,51 +13,21 @@ jobs:
     name: Setup
     runs-on: ubuntu-latest
     steps:
-      - name: Set up Deno
-        uses: denoland/setup-deno@v2
+      - name: Set up Repository
+        uses: ./.github/workflows/fn-setup.yaml
         with:
-          deno-version: 2.x
-          cache: true
-      - name: Checkout repository
-        uses: actions/checkout@v5
-      - name: Set up Deno dependencies cache
-        uses: actions/cache@v3
-        with:
-          # Don't add more paths below, since they'll be invalidated whenever Deno deps change
-          # Yoinked from https://github.com/actions/cache/blob/main/examples.md#linux
-          path: |
-            ~/.deno
-            ~/.cache/deno
-          key: ${{ runner.os }}-${{ env.CACHE_SLICE_NAME }}@${{ env.CACHE_VERSION }}-${{ hashFiles('deno.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-${{ env.CACHE_SLICE_NAME }}@${{ env.CACHE_VERSION }}
-      - name: Install dependencies
-        run: deno install
-      - run: which deno | ls
-  test-cache:
-    name: Test caching
+          cache-version: ${{ env.CACHE_VERSION }}
+          deno-deps-cache-slice-name: ${{ env.CACHE_SLICE_NAME }}
+  test:
+    name: Test
     needs: [setup]
     runs-on: ubuntu-latest
     steps:
       # Now the Deno cache should be warmed up, so this should be much faster
-      - name: Set up Deno
-        uses: denoland/setup-deno@v2
+      - name: Set up Repository
+        uses: ./.github/workflows/fn-setup.yaml
         with:
-          deno-version: 2.x
-          cache: true
-      - name: Checkout repository
-        uses: actions/checkout@v5
-      - name: Set up or restore Deno dependencies cache
-        uses: actions/cache@v3
-        with:
-          # Don't add more paths below, since they'll be invalidated whenever Deno deps change
-          # https://github.com/actions/cache/blob/main/examples.md#linux
-          path: |
-            ~/.deno
-            ~/.cache/deno
-          key: ${{ runner.os }}-${{ env.CACHE_SLICE_NAME }}@${{ env.CACHE_VERSION }}-${{ hashFiles('deno.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-${{ env.CACHE_SLICE_NAME }}@${{ env.CACHE_VERSION }}
-      # Now the Deno dependencies cache should be warmed up, so this should be much faster
-      - name: Install dependencies
-        run: deno install
+          cache-version: ${{ env.CACHE_VERSION }}
+          deno-deps-cache-slice-name: ${{ env.CACHE_SLICE_NAME }}
+      - name: Test
+        run: deno test --allow-read

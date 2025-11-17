@@ -20,7 +20,7 @@ runs:
       with:
         deno-version: 2.x
         cache: true
-        cache-hash: ${{ runner.os }}-${{ env.DENO_CACHE_SLICE_NAME }}@${{ inputs.cache-version }}
+        # cache-hash: ${{ runner.os }}-${{ env.DENO_CACHE_SLICE_NAME }}@${{ inputs.cache-version }}
 
     # - name: Set up Deno dependencies cache
     #   uses: actions/cache@v3

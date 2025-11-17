@@ -1,6 +1,17 @@
 name: CI
 
-on: [push, pull_request]
+on:
+  push:
+    branches:
+      - "*"
+    tags:
+      - "*"
+  pull_request:
+    types:
+      - opened
+      - reopened
+    branches:
+      - "*"
 
 env:
   # Used to differentiate from other slices of the cache for other workflow runs, and to forcefully bust the cache when renamed

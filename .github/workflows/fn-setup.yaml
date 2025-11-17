@@ -35,9 +35,6 @@ jobs:
           cache: true
           cache-hash: ${{ runner.os }}-${{ env.DENO_CACHE_SLICE_NAME }}@${{ inputs.cache-version }}
 
-      - name: Checkout repository
-        uses: actions/checkout@v5
-
       - name: Set up Deno dependencies cache
         uses: actions/cache@v3
         with:

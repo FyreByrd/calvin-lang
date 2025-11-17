@@ -13,6 +13,8 @@ jobs:
     name: Setup
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
       - name: Set up Repository
         uses: ./.github/workflows/fn-setup.yaml
         with:
@@ -23,6 +25,8 @@ jobs:
     needs: [setup]
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
       # Now the Deno cache should be warmed up, so this should be much faster
       - name: Set up Repository
         uses: ./.github/workflows/fn-setup.yaml

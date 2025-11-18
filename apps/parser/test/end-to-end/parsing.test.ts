@@ -1,4 +1,4 @@
-import * as TestSubject from '@calvin-lang/parser/lib';
+import * as TestSubject from '@encode/parser/lib';
 import { bold, dim, yellow } from '@std/fmt/colors';
 import { walk } from '@std/fs';
 import { toFileUrl } from '@std/path';
@@ -21,13 +21,13 @@ Deno.test('Loading & parsing', async (t) => {
     await t.step(file.name, async () => {
       using _globalSettings = useGlobalSettings({ debugTrees: false });
 
-      const parser = new TestSubject.CalvinParser();
+      const parser = new TestSubject.EncodeParser();
 
       const precedenceHandler = new TestSubject.PrecedenceHandler();
 
-      const printer = new TestSubject.CalvinPrinter();
+      const printer = new TestSubject.ParenPrinter();
 
-      const typeAnalyzer = new TestSubject.CalvinTypeAnalyzer();
+      const typeAnalyzer = new TestSubject.TypeAnalyzer();
 
       const _testCaseOutputs = performParsingTestCase({
         code: await Deno.readTextFile(toFileUrl(file.path)),

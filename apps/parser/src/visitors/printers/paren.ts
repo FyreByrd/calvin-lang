@@ -18,7 +18,7 @@ import { BasePrinter } from './printer.ts';
 const start = ANSIColor.BrightRed;
 const range = ANSIColor.BrightWhite - start;
 
-export class CalvinPrinter extends BasePrinter implements ICstNodeVisitor<number, void> {
+export class ParenPrinter extends BasePrinter implements ICstNodeVisitor<number, void> {
   constructor(colors: boolean = true, output: Logger | null = console.log) {
     super(colors, output);
   }

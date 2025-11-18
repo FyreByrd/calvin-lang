@@ -1,7 +1,7 @@
 import { type CstNode, CstParser, type ParserMethod } from 'chevrotain';
 import * as Tokens from './lexer.ts';
 
-export class CalvinParser extends CstParser {
+export class EncodeParser extends CstParser {
   constructor() {
     super(Tokens.allTokens);
     this.performSelfAnalysis();
@@ -184,7 +184,7 @@ export class CalvinParser extends CstParser {
   private type = this.RULE('type', () => this.CONSUME(Tokens.BASIC_TYPE));
 }
 
-export const parser: CalvinParser = new CalvinParser();
+export const parser: EncodeParser = new EncodeParser();
 export const BaseCstVisitor: ReturnType<typeof parser.getBaseCstVisitorConstructor> =
   parser.getBaseCstVisitorConstructor();
 export const BaseCstVisitorWithDefaults: ReturnType<

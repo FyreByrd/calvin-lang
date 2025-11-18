@@ -1,17 +1,17 @@
-import * as TestSubject from '@calvin-lang/parser/lib';
+import * as TestSubject from '@encode/parser/lib';
 import { assert, assertEquals } from '@std/assert';
 import { performParsingTestCase, useGlobalSettings } from '@/test/utils/mod.ts';
 
 Deno.test('Comment parsing #integration', async (t) => {
   using _globalSettings = useGlobalSettings({ debugTrees: true });
 
-  const parser = new TestSubject.CalvinParser();
+  const parser = new TestSubject.EncodeParser();
 
   const precedenceHandler = new TestSubject.PrecedenceHandler();
 
   const printer = new TestSubject.JSONPrinter(false, null, 0);
 
-  const typeAnalyzer = new TestSubject.CalvinTypeAnalyzer();
+  const typeAnalyzer = new TestSubject.TypeAnalyzer();
 
   await t.step('line comment', () => {
     const { parserOutput, afterReorder } = performParsingTestCase({

@@ -142,7 +142,7 @@ export class Scope {
   }
 }
 
-export class CalvinTypeAnalyzer
+export class TypeAnalyzer
   extends BaseCstVisitor
   implements ICstNodeVisitor<void, Meta | undefined>
 {

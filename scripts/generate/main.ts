@@ -1,4 +1,4 @@
-import { parser } from '@calvin-lang/parser/lib';
+import { parser } from '@encode/parser/lib';
 import { parseArgs } from '@std/cli/parse-args';
 import { bold, yellow } from '@std/fmt/colors';
 import { generateDiagrams, generateTypes } from './mod.ts';
@@ -45,7 +45,7 @@ export async function main(): Promise<void> {
    * to import files. This means we don't have to hard-code the exact path, only what package
    * export point we want to use.
    */
-  const workspacePath = new URL(import.meta.resolve('@calvin-lang/parser/lib'));
+  const workspacePath = new URL(import.meta.resolve('@encode/parser/lib'));
 
   /**
    * An array of tasks to perform in parallel

@@ -1,11 +1,9 @@
 {
-  "name": "@encode/generate",
+  "name": "@encode/extension",
   "version": "0.1.0",
 
   "exports": {
-    ".": "./main.ts",
-
-    "./lib": "./mod.ts"
+    ".": "./main.ts"
   },
 
   "imports": {

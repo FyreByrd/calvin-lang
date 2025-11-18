@@ -16,6 +16,7 @@
     "jsr:@std/path@^1.1.1": "1.1.2",
     "jsr:@std/path@^1.1.2": "1.1.2",
     "jsr:@std/testing@*": "1.0.16",
+    "npm:@biomejs/biome@*": "2.2.6",
     "npm:@biomejs/biome@2.2.6": "2.2.6",
     "npm:@types/node@*": "24.2.0",
     "npm:chevrotain@^11.0.3": "11.0.3"

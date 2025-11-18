@@ -50,14 +50,13 @@ jobs:
         with:
           coverage-files: coverage/lcov.*.info
           minimum-coverage: 50
-          artifact-name: coverage-report
           github-token: ${{ secrets.GITHUB_TOKEN }}
           update-comment: true
 
-      - name: Upload coverage reports
+      - name: Upload coverage report
         uses: actions/upload-artifact@v4
         with:
-          name: raw-coverage-reports
+          name: coverage-report
           path: coverage
 
   lint:

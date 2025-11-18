@@ -43,7 +43,7 @@ jobs:
           cache-hash: ${{ env.CACHE_KEY_BASE }}-${{ hashFiles('deno.lock') }}
 
       - name: Test
-        run: deno test -P --no-prompt --coverage
+        run: deno test -P --no-prompt --coverage --shuffle
 
       - name: Upload coverage report
         uses: actions/upload-artifact@v4

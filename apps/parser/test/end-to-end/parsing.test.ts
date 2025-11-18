@@ -8,9 +8,9 @@ Deno.test('Loading & parsing', async (t) => {
   const snippetUrl = new URL(import.meta.resolve('./fixtures'));
 
   for await (const file of walk(snippetUrl)) {
-    if (!(file.isFile && file.name.endsWith('.txt'))) {
+    if (!(file.isFile && file.name.endsWith('.ec'))) {
       const warningMsg = [
-        `${bold(yellow('Warning:'))} ${bold(file.name)} is not a .txt file.`,
+        `${bold(yellow('Warning:'))} ${bold(file.name)} is not a .ec file.`,
         `${bold(dim('Skipping'))} ${dim(`${file.path}...`)}`,
       ].join('\n');
       console.warn(warningMsg);

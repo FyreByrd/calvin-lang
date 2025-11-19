@@ -1,0 +1,14 @@
+{
+  "name": "@encode/ci",
+  "version": "0.1.0",
+
+  "exports": {
+    ".": "./main.ts",
+
+    "./lib": "./mod.ts"
+  },
+
+  "imports": {
+    "@/": "./"
+  }
+}

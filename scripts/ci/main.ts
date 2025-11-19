@@ -1,17 +1,14 @@
 import { notice } from '@actions/core';
 import { bold } from '@std/fmt/colors';
 
-export function main(): void {
-  const msg = `This is a test run. ${bold('Everything is working ok!')}`;
+export async function main(): Promise<void> {
+  if (Deno.env.get('CI')) {
+    console.log("We're in a CI environment!");
+  }
 
-  notice(msg, {
-    title: 'Test run',
-    file: import.meta.filename,
-    startLine: 5,
-    endLine: 12,
-  });
+  console.log(`We are ${bold('not')} in a CI environment!`);
 }
 
 if (import.meta.main) {
-  main();
+  await main();
 }

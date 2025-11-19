@@ -1,8 +1,9 @@
-name: CI
+name: Deno CI (test run)
 
 on:
   push:
-  pull_request:
+    branches:
+      - infra/actions/denoize
 
 env:
   # Used to differentiate from other slices of the cache for other workflow runs, and to forcefully bust the cache when renamed
@@ -24,6 +25,6 @@ jobs:
 
       - name: Install dependencies
         run: deno install
-      
+
       - name: Run test run script
         run: deno run --allow-env @encode/ci

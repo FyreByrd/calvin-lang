@@ -23,7 +23,7 @@ export type ValidationFunction =
   | typeof constant
   | typeof type;
 
-export function file(node: FileCstChildren, args?: Parameters<typeof statement_list>[1] | null) {
+export function file(node: FileCstChildren, args?: Statement[] | null) {
   if (args?.length) {
     assert(node.statement);
   }
@@ -35,7 +35,7 @@ export function file(node: FileCstChildren, args?: Parameters<typeof statement_l
   }
 }
 
-function statement_list<T extends Statement>(statements: StatementCstNode[], args?: T[]) {
+function statement_list(statements: StatementCstNode[], args?: Statement[]) {
   if (args) {
     assertEquals(statements.length, args.length);
   } else {
@@ -50,32 +50,28 @@ type BodyStatement = ['body', Body | undefined];
 type IfStatement = [
   'if',
   // 0 = if, 1-n = elif
-  (Parameters<typeof ifPredBody>[1] | false | undefined)[] | undefined,
+  (IfPredBody | false | undefined)[] | undefined,
   Body | false | undefined, // else
 ];
 type WhileStatement = [
   'while',
   Body | false | undefined, // do
-  Parameters<typeof expression>[1] | undefined, // while
+  Expression | undefined, // while
   Body | false | undefined, // while-body
   Body | false | undefined, // finally-body
 ];
-type Statement = Parameters<typeof statement>[1];
 
-export function statement(
-  stmt: StatementCstChildren,
-  args?:
-    | ['declaration', Parameters<typeof declaration>[1] | undefined]
-    | ['break']
-    | ['continue']
-    | ['return', Parameters<typeof expression>[1] | false | undefined]
-    | IfStatement
-    | WhileStatement
-    | BodyStatement
-    | ['expression', Parameters<typeof expression>[1] | undefined]
-    | false
-    | undefined,
-) {
+type Statement =
+  | ['declaration', Declaration | undefined]
+  | ['break']
+  | ['continue']
+  | ['return', Expression | false | undefined]
+  | IfStatement
+  | WhileStatement
+  | BodyStatement
+  | ['expression', Expression | undefined]
+  | false;
+export function statement(stmt: StatementCstChildren, args?: Statement) {
   if (args === false) {
     assertEquals(Object.keys(stmt).length, 1);
     assert(stmt.SEMI);
@@ -83,10 +79,7 @@ export function statement(
     if (args) {
       assertEquals(args[0], 'declaration');
     }
-    declaration(
-      stmt.declaration[0].children,
-      (args?.[1] as Parameters<typeof declaration>[1]) || undefined,
-    );
+    declaration(stmt.declaration[0].children, (args?.[1] as Declaration) || undefined);
   } else if (stmt.BREAK) {
     if (args) {
       assertEquals(args[0], 'break');
@@ -105,10 +98,7 @@ export function statement(
     assert(args?.[1] === undefined || (args[1] ? stmt.expression : !stmt.expression));
     if (stmt.expression) {
       assertEquals(stmt.expression.length, 1);
-      expression(
-        stmt.expression[0].children,
-        (args?.[1] as Parameters<typeof expression>[1]) || undefined,
-      );
+      expression(stmt.expression[0].children, (args?.[1] as Expression) || undefined);
     }
   } else if (stmt.IF && stmt.ifPredBody) {
     if (args) {
@@ -121,16 +111,10 @@ export function statement(
     if (p && p.length) {
       assertEquals(predBody.length, p.length);
     }
-    ifPredBody(
-      predBody[bodyCount++].children,
-      (p && (p[0] as Parameters<typeof ifPredBody>[1])) || undefined,
-    );
+    ifPredBody(predBody[bodyCount++].children, (p && (p[0] as IfPredBody)) || undefined);
     if (stmt.ELIF) {
       stmt.ELIF.forEach(() => {
-        ifPredBody(
-          predBody[bodyCount].children,
-          (p && (p[bodyCount] as Parameters<typeof ifPredBody>[1])) || undefined,
-        );
+        ifPredBody(predBody[bodyCount].children, (p && (p[bodyCount] as IfPredBody)) || undefined);
         bodyCount++;
       });
     }
@@ -150,7 +134,7 @@ export function statement(
       assert(stmt.body[bodyCount]);
       body(stmt.body[bodyCount++].children, d as Body);
     }
-    expression(stmt.expression[0].children, we as Parameters<typeof expression>[1]);
+    expression(stmt.expression[0].children, we as Expression);
     assert(wb === undefined || (wb ? !stmt.SEMI : stmt.SEMI));
     if (!stmt.SEMI) {
       assert(stmt.body);
@@ -172,7 +156,7 @@ export function statement(
     if (args) {
       assertEquals(args[0], 'expression');
     }
-    expression(stmt.expression[0].children, args?.[1] as Parameters<typeof expression>[1]);
+    expression(stmt.expression[0].children, args?.[1] as Expression);
   } else if (stmt.SEMI) {
     assert(!args);
   } else {
@@ -180,32 +164,20 @@ export function statement(
   }
 }
 
-export function ifPredBody(
-  predBody: IfPredBodyCstChildren,
-  args?:
-    | [
-        'declaration',
-        Parameters<typeof declaration>[1] | undefined,
-        Parameters<typeof body>[1] | undefined,
-      ]
-    | ['expression', Parameters<typeof expression>[1] | undefined, Body | undefined],
-) {
+type IfPredBody =
+  | ['declaration', Declaration | undefined, Body | undefined]
+  | ['expression', Expression | undefined, Body | undefined];
+export function ifPredBody(predBody: IfPredBodyCstChildren, args?: IfPredBody) {
   if (predBody.LET && predBody.declaration) {
     if (args) {
       assertEquals(args[0], 'declaration');
     }
-    declaration(
-      predBody.declaration[0].children,
-      args?.[1] as Parameters<typeof declaration>[1] | undefined,
-    );
+    declaration(predBody.declaration[0].children, args?.[1] as Declaration | undefined);
   } else if (predBody.expression) {
     if (args) {
       assertEquals(args[0], 'expression');
     }
-    expression(
-      predBody.expression[0].children,
-      args?.[1] as Parameters<typeof expression>[1] | undefined,
-    );
+    expression(predBody.expression[0].children, args?.[1] as Expression | undefined);
   } else {
     throw new Error(`Validation: unhandled ifPredBody type!\n${JSON.stringify(predBody, null, 2)}`);
   }
@@ -213,14 +185,8 @@ export function ifPredBody(
   body(predBody.body[0].children, args?.[2]);
 }
 
-export function declaration(
-  decl: DeclarationCstChildren,
-  args?: [
-    string | undefined,
-    Parameters<typeof type>[1] | false | undefined,
-    Parameters<typeof expression>[1] | false | undefined,
-  ],
-) {
+type Declaration = [string | undefined, Type | false | undefined, Expression | false | undefined];
+export function declaration(decl: DeclarationCstChildren, args?: Declaration) {
   const [id, t, e] = args ?? [];
   assertEquals(decl.ID.length, 1);
   if (id) {
@@ -240,8 +206,7 @@ export function declaration(
   }
 }
 
-type Body = Parameters<typeof statement_list>[1] | null;
-
+type Body = Statement[] | null;
 export function body<T extends Body>(node: BodyCstChildren, args?: T) {
   assertEquals(node.LCURLY?.at(0)?.image, '{');
   if (args?.length) {
@@ -256,11 +221,12 @@ export function body<T extends Body>(node: BodyCstChildren, args?: T) {
   assertEquals(node.RCURLY?.at(0)?.image, '}');
 }
 
+type Expression = Parameters<typeof expression>[1];
 export function expression<
   T extends
     | [
         string | false | undefined, // operator
-        Parameters<typeof value>[1] | undefined,
+        Value | undefined,
         string | false | undefined, // postfix operator
         T | false | undefined,
       ]
@@ -294,12 +260,13 @@ export function expression<
   }
 }
 
-type NestedValue = ['nested', Parameters<typeof expression>[1]];
+type NestedValue = ['nested', Expression];
 
+type Value = Parameters<typeof value>[1];
 export function value<
   T extends
     | NestedValue
-    | ['constant', Parameters<typeof constant>[1]]
+    | ['constant', Constant]
     | ['id', string | undefined]
     | ['prefix', string | undefined, T]
     | undefined,
@@ -309,13 +276,13 @@ export function value<
       assertEquals(args[0], 'nested');
     }
     assertEquals(val.LPAREN?.at(0)?.image, '(');
-    expression(val.expression[0].children, args?.at(1) as Parameters<typeof expression>[1]);
+    expression(val.expression[0].children, args?.at(1) as Expression);
     assertEquals(val.RPAREN?.at(0)?.image, ')');
   } else if (val.constant) {
     if (args) {
       assertEquals(args[0], 'constant');
     }
-    constant(val.constant[0].children, args?.at(1) as Parameters<typeof constant>[1]);
+    constant(val.constant[0].children, args?.at(1) as Constant);
   } else if (val.ID) {
     assertEquals(val.ID.length, 1);
     if (args) {
@@ -343,7 +310,8 @@ export function value<
   }
 }
 
-export function constant(c: ConstantCstChildren, args?: [keyof ConstantCstChildren, string]) {
+type Constant = [keyof ConstantCstChildren, string];
+export function constant(c: ConstantCstChildren, args?: Constant) {
   assert(c.BIN || c.BOOL || c.CMPX || c.INT || c.REAL || c.STRING);
   assertEquals(Object.values(c).length, 1);
   if (args?.at(0)) {
@@ -358,7 +326,8 @@ export function constant(c: ConstantCstChildren, args?: [keyof ConstantCstChildr
   }
 }
 
-export function type(t: TypeCstChildren, args?: [string]) {
+type Type = [string];
+export function type(t: TypeCstChildren, args?: Type) {
   assert(t.BASIC_TYPE);
   assertEquals(t.BASIC_TYPE.length, 1);
   if (args?.at(0)) {

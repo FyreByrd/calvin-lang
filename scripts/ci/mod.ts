@@ -1,4 +1,5 @@
 import { error } from '@actions/core';
+import { delay } from '@std/async';
 import { bold, red } from '@std/fmt/colors';
 
 export interface CommandParams {
@@ -35,6 +36,10 @@ export async function runCommands(
       })();
 
       console.log(`\n${bold('-'.repeat(width))}\n\n`);
+    }
+
+    if (isCI()) {
+      await delay(500);
     }
   }
 }

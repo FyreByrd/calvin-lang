@@ -9,8 +9,8 @@ on:
         required: true
 
 jobs:
-  main:
-    name: Main
+  main-checks:
+    name: Main Checks
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository

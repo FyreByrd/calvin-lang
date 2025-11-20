@@ -6,6 +6,7 @@ on:
 
 jobs:
   run-procedure:
+    name: Run CI Procedure
     uses: ./.github/workflows/fn-ci.yml
     with:
       cache-key-base: ci@v1

@@ -26,7 +26,15 @@ export async function runCommands(
     }
 
     if (idx !== processes.length - 1) {
-      console.log(`\n${bold('-'.repeat(Deno.consoleSize().columns))}\n\n`);
+      const width = (() => {
+        try {
+          return Deno.consoleSize().columns;
+        } catch {
+          return 10;
+        }
+      })();
+
+      console.log(`\n${bold('-'.repeat(width))}\n\n`);
     }
   }
 }

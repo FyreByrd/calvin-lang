@@ -67,10 +67,7 @@ Deno.test('Comment parsing #integration', async (t) => {
     assertEquals(parser.errors.length, 0, 'Parser should not error');
 
     v.file(parserOutput, [
-      [
-        'declaration',
-        ['str', v.none, [['constant', ['STRING', "'/*****/  //'"]], v.none, v.none, v.none]],
-      ],
+      ['declaration', ['str', v.none, [['constant', ['STRING', "'/*****/  //'"]]]]],
     ]);
   });
 });

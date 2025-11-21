@@ -294,11 +294,16 @@ export function body<T extends Body>(node: BodyCstChildren, args?: T) {
 export type Expression = Parameters<typeof expression>[1];
 export function expression<
   T extends
+    | [Value | Skip]
+    | [
+        Value | Skip,
+        string | Skip, // postfix operator
+      ]
     | [
         Value | Skip,
         string | None | Skip, // postfix operator
-        string | None | Skip, // operator
-        T | None | Skip,
+        string | Skip, // operator
+        T | Skip,
       ]
     | Skip,
 >(expr: ExpressionCstChildren, args?: T) {
@@ -338,8 +343,8 @@ export function expression<
     }
   }
   assert(
-    rhs === skip || (rhs ? expr.expression : !expr.expression),
-    `Expression > rhs: expected ${!!rhs} but received ${!!expr.expression}`,
+    (op === skip && rhs === skip) || (rhs ? expr.expression : !expr.expression),
+    `Expression > rhs: expected ${!!(op || rhs)} but received ${!!expr.expression}`,
   );
   if (expr.expression) {
     assertEquals(expr.expression.length, 1);

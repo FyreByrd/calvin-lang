@@ -28,17 +28,18 @@ export type ValidationFunction =
   | typeof constant
   | typeof type;
 
-export function file(node: FileCstChildren, args?: Statement[] | null) {
-  if (args?.length) {
+export function file(node: FileCstChildren, args?: Statement[] | None) {
+  // biome-ignore lint/complexity/useOptionalChain: args could be false without being nullish
+  if (args && args.length) {
     assert(node.statement, `File: expected 1+ statements but received ${node.statement?.length}`);
   }
-  if (args === null) {
+  if (args === false) {
     assert(
       !node.statement?.length,
       `File: expected 0 statements but received ${node.statement?.length}`,
     );
   }
-  if (node.statement && args !== null) {
+  if (node.statement && args !== false) {
     statement_list(node.statement, args);
   }
 }
@@ -269,19 +270,20 @@ export function declaration(decl: DeclarationCstChildren, args?: Declaration) {
   }
 }
 
-type Body = Statement[] | null;
+type Body = Statement[] | None;
 export function body<T extends Body>(node: BodyCstChildren, args?: T) {
   assertEquals(node.LCURLY?.at(0)?.image, '{', 'Body: missing {');
-  if (args?.length) {
+  // biome-ignore lint/complexity/useOptionalChain: args could be false without being nullish
+  if (args && args.length) {
     assert(node.statement, `Body: expected 1+ statements but received ${node.statement?.length}`);
   }
-  if (args === null) {
+  if (args === false) {
     assert(
       !node.statement?.length,
       `Body: expected 0 statements but received ${node.statement?.length}`,
     );
   }
-  if (node.statement && args !== null) {
+  if (node.statement && args !== false) {
     statement_list(node.statement, args);
   }
   assertEquals(node.RCURLY?.at(0)?.image, '}', 'Body: missing }');

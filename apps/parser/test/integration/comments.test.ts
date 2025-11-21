@@ -26,7 +26,7 @@ Deno.test('Comment parsing #integration', async (t) => {
 
     assertEquals(parser.errors.length, 0, 'Parser should not error');
 
-    v.file(parserOutput, null);
+    v.file(parserOutput, v.none);
   });
 
   await t.step('collapsed multiline comment', () => {
@@ -51,7 +51,7 @@ Deno.test('Comment parsing #integration', async (t) => {
 
     assertEquals(parser.errors.length, 0, 'Parser should not error');
 
-    v.file(parserOutput, null);
+    v.file(parserOutput, v.none);
   });
 
   await t.step('comments embedded in a string', () => {

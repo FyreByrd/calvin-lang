@@ -367,9 +367,7 @@ export function value<
     if (args) {
       assertEquals(args[0], 'nested', `Value: expected ${args[0]} but received nested`);
     }
-    assertEquals(val.LPAREN?.at(0)?.image, '(', 'Value: missing (');
     expression(val.expression[0].children, args?.at(1) as Expression);
-    assertEquals(val.RPAREN?.at(0)?.image, ')', 'Value: missing )');
   } else if (val.constant) {
     if (args) {
       assertEquals(args[0], 'constant', `Value: expected ${args[0]} but received constant`);

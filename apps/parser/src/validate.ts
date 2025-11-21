@@ -134,8 +134,7 @@ export function statement(stmt: StatementCstChildren, args?: Statement) {
     const [_, p, e] = args ?? [];
     let bodyCount = 0;
     const predBody = stmt.ifPredBody;
-    // biome-ignore lint/complexity/useOptionalChain: p could be None without being nullish
-    if (p && p.length) {
+    if (p) {
       assertEquals(
         predBody.length,
         p.length,

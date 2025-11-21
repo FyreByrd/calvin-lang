@@ -1,4 +1,5 @@
 import * as TestSubject from '@encode/parser/lib';
+import { v } from '@encode/parser/lib';
 import { assertEquals } from '@std/assert';
 import { performParsingTestCase, useGlobalSettings } from '@/test/utils/mod.ts';
 
@@ -25,7 +26,7 @@ Deno.test('Comment parsing #integration', async (t) => {
 
     assertEquals(parser.errors.length, 0, 'Parser should not error');
 
-    TestSubject.v.file(parserOutput, null);
+    v.file(parserOutput, null);
   });
 
   await t.step('collapsed multiline comment', () => {
@@ -50,7 +51,7 @@ Deno.test('Comment parsing #integration', async (t) => {
 
     assertEquals(parser.errors.length, 0, 'Parser should not error');
 
-    TestSubject.v.file(parserOutput, null);
+    v.file(parserOutput, null);
   });
 
   await t.step('comments embedded in a string', () => {
@@ -65,10 +66,10 @@ Deno.test('Comment parsing #integration', async (t) => {
 
     assertEquals(parser.errors.length, 0, 'Parser should not error');
 
-    TestSubject.v.file(parserOutput, [
+    v.file(parserOutput, [
       [
         'declaration',
-        ['str', false, [false, ['constant', ['STRING', "'/*****/  //'"]], false, false]],
+        ['str', v.none, [['constant', ['STRING', "'/*****/  //'"]], v.none, v.none, v.none]],
       ],
     ]);
   });

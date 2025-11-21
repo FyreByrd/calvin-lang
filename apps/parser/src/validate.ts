@@ -12,6 +12,11 @@ import type {
   ValueCstChildren,
 } from '@/generated/cst-types.ts';
 
+export const skip = undefined;
+type Skip = typeof skip;
+export const none = false;
+type None = typeof none;
+
 export type ValidationFunction =
   | typeof file
   | typeof statement
@@ -57,33 +62,33 @@ function statement_list(statements: StatementCstNode[], args?: Statement[]) {
   }
 }
 
-type BodyStatement = ['body', Body | undefined];
+type BodyStatement = ['body', Body | Skip];
 type IfStatement = [
   'if',
   // 0 = if, 1-n = elif
-  (IfPredBody | false | undefined)[] | undefined,
-  Body | false | undefined, // else
+  (IfPredBody | None | Skip)[] | Skip,
+  Body | None | Skip, // else
 ];
 type WhileStatement = [
   'while',
-  Body | false | undefined, // do
-  Expression | undefined, // while
-  Body | false | undefined, // while-body
-  Body | false | undefined, // finally-body
+  Body | None | Skip, // do
+  Expression | Skip, // while
+  Body | None | Skip, // while-body
+  Body | None | Skip, // finally-body
 ];
 
 type Statement =
-  | ['declaration', Declaration | undefined]
+  | ['declaration', Declaration | Skip]
   | ['break']
   | ['continue']
-  | ['return', Expression | false | undefined]
+  | ['return', Expression | None | Skip]
   | IfStatement
   | WhileStatement
   | BodyStatement
-  | ['expression', Expression | undefined]
-  | false;
+  | ['expression', Expression | Skip]
+  | None;
 export function statement(stmt: StatementCstChildren, args?: Statement) {
-  if (args === false) {
+  if (args === none) {
     assert(
       Object.keys(stmt).length === 1 && stmt.SEMI,
       `Statement: expected SEMI but received ${Object.keys(stmt)}`,
@@ -96,7 +101,7 @@ export function statement(stmt: StatementCstChildren, args?: Statement) {
         `Statement: expected ${args[0]} but received declaration`,
       );
     }
-    declaration(stmt.declaration[0].children, (args?.[1] as Declaration) || undefined);
+    declaration(stmt.declaration[0].children, (args?.[1] as Declaration) || skip);
   } else if (stmt.BREAK) {
     if (args) {
       assertEquals(args[0], 'break', `Statement: expected ${args[0]} but received break`);
@@ -113,12 +118,12 @@ export function statement(stmt: StatementCstChildren, args?: Statement) {
     }
     assertEquals(stmt.RETURN[0].image, 'return');
     assert(
-      args?.[1] === undefined || (args[1] ? stmt.expression : !stmt.expression),
+      args?.[1] === skip || (args[1] ? stmt.expression : !stmt.expression),
       `Statement > return: expected ${!!args?.[1]} but received ${!!stmt.expression}`,
     );
     if (stmt.expression) {
       assertEquals(stmt.expression.length, 1);
-      expression(stmt.expression[0].children, (args?.[1] as Expression) || undefined);
+      expression(stmt.expression[0].children, (args?.[1] as Expression) || skip);
     }
   } else if (stmt.IF && stmt.ifPredBody) {
     if (args) {
@@ -127,7 +132,7 @@ export function statement(stmt: StatementCstChildren, args?: Statement) {
     const [_, p, e] = args ?? [];
     let bodyCount = 0;
     const predBody = stmt.ifPredBody;
-    // biome-ignore lint/complexity/useOptionalChain: p could be false without being nullish
+    // biome-ignore lint/complexity/useOptionalChain: p could be None without being nullish
     if (p && p.length) {
       assertEquals(
         predBody.length,
@@ -135,15 +140,15 @@ export function statement(stmt: StatementCstChildren, args?: Statement) {
         `Statement: expected ${p.length} if-preds but received ${predBody.length}`,
       );
     }
-    ifPredBody(predBody[bodyCount++].children, (p && (p[0] as IfPredBody)) || undefined);
+    ifPredBody(predBody[bodyCount++].children, (p && (p[0] as IfPredBody)) || skip);
     if (stmt.ELIF) {
       stmt.ELIF.forEach(() => {
-        ifPredBody(predBody[bodyCount].children, (p && (p[bodyCount] as IfPredBody)) || undefined);
+        ifPredBody(predBody[bodyCount].children, (p && (p[bodyCount] as IfPredBody)) || skip);
         bodyCount++;
       });
     }
     assert(
-      e === undefined || (e ? stmt.body : !stmt.body),
+      e === skip || (e ? stmt.body : !stmt.body),
       `Statement > else: expected ${!!e} but received ${!!stmt.body}`,
     );
     if (stmt.ELSE && stmt.body) {
@@ -156,7 +161,7 @@ export function statement(stmt: StatementCstChildren, args?: Statement) {
     const [_, d, we, wb, f] = args || [];
     let bodyCount = 0;
     assert(
-      d === undefined || (d ? stmt.DO : !stmt.DO),
+      d === skip || (d ? stmt.DO : !stmt.DO),
       `Statement > do: expected ${!!d} but received ${!!stmt.DO}`,
     );
     if (stmt.DO) {
@@ -168,7 +173,7 @@ export function statement(stmt: StatementCstChildren, args?: Statement) {
     }
     expression(stmt.expression[0].children, we as Expression);
     assert(
-      wb === undefined || (wb ? !stmt.SEMI : stmt.SEMI),
+      wb === skip || (wb ? !stmt.SEMI : stmt.SEMI),
       `Statement > while: expected ${!!wb} but received ${!stmt.SEMI}`,
     );
     if (!stmt.SEMI) {
@@ -179,7 +184,7 @@ export function statement(stmt: StatementCstChildren, args?: Statement) {
       body(stmt.body[bodyCount++].children, wb as Body);
     }
     assert(
-      f === undefined || (f ? stmt.FINALLY : !stmt.FINALLY),
+      f === skip || (f ? stmt.FINALLY : !stmt.FINALLY),
       `Statement > finally: expected ${!!f} but received ${!!stmt.FINALLY}`,
     );
     if (stmt.FINALLY) {
@@ -205,8 +210,8 @@ export function statement(stmt: StatementCstChildren, args?: Statement) {
 }
 
 type IfPredBody =
-  | ['declaration', Declaration | undefined, Body | undefined]
-  | ['expression', Expression | undefined, Body | undefined];
+  | ['declaration', Declaration | Skip, Body | Skip]
+  | ['expression', Expression | Skip, Body | Skip];
 export function ifPredBody(predBody: IfPredBodyCstChildren, args?: IfPredBody) {
   if (predBody.LET && predBody.declaration) {
     if (args) {
@@ -216,7 +221,7 @@ export function ifPredBody(predBody: IfPredBodyCstChildren, args?: IfPredBody) {
         `IfPredBody: expected ${args[0]} but received declaration`,
       );
     }
-    declaration(predBody.declaration[0].children, args?.[1] as Declaration | undefined);
+    declaration(predBody.declaration[0].children, args?.[1] as Declaration | Skip);
   } else if (predBody.expression) {
     if (args) {
       assertEquals(
@@ -225,7 +230,7 @@ export function ifPredBody(predBody: IfPredBodyCstChildren, args?: IfPredBody) {
         `IfPredBody: expected ${args[0]} but received expression`,
       );
     }
-    expression(predBody.expression[0].children, args?.[1] as Expression | undefined);
+    expression(predBody.expression[0].children, args?.[1] as Expression | Skip);
   } else {
     throw new Error(`Validation: unhandled ifPredBody type!\n${JSON.stringify(predBody, null, 2)}`);
   }
@@ -233,7 +238,7 @@ export function ifPredBody(predBody: IfPredBodyCstChildren, args?: IfPredBody) {
   body(predBody.body[0].children, args?.[2]);
 }
 
-type Declaration = [string | undefined, Type | false | undefined, Expression | false | undefined];
+type Declaration = [string | Skip, Type | None | Skip, Expression | None | Skip];
 export function declaration(decl: DeclarationCstChildren, args?: Declaration) {
   const [id, t, e] = args ?? [];
   assertEquals(decl.ID.length, 1);
@@ -247,20 +252,20 @@ export function declaration(decl: DeclarationCstChildren, args?: Declaration) {
     assertGreater(decl.ID[0].image.length, 0);
   }
   assert(
-    t === undefined || (t ? decl.type : !decl.type),
+    t === skip || (t ? decl.type : !decl.type),
     `Declaration > type: expected ${!!t} but received ${!!decl.type}`,
   );
   if (decl.type) {
     assertEquals(decl.type.length, 1);
-    type(decl.type[0].children, t || undefined);
+    type(decl.type[0].children, t || skip);
   }
   assert(
-    e === undefined || (e ? decl.expression : !decl.expression),
+    e === skip || (e ? decl.expression : !decl.expression),
     `Declaration > expression: expected ${!!e} but received ${!!decl.expression}`,
   );
   if (decl.expression) {
     assertEquals(decl.expression.length, 1);
-    expression(decl.expression[0].children, e || undefined);
+    expression(decl.expression[0].children, e || skip);
   }
 }
 
@@ -286,34 +291,18 @@ type Expression = Parameters<typeof expression>[1];
 export function expression<
   T extends
     | [
-        string | false | undefined, // operator
-        Value | undefined,
-        string | false | undefined, // postfix operator
-        T | false | undefined,
+        Value | Skip,
+        string | None | Skip, // postfix operator
+        string | None | Skip, // operator
+        T | None | Skip,
       ]
-    | undefined,
+    | Skip,
 >(expr: ExpressionCstChildren, args?: T) {
-  const [op, val, pf, rhs] = args ?? [];
-  assert(
-    op === undefined || (op ? expr.BinOp : !expr.BinOp),
-    `Expression > BinOp: expected ${!!op} but received ${!!expr.BinOp}`,
-  );
-  if (expr.BinOp) {
-    assertEquals(expr.BinOp.length, 1);
-    if (op) {
-      assertEquals(
-        expr.BinOp[0].image,
-        op,
-        `Expression > BinOp: expected ${op} but received ${expr.BinOp[0].image}`,
-      );
-    } else {
-      assertGreater(expr.BinOp[0].image.length, 0);
-    }
-  }
+  const [val, pf, op, rhs] = args ?? [];
   assert(expr.value?.at(0)?.children);
   value(expr.value[0].children, val);
   assert(
-    pf === undefined || (pf ? expr.PostFix : !expr.PostFix),
+    pf === skip || (pf ? expr.PostFix : !expr.PostFix),
     `Expression > PostFix: expected ${!!pf} but received ${!!expr.PostFix}`,
   );
   if (expr.PostFix) {
@@ -329,12 +318,28 @@ export function expression<
     }
   }
   assert(
-    rhs === undefined || (rhs ? expr.expression : !expr.expression),
+    op === skip || (op ? expr.BinOp : !expr.BinOp),
+    `Expression > BinOp: expected ${!!op} but received ${!!expr.BinOp}`,
+  );
+  if (expr.BinOp) {
+    assertEquals(expr.BinOp.length, 1);
+    if (op) {
+      assertEquals(
+        expr.BinOp[0].image,
+        op,
+        `Expression > BinOp: expected ${op} but received ${expr.BinOp[0].image}`,
+      );
+    } else {
+      assertGreater(expr.BinOp[0].image.length, 0);
+    }
+  }
+  assert(
+    rhs === skip || (rhs ? expr.expression : !expr.expression),
     `Expression > rhs: expected ${!!rhs} but received ${!!expr.expression}`,
   );
   if (expr.expression) {
     assertEquals(expr.expression.length, 1);
-    expression(expr.expression[0].children, rhs || undefined);
+    expression(expr.expression[0].children, rhs || skip);
   }
 }
 
@@ -345,9 +350,9 @@ export function value<
   T extends
     | NestedValue
     | ['constant', Constant]
-    | ['id', string | undefined]
-    | ['prefix', string | undefined, T]
-    | undefined,
+    | ['id', string | Skip]
+    | ['prefix', string | Skip, T]
+    | Skip,
 >(val: ValueCstChildren, args?: T) {
   if (val.expression) {
     if (args) {

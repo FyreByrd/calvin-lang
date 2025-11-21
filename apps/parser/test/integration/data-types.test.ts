@@ -1,5 +1,6 @@
 import * as TestSubject from '@encode/parser/lib';
-import { assert, assertEquals } from '@std/assert';
+import { v } from '@encode/parser/lib';
+import { assertEquals } from '@std/assert';
 import { performParsingTestCase, useGlobalSettings } from '@/test/utils/mod.ts';
 
 Deno.test('Data type parsing #integration', async (t) => {
@@ -25,7 +26,7 @@ Deno.test('Data type parsing #integration', async (t) => {
 
     assertEquals(parser.errors.length, 0, 'Parser should not error');
 
-    assert(parserOutput.statement, 'Some output should be generated');
+    v.file(parserOutput, [['declaration', ['real', v.none, [['constant', ['REAL', '1.0']]]]]]);
   });
 
   await t.step('integer literal', () => {
@@ -40,7 +41,7 @@ Deno.test('Data type parsing #integration', async (t) => {
 
     assertEquals(parser.errors.length, 0, 'Parser should not error');
 
-    assert(parserOutput.statement, 'Some output should be generated');
+    v.file(parserOutput, [['declaration', ['integer', v.none, [['constant', ['INT', '21']]]]]]);
   });
 
   await t.step('string literal', () => {
@@ -55,7 +56,9 @@ Deno.test('Data type parsing #integration', async (t) => {
 
     assertEquals(parser.errors.length, 0, 'Parser should not error');
 
-    assert(parserOutput.statement, 'Some output should be generated');
+    v.file(parserOutput, [
+      ['declaration', ['str', v.none, [['constant', ['STRING', "'Hello, World!'"]]]]],
+    ]);
   });
 
   await t.step('boolean literal', () => {
@@ -70,7 +73,7 @@ Deno.test('Data type parsing #integration', async (t) => {
 
     assertEquals(parser.errors.length, 0, 'Parser should not error');
 
-    assert(parserOutput.statement, 'Some output should be generated');
+    v.file(parserOutput, [['declaration', ['flag', v.none, [['constant', ['BOOL', 'true']]]]]]);
   });
 
   await t.step('bit literal', () => {
@@ -85,7 +88,7 @@ Deno.test('Data type parsing #integration', async (t) => {
 
     assertEquals(parser.errors.length, 0, 'Parser should not error');
 
-    assert(parserOutput.statement, 'Some output should be generated');
+    v.file(parserOutput, [['declaration', ['bits', v.none, [['constant', ['BIN', '0xff']]]]]]);
   });
 
   await t.step('complex number literal', () => {
@@ -100,6 +103,15 @@ Deno.test('Data type parsing #integration', async (t) => {
 
     assertEquals(parser.errors.length, 0, 'Parser should not error');
 
-    assert(parserOutput.statement, 'Some output should be generated');
+    v.file(parserOutput, [
+      [
+        'declaration',
+        [
+          'imag',
+          v.none,
+          [['constant', ['REAL', '1.0']], v.none, '+', [['constant', ['CMPX', '2.0i']]]],
+        ],
+      ],
+    ]);
   });
 });

@@ -1,5 +1,5 @@
 import * as TestSubject from '@encode/parser/lib';
-import { assert, assertEquals } from '@std/assert';
+import { assertEquals } from '@std/assert';
 import { performParsingTestCase, useGlobalSettings } from '@/test/utils/mod.ts';
 
 Deno.test('Comment parsing #integration', async (t) => {
@@ -14,7 +14,7 @@ Deno.test('Comment parsing #integration', async (t) => {
   const typeAnalyzer = new TestSubject.TypeAnalyzer();
 
   await t.step('line comment', () => {
-    const { parserOutput, afterReorder } = performParsingTestCase({
+    const { parserOutput } = performParsingTestCase({
       code: '// line comment',
 
       parser,
@@ -25,13 +25,11 @@ Deno.test('Comment parsing #integration', async (t) => {
 
     assertEquals(parser.errors.length, 0, 'Parser should not error');
 
-    assertEquals(JSON.parse(afterReorder), { file: {} });
-
-    assert(!parserOutput.statement, 'No output should be generated');
+    TestSubject.v.file(parserOutput, null);
   });
 
   await t.step('collapsed multiline comment', () => {
-    const { parserOutput, afterReorder } = performParsingTestCase({
+    const { parserOutput } = performParsingTestCase({
       code: [
         '/**/ // collapsed multiline comment',
         '/*****************',
@@ -52,13 +50,11 @@ Deno.test('Comment parsing #integration', async (t) => {
 
     assertEquals(parser.errors.length, 0, 'Parser should not error');
 
-    assertEquals(JSON.parse(afterReorder), { file: {} });
-
-    assert(!parserOutput.statement, 'No output should be generated');
+    TestSubject.v.file(parserOutput, null);
   });
 
   await t.step('comments embedded in a string', () => {
-    const { parserOutput, afterReorder } = performParsingTestCase({
+    const { parserOutput } = performParsingTestCase({
       code: "let str = '/*****/  //'; // comments embedded in a string",
 
       parser,
@@ -69,26 +65,11 @@ Deno.test('Comment parsing #integration', async (t) => {
 
     assertEquals(parser.errors.length, 0, 'Parser should not error');
 
-    assert(!!parserOutput.statement);
-
-    assertEquals(JSON.parse(afterReorder), {
-      file: {
-        statements: [
-          {
-            type: 'declaration',
-            declaration: {
-              image: 'str',
-              expression: {
-                value: {
-                  constant: "'/*****/  //'",
-                },
-              },
-            },
-          },
-        ],
-      },
-    });
-
-    assertEquals(parserOutput.statement.length, 1, 'One statement should be generated');
+    TestSubject.v.file(parserOutput, [
+      [
+        'declaration',
+        ['str', false, [false, ['constant', ['STRING', "'/*****/  //'"]], false, false]],
+      ],
+    ]);
   });
 });

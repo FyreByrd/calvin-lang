@@ -63,14 +63,14 @@ function statement_list(statements: StatementCstNode[], args?: Statement[]) {
   }
 }
 
-type BodyStatement = ['body', Body | Skip];
-type IfStatement = [
+export type BodyStatement = ['body', Body | Skip];
+export type IfStatement = [
   'if',
   // 0 = if, 1-n = elif
   (IfPredBody | None | Skip)[] | Skip,
   Body | None | Skip, // else
 ];
-type WhileStatement = [
+export type WhileStatement = [
   'while',
   Body | None | Skip, // do
   Expression | Skip, // while
@@ -78,7 +78,7 @@ type WhileStatement = [
   Body | None | Skip, // finally-body
 ];
 
-type Statement =
+export type Statement =
   | ['declaration', Declaration | Skip]
   | ['break']
   | ['continue']
@@ -87,7 +87,8 @@ type Statement =
   | WhileStatement
   | BodyStatement
   | ['expression', Expression | Skip]
-  | None;
+  | None
+  | Skip;
 export function statement(stmt: StatementCstChildren, args?: Statement) {
   if (args === none) {
     assert(
@@ -210,9 +211,10 @@ export function statement(stmt: StatementCstChildren, args?: Statement) {
   }
 }
 
-type IfPredBody =
+export type IfPredBody =
   | ['declaration', Declaration | Skip, Body | Skip]
-  | ['expression', Expression | Skip, Body | Skip];
+  | ['expression', Expression | Skip, Body | Skip]
+  | Skip;
 export function ifPredBody(predBody: IfPredBodyCstChildren, args?: IfPredBody) {
   if (predBody.LET && predBody.declaration) {
     if (args) {
@@ -239,7 +241,7 @@ export function ifPredBody(predBody: IfPredBodyCstChildren, args?: IfPredBody) {
   body(predBody.body[0].children, args?.[2]);
 }
 
-type Declaration = [string | Skip, Type | None | Skip, Expression | None | Skip];
+export type Declaration = [string | Skip, Type | None | Skip, Expression | None | Skip] | Skip;
 export function declaration(decl: DeclarationCstChildren, args?: Declaration) {
   const [id, t, e] = args ?? [];
   assertEquals(decl.ID.length, 1);
@@ -270,7 +272,7 @@ export function declaration(decl: DeclarationCstChildren, args?: Declaration) {
   }
 }
 
-type Body = Statement[] | None;
+export type Body = Statement[] | None | Skip;
 export function body<T extends Body>(node: BodyCstChildren, args?: T) {
   assertEquals(node.LCURLY?.at(0)?.image, '{', 'Body: missing {');
   // biome-ignore lint/complexity/useOptionalChain: args could be false without being nullish
@@ -289,7 +291,7 @@ export function body<T extends Body>(node: BodyCstChildren, args?: T) {
   assertEquals(node.RCURLY?.at(0)?.image, '}', 'Body: missing }');
 }
 
-type Expression = Parameters<typeof expression>[1];
+export type Expression = Parameters<typeof expression>[1];
 export function expression<
   T extends
     | [
@@ -347,7 +349,7 @@ export function expression<
 
 type NestedValue = ['nested', Expression];
 
-type Value = Parameters<typeof value>[1];
+export type Value = Parameters<typeof value>[1];
 export function value<
   T extends
     | NestedValue
@@ -406,7 +408,7 @@ export function value<
   }
 }
 
-type Constant = [keyof ConstantCstChildren, string];
+export type Constant = [keyof ConstantCstChildren, string] | Skip;
 export function constant(c: ConstantCstChildren, args?: Constant) {
   assert(
     c.BIN || c.BOOL || c.CMPX || c.INT || c.REAL || c.STRING,
@@ -433,7 +435,7 @@ export function constant(c: ConstantCstChildren, args?: Constant) {
   }
 }
 
-type Type = string;
+export type Type = string | Skip;
 export function type(t: TypeCstChildren, args?: Type) {
   assertEquals(
     t.BASIC_TYPE?.length,

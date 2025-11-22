@@ -5,6 +5,9 @@ on:
     branches:
       - infra/actions/denoize
 
+permissions:
+  actions: write
+
 jobs:
   run-procedure:
     name: Run Clean Up Caches Procedure

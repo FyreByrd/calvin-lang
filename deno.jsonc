@@ -38,11 +38,6 @@
     "ci": {
       "env": true,
       "run": ["deno"]
-    },
-
-    "ci.clean-up-caches": {
-      "env": true,
-      "read": ["/home/runner/work/_temp/_github_workflow/event.json"]
     }
   },
 

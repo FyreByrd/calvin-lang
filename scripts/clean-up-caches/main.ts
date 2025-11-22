@@ -1,8 +1,11 @@
-import { getInput } from '@actions/core';
 import { context, getOctokit } from '@actions/github';
+import { assertExists } from '@std/assert';
 
 export async function main(): Promise<void> {
-  const github = getOctokit(getInput('token', { required: true }));
+  const token = Deno.env.get('GITHUB_TOKEN');
+  assertExists(token);
+
+  const github = getOctokit(token);
   const actions = github.rest.actions;
 
   const {

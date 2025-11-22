@@ -1,0 +1,34 @@
+name: Clean Up Caches Procedure
+
+on:
+  workflow_call:
+    inputs:
+      cache-key-base:
+        description: A string used to differentiate from other slices of the cache for other workflow runs, and to forcefully bust the cache when renamed
+        type: string
+        required: true
+      token:
+        description: The auth token to use
+        type: string
+        required: false
+        default: ${{ github.token }}
+
+jobs:
+  main:
+    name: Main
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Set up Deno
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: 2.x
+          cache-hash: ${{ inputs.cache-key-base }}-${{ hashFiles('deno.lock') }}
+
+      - name: Install dependencies
+        run: deno install
+
+      - name: Run main script
+        run: deno run -P=ci @encode/clean-up-caches

@@ -1,0 +1,13 @@
+name: Clean Up Caches (Debug)
+
+on:
+  push:
+    branches:
+      - infra/actions/denoize
+
+jobs:
+  run-procedure:
+    name: Run Clean Up Caches Procedure
+    uses: ./.github/workflows/fn-clean-up-caches.yml
+    with:
+      cache-key-base: clean-up-caches@v1

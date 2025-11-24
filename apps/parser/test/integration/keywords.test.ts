@@ -1,4 +1,5 @@
 import * as TestSubject from '@encode/parser/lib';
+import { v } from '@encode/parser/lib';
 import { assert } from '@std/assert';
 import { performParsingTestCase, useGlobalSettings } from '@/test/utils/mod.ts';
 
@@ -34,7 +35,25 @@ Deno.test('Keyword parsing #integration', async (t) => {
 
     assert(parser.errors.length === 0, 'Parser should not error');
 
-    assert(parserOutput.statement, 'Parser should generate statements');
+    v.file(parserOutput, [
+      ['declaration', ['lettuce', v.none, [['constant', ['INT', '1']]]]],
+      [
+        'if',
+        [
+          [
+            'expression',
+            [['id', 'lettuce']],
+            [['declaration', ['spiffy', v.none, [['constant', ['INT', '2']]]]]],
+          ],
+          [
+            'expression',
+            [['id', 'lettuce']],
+            [['declaration', ['elifShmelif', v.none, [['constant', ['INT', '3']]]]]],
+          ],
+        ],
+        [['declaration', ['elsevier', v.none, [['constant', ['INT', '4']]]]]],
+      ],
+    ]);
   });
 
   await t.step('false positive keyword snippets', async (t) => {
@@ -50,7 +69,9 @@ Deno.test('Keyword parsing #integration', async (t) => {
 
       assert(parser.errors.length === 0, 'Parser should not error');
 
-      assert(parserOutput.statement, 'Parser should generate statements');
+      v.file(parserOutput, [
+        ['declaration', ['coffeebreak', v.none, [['constant', ['INT', '8']]]]],
+      ]);
     });
 
     await t.step('continue', () => {
@@ -65,7 +86,9 @@ Deno.test('Keyword parsing #integration', async (t) => {
 
       assert(parser.errors.length === 0, 'Parser should not error');
 
-      assert(parserOutput.statement, 'Parser should generate statements');
+      v.file(parserOutput, [
+        ['declaration', ['dareIcontinue', v.none, [['constant', ['INT', '9']]]]],
+      ]);
     });
 
     await t.step('return', () => {
@@ -80,7 +103,10 @@ Deno.test('Keyword parsing #integration', async (t) => {
 
       assert(parser.errors.length === 0, 'Parser should not error');
 
-      assert(parserOutput.statement, 'Parser should generate statements');
+      v.file(parserOutput, [
+        ['declaration', ['returnOfTheJedi', v.none, [['constant', ['INT', '10']]]]],
+        ['return', [['id', 'OfTheJedi']]],
+      ]);
     });
 
     await t.step('and, or, & not', () => {
@@ -95,7 +121,10 @@ Deno.test('Keyword parsing #integration', async (t) => {
 
       assert(parser.errors.length === 0, 'Parser should not error');
 
-      assert(parserOutput.statement, 'Parser should generate statements');
+      v.file(parserOutput, [
+        ['declaration', ['andor', v.none, [['constant', ['INT', '11']]]]],
+        ['declaration', ['notInNottingham', v.none, [['prefix', 'not', ['id', 'andor']]]]],
+      ]);
     });
 
     await t.step('in', () => {
@@ -110,7 +139,7 @@ Deno.test('Keyword parsing #integration', async (t) => {
 
       assert(parser.errors.length === 0, 'Parser should not error');
 
-      assert(parserOutput.statement, 'Parser should generate statements');
+      v.file(parserOutput, [['declaration', ['spinach', v.none, [['constant', ['INT', '13']]]]]]);
     });
   });
 });

@@ -1,15 +1,14 @@
 import { assert, assertEquals, assertGreater } from '@std/assert';
 import type {
-  BodyCstChildren,
-  ConstantCstChildren,
-  DeclarationCstChildren,
-  ExpressionCstChildren,
-  FileCstChildren,
-  IfPredBodyCstChildren,
-  StatementCstChildren,
+  BodyCstNode,
+  ConstantCstNode,
+  DeclarationCstNode,
+  ExpressionCstNode,
+  FileCstNode,
+  IfPredBodyCstNode,
   StatementCstNode,
-  TypeCstChildren,
-  ValueCstChildren,
+  TypeCstNode,
+  ValueCstNode,
 } from '@/generated/cst-types.ts';
 
 export const skip = undefined;
@@ -28,19 +27,21 @@ export type ValidationFunction =
   | typeof constant
   | typeof type;
 
-export function file(node: FileCstChildren, args?: Statement[] | None) {
+export function file(node: FileCstNode, args?: Statement[] | None) {
+  assertEquals(node.name, 'file');
+  const file = node.children;
   // biome-ignore lint/complexity/useOptionalChain: args could be false without being nullish
   if (args && args.length) {
-    assert(node.statement, `File: expected 1+ statements but received ${node.statement?.length}`);
+    assert(file.statement, `File: expected 1+ statements but received ${file.statement?.length}`);
   }
   if (args === false) {
     assert(
-      !node.statement?.length,
-      `File: expected 0 statements but received ${node.statement?.length}`,
+      !file.statement?.length,
+      `File: expected 0 statements but received ${file.statement?.length}`,
     );
   }
-  if (node.statement && args !== false) {
-    statement_list(node.statement, args);
+  if (file.statement && args !== false) {
+    statement_list(file.statement, args);
   }
 }
 
@@ -59,7 +60,7 @@ function statement_list(statements: StatementCstNode[], args?: Statement[]) {
     );
   }
   for (let i = 0; i < statements.length; i++) {
-    statement(statements[i].children, args?.[i]);
+    statement(statements[i], args?.[i]);
   }
 }
 
@@ -89,7 +90,9 @@ export type Statement =
   | ['expression', Expression | Skip]
   | None
   | Skip;
-export function statement(stmt: StatementCstChildren, args?: Statement) {
+export function statement(node: StatementCstNode, args?: Statement) {
+  assertEquals(node.name, 'statement');
+  const stmt = node.children;
   if (args === none) {
     assert(
       Object.keys(stmt).length === 1 && stmt.SEMI,
@@ -103,7 +106,7 @@ export function statement(stmt: StatementCstChildren, args?: Statement) {
         `Statement: expected ${args[0]} but received declaration`,
       );
     }
-    declaration(stmt.declaration[0].children, (args?.[1] as Declaration) || skip);
+    declaration(stmt.declaration[0], (args?.[1] as Declaration) || skip);
   } else if (stmt.BREAK) {
     if (args) {
       assertEquals(args[0], 'break', `Statement: expected ${args[0]} but received break`);
@@ -125,7 +128,7 @@ export function statement(stmt: StatementCstChildren, args?: Statement) {
     );
     if (stmt.expression) {
       assertEquals(stmt.expression.length, 1);
-      expression(stmt.expression[0].children, (args?.[1] as Expression) || skip);
+      expression(stmt.expression[0], (args?.[1] as Expression) || skip);
     }
   } else if (stmt.IF && stmt.ifPredBody) {
     if (args) {
@@ -141,10 +144,10 @@ export function statement(stmt: StatementCstChildren, args?: Statement) {
         `Statement: expected ${p.length} if-preds but received ${predBody.length}`,
       );
     }
-    ifPredBody(predBody[bodyCount++].children, (p && (p[0] as IfPredBody)) || skip);
+    ifPredBody(predBody[bodyCount++], (p && (p[0] as IfPredBody)) || skip);
     if (stmt.ELIF) {
       stmt.ELIF.forEach(() => {
-        ifPredBody(predBody[bodyCount].children, (p && (p[bodyCount] as IfPredBody)) || skip);
+        ifPredBody(predBody[bodyCount], (p && (p[bodyCount] as IfPredBody)) || skip);
         bodyCount++;
       });
     }
@@ -153,7 +156,7 @@ export function statement(stmt: StatementCstChildren, args?: Statement) {
       `Statement > else: expected ${!!e} but received ${!!stmt.body}`,
     );
     if (stmt.ELSE && stmt.body) {
-      body(stmt.body[0].children, e as Body);
+      body(stmt.body[0], e as Body);
     }
   } else if (stmt.WHILE && stmt.expression) {
     if (args) {
@@ -170,9 +173,9 @@ export function statement(stmt: StatementCstChildren, args?: Statement) {
         stmt.body?.[bodyCount],
         `Statement > do: expected body but received ${stmt.body?.[bodyCount]}`,
       );
-      body(stmt.body[bodyCount++].children, d as Body);
+      body(stmt.body[bodyCount++], d as Body);
     }
-    expression(stmt.expression[0].children, we as Expression);
+    expression(stmt.expression[0], we as Expression);
     assert(
       wb === skip || (wb ? !stmt.SEMI : stmt.SEMI),
       `Statement > while: expected ${!!wb} but received ${!stmt.SEMI}`,
@@ -182,7 +185,7 @@ export function statement(stmt: StatementCstChildren, args?: Statement) {
         stmt.body?.[bodyCount],
         `Statement > while: expected body but received ${stmt.body?.[bodyCount]}`,
       );
-      body(stmt.body[bodyCount++].children, wb as Body);
+      body(stmt.body[bodyCount++], wb as Body);
     }
     assert(
       f === skip || (f ? stmt.FINALLY : !stmt.FINALLY),
@@ -193,18 +196,18 @@ export function statement(stmt: StatementCstChildren, args?: Statement) {
         stmt.body?.[bodyCount],
         `Statement > finally: expected body but received ${stmt.body?.[bodyCount]}`,
       );
-      body(stmt.body[bodyCount++].children, f as Body);
+      body(stmt.body[bodyCount++], f as Body);
     }
   } else if (stmt.body) {
     if (args) {
       assertEquals(args[0], 'body', `Statement: expected ${args[0]} but received body`);
     }
-    body(stmt.body[0].children, args?.[1] as Body);
+    body(stmt.body[0], args?.[1] as Body);
   } else if (stmt.expression) {
     if (args) {
       assertEquals(args[0], 'expression', `Statement: expected ${args[0]} but received expression`);
     }
-    expression(stmt.expression[0].children, args?.[1] as Expression);
+    expression(stmt.expression[0], args?.[1] as Expression);
   } else {
     throw new Error(`Validation: unhandled statement type!\n${JSON.stringify(stmt, null, 2)}`);
   }
@@ -214,7 +217,9 @@ export type IfPredBody =
   | ['declaration', Declaration | Skip, Body | Skip]
   | ['expression', Expression | Skip, Body | Skip]
   | Skip;
-export function ifPredBody(predBody: IfPredBodyCstChildren, args?: IfPredBody) {
+export function ifPredBody(node: IfPredBodyCstNode, args?: IfPredBody) {
+  assertEquals(node.name, 'ifPredBody');
+  const predBody = node.children;
   if (predBody.LET && predBody.declaration) {
     if (args) {
       assertEquals(
@@ -223,7 +228,7 @@ export function ifPredBody(predBody: IfPredBodyCstChildren, args?: IfPredBody) {
         `IfPredBody: expected ${args[0]} but received declaration`,
       );
     }
-    declaration(predBody.declaration[0].children, args?.[1] as Declaration | Skip);
+    declaration(predBody.declaration[0], args?.[1] as Declaration | Skip);
   } else if (predBody.expression) {
     if (args) {
       assertEquals(
@@ -232,16 +237,18 @@ export function ifPredBody(predBody: IfPredBodyCstChildren, args?: IfPredBody) {
         `IfPredBody: expected ${args[0]} but received expression`,
       );
     }
-    expression(predBody.expression[0].children, args?.[1] as Expression | Skip);
+    expression(predBody.expression[0], args?.[1] as Expression | Skip);
   } else {
     throw new Error(`Validation: unhandled ifPredBody type!\n${JSON.stringify(predBody, null, 2)}`);
   }
 
-  body(predBody.body[0].children, args?.[2]);
+  body(predBody.body[0], args?.[2]);
 }
 
 export type Declaration = [string | Skip, Type | None | Skip, Expression | None | Skip] | Skip;
-export function declaration(decl: DeclarationCstChildren, args?: Declaration) {
+export function declaration(node: DeclarationCstNode, args?: Declaration) {
+  assertEquals(node.name, 'declaration');
+  const decl = node.children;
   const [id, t, e] = args ?? [];
   assertEquals(decl.ID.length, 1);
   if (id) {
@@ -259,7 +266,7 @@ export function declaration(decl: DeclarationCstChildren, args?: Declaration) {
   );
   if (decl.type) {
     assertEquals(decl.type.length, 1);
-    type(decl.type[0].children, t || skip);
+    type(decl.type[0], t || skip);
   }
   assert(
     e === skip || (e ? decl.expression : !decl.expression),
@@ -267,27 +274,29 @@ export function declaration(decl: DeclarationCstChildren, args?: Declaration) {
   );
   if (decl.expression) {
     assertEquals(decl.expression.length, 1);
-    expression(decl.expression[0].children, e || skip);
+    expression(decl.expression[0], e || skip);
   }
 }
 
 export type Body = Statement[] | None | Skip;
-export function body<T extends Body>(node: BodyCstChildren, args?: T) {
-  assertEquals(node.LCURLY?.at(0)?.image, '{', 'Body: missing {');
+export function body<T extends Body>(node: BodyCstNode, args?: T) {
+  assertEquals(node.name, 'body');
+  const body = node.children;
+  assertEquals(body.LCURLY?.at(0)?.image, '{', 'Body: missing {');
   // biome-ignore lint/complexity/useOptionalChain: args could be false without being nullish
   if (args && args.length) {
-    assert(node.statement, `Body: expected 1+ statements but received ${node.statement?.length}`);
+    assert(body.statement, `Body: expected 1+ statements but received ${body.statement?.length}`);
   }
   if (args === false) {
     assert(
-      !node.statement?.length,
-      `Body: expected 0 statements but received ${node.statement?.length}`,
+      !body.statement?.length,
+      `Body: expected 0 statements but received ${body.statement?.length}`,
     );
   }
-  if (node.statement && args !== false) {
-    statement_list(node.statement, args);
+  if (body.statement && args !== false) {
+    statement_list(body.statement, args);
   }
-  assertEquals(node.RCURLY?.at(0)?.image, '}', 'Body: missing }');
+  assertEquals(body.RCURLY?.at(0)?.image, '}', 'Body: missing }');
 }
 
 export type Expression = Parameters<typeof expression>[1];
@@ -305,10 +314,12 @@ export function expression<
         T | Skip,
       ]
     | Skip,
->(expr: ExpressionCstChildren, args?: T) {
+>(node: ExpressionCstNode, args?: T) {
+  assertEquals(node.name, 'expression');
+  const expr = node.children;
   const [val, pf, op, rhs] = args ?? [];
   assert(expr.value?.at(0)?.children);
-  value(expr.value[0].children, val);
+  value(expr.value[0], val);
   assert(
     pf === skip || (pf ? expr.PostFix : !expr.PostFix),
     `Expression > PostFix: expected ${!!pf} but received ${!!expr.PostFix}`,
@@ -347,7 +358,7 @@ export function expression<
   );
   if (expr.expression) {
     assertEquals(expr.expression.length, 1);
-    expression(expr.expression[0].children, rhs || skip);
+    expression(expr.expression[0], rhs || skip);
   }
 }
 
@@ -361,17 +372,19 @@ export function value<
     | ['id', string | Skip]
     | ['prefix', string | Skip, T]
     | Skip,
->(val: ValueCstChildren, args?: T) {
+>(node: ValueCstNode, args?: T) {
+  assertEquals(node.name, 'value');
+  const val = node.children;
   if (val.expression) {
     if (args) {
       assertEquals(args[0], 'nested', `Value: expected ${args[0]} but received nested`);
     }
-    expression(val.expression[0].children, args?.at(1) as Expression);
+    expression(val.expression[0], args?.at(1) as Expression);
   } else if (val.constant) {
     if (args) {
       assertEquals(args[0], 'constant', `Value: expected ${args[0]} but received constant`);
     }
-    constant(val.constant[0].children, args?.at(1) as Constant);
+    constant(val.constant[0], args?.at(1) as Constant);
   } else if (val.ID) {
     assertEquals(val.ID.length, 1);
     if (args) {
@@ -404,14 +417,16 @@ export function value<
     } else {
       assertGreater(val.UnOp?.[0].image.length, 0);
     }
-    value(val.value[0].children, args?.at(2) as T);
+    value(val.value[0], args?.at(2) as T);
   } else {
     throw new Error(`Validation: unhandled value type!\n${JSON.stringify(val, null, 2)}`);
   }
 }
 
-export type Constant = [keyof ConstantCstChildren, string] | Skip;
-export function constant(c: ConstantCstChildren, args?: Constant) {
+export type Constant = [keyof ConstantCstNode['children'], string] | Skip;
+export function constant(node: ConstantCstNode, args?: Constant) {
+  assertEquals(node.name, 'constant');
+  const c = node.children;
   assert(
     c.BIN || c.BOOL || c.CMPX || c.INT || c.REAL || c.STRING,
     `Constant: unexpected literal type ${Object.keys(c)}`,
@@ -438,7 +453,9 @@ export function constant(c: ConstantCstChildren, args?: Constant) {
 }
 
 export type Type = string | Skip;
-export function type(t: TypeCstChildren, args?: Type) {
+export function type(node: TypeCstNode, args?: Type) {
+  assertEquals(node.name, 'type');
+  const t = node.children;
   assertEquals(
     t.BASIC_TYPE?.length,
     1,

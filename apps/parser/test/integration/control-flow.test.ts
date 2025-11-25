@@ -2,6 +2,7 @@ import * as TestSubject from '@encode/parser/lib';
 import { v } from '@encode/parser/lib';
 import { assertEquals } from '@std/assert';
 import { performParsingTestCase, useGlobalSettings } from '@/test/utils/mod.ts';
+import type { FileCstNode, StatementCstNode } from '../../generated/cst-types.ts';
 
 Deno.test('Control flow parsing #integration', async (t) => {
   using _globalSettings = useGlobalSettings({ debugTrees: true });
@@ -26,7 +27,7 @@ Deno.test('Control flow parsing #integration', async (t) => {
 
     assertEquals(parser.errors.length, 0, 'Parser should not error');
 
-    v.file(parserOutput, [
+    v.file(parserOutput as FileCstNode, [
       ['declaration', ['a', v.none, [['constant', ['INT', '0']]]]],
       [
         'if',
@@ -63,7 +64,7 @@ Deno.test('Control flow parsing #integration', async (t) => {
 
     assertEquals(parser.errors.length, 0, 'Parser should not error');
 
-    v.file(parserOutput, [
+    v.file(parserOutput as FileCstNode, [
       ['declaration', ['a', v.none, [['constant', ['INT', '0']]]]],
       ['if', v.skip, [['expression', [['id', 'b'], v.none, '=', [['constant', ['INT', '2']]]]]]],
     ]);
@@ -79,6 +80,7 @@ Deno.test('Control flow parsing #integration', async (t) => {
       ),
 
       parser,
+      startAt: 'statement',
       precedenceHandler,
       printer,
       typeAnalyzer,
@@ -86,8 +88,12 @@ Deno.test('Control flow parsing #integration', async (t) => {
 
     assertEquals(parser.errors.length, 0, 'Parser should not error');
 
-    v.file(parserOutput, [
-      ['while', [], [['id', 'a'], v.none, '<', [['constant', ['INT', '3']]]], v.none, v.none],
+    v.statement(parserOutput as StatementCstNode, [
+      'while',
+      [],
+      [['id', 'a'], v.none, '<', [['constant', ['INT', '3']]]],
+      v.none,
+      v.none,
     ]);
 
     assertEquals(typeOutput.warnings, 0, 'TypeAnalyzer should not report any warnings');
@@ -108,6 +114,7 @@ Deno.test('Control flow parsing #integration', async (t) => {
       ].join('\n'),
 
       parser,
+      startAt: 'statement',
       precedenceHandler,
       printer,
       typeAnalyzer,
@@ -115,24 +122,22 @@ Deno.test('Control flow parsing #integration', async (t) => {
 
     assertEquals(parser.errors.length, 0, 'Parser should not error');
 
-    v.file(parserOutput, [
+    v.statement(parserOutput as StatementCstNode, [
+      'while',
+      v.none,
+      [['id', 'b'], v.none, '>', [['constant', ['INT', '4']]]],
       [
-        'while',
-        v.none,
-        [['id', 'b'], v.none, '>', [['constant', ['INT', '4']]]],
+        ['declaration', ['c', v.none, [['constant', ['INT', '1']]]]],
+        ['if', [['expression', [['id', 'a']], [['continue']]]], v.none],
+      ],
+      [
         [
-          ['declaration', ['c', v.none, [['constant', ['INT', '1']]]]],
-          ['if', [['expression', [['id', 'a']], [['continue']]]], v.none],
-        ],
-        [
+          'return',
           [
-            'return',
-            [
-              ['nested', [['constant', ['INT', '1']], v.none, '+', [['constant', ['INT', '2']]]]],
-              v.none,
-              '+',
-              [['id', 'c']],
-            ],
+            ['nested', [['constant', ['INT', '1']], v.none, '+', [['constant', ['INT', '2']]]]],
+            v.none,
+            '+',
+            [['id', 'c']],
           ],
         ],
       ],

@@ -2,6 +2,7 @@ import * as TestSubject from '@encode/parser/lib';
 import { v } from '@encode/parser/lib';
 import { assert, assertEquals } from '@std/assert';
 import { performParsingTestCase, useGlobalSettings } from '@/test/utils/mod.ts';
+import type { StatementCstNode } from '../../generated/cst-types.ts';
 
 Deno.test('Expression parsing #integration', async (t) => {
   using _globalSettings = useGlobalSettings({ debugTrees: true });
@@ -19,6 +20,7 @@ Deno.test('Expression parsing #integration', async (t) => {
       code: 'let a = 1 * 2 + 3;',
 
       parser,
+      startAt: 'statement',
       precedenceHandler,
       printer,
       typeAnalyzer,
@@ -26,18 +28,16 @@ Deno.test('Expression parsing #integration', async (t) => {
 
     assert(parser.errors.length === 0, 'Parser should not error');
 
-    v.file(parserOutput, [
+    v.statement(parserOutput as StatementCstNode, [
+      'declaration',
       [
-        'declaration',
+        'a',
+        v.none,
         [
-          'a',
+          ['nested', [['constant', ['INT', '1']], v.none, '*', [['constant', ['INT', '2']]]]],
           v.none,
-          [
-            ['nested', [['constant', ['INT', '1']], v.none, '*', [['constant', ['INT', '2']]]]],
-            v.none,
-            '+',
-            [['constant', ['INT', '3']]],
-          ],
+          '+',
+          [['constant', ['INT', '3']]],
         ],
       ],
     ]);

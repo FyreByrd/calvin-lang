@@ -2,6 +2,7 @@ import * as TestSubject from '@encode/parser/lib';
 import { v } from '@encode/parser/lib';
 import { assert } from '@std/assert';
 import { performParsingTestCase, useGlobalSettings } from '@/test/utils/mod.ts';
+import type { FileCstNode, StatementCstNode } from '../../generated/cst-types.ts';
 
 Deno.test('Keyword parsing #integration', async (t) => {
   using _globalSettings = useGlobalSettings({ debugTrees: true });
@@ -35,7 +36,7 @@ Deno.test('Keyword parsing #integration', async (t) => {
 
     assert(parser.errors.length === 0, 'Parser should not error');
 
-    v.file(parserOutput, [
+    v.file(parserOutput as FileCstNode, [
       ['declaration', ['lettuce', v.none, [['constant', ['INT', '1']]]]],
       [
         'if',
@@ -62,6 +63,7 @@ Deno.test('Keyword parsing #integration', async (t) => {
         code: 'let coffeebreak = 8; // break',
 
         parser,
+        startAt: 'statement',
         precedenceHandler,
         printer,
         typeAnalyzer,
@@ -69,8 +71,9 @@ Deno.test('Keyword parsing #integration', async (t) => {
 
       assert(parser.errors.length === 0, 'Parser should not error');
 
-      v.file(parserOutput, [
-        ['declaration', ['coffeebreak', v.none, [['constant', ['INT', '8']]]]],
+      v.statement(parserOutput as StatementCstNode, [
+        'declaration',
+        ['coffeebreak', v.none, [['constant', ['INT', '8']]]],
       ]);
     });
 
@@ -79,6 +82,7 @@ Deno.test('Keyword parsing #integration', async (t) => {
         code: 'let dareIcontinue = 9; // continue',
 
         parser,
+        startAt: 'statement',
         precedenceHandler,
         printer,
         typeAnalyzer,
@@ -86,8 +90,9 @@ Deno.test('Keyword parsing #integration', async (t) => {
 
       assert(parser.errors.length === 0, 'Parser should not error');
 
-      v.file(parserOutput, [
-        ['declaration', ['dareIcontinue', v.none, [['constant', ['INT', '9']]]]],
+      v.statement(parserOutput as StatementCstNode, [
+        'declaration',
+        ['dareIcontinue', v.none, [['constant', ['INT', '9']]]],
       ]);
     });
 
@@ -103,7 +108,7 @@ Deno.test('Keyword parsing #integration', async (t) => {
 
       assert(parser.errors.length === 0, 'Parser should not error');
 
-      v.file(parserOutput, [
+      v.file(parserOutput as FileCstNode, [
         ['declaration', ['returnOfTheJedi', v.none, [['constant', ['INT', '10']]]]],
         ['return', [['id', 'OfTheJedi']]],
       ]);
@@ -121,7 +126,7 @@ Deno.test('Keyword parsing #integration', async (t) => {
 
       assert(parser.errors.length === 0, 'Parser should not error');
 
-      v.file(parserOutput, [
+      v.file(parserOutput as FileCstNode, [
         ['declaration', ['andor', v.none, [['constant', ['INT', '11']]]]],
         ['declaration', ['notInNottingham', v.none, [['prefix', 'not', ['id', 'andor']]]]],
       ]);
@@ -132,6 +137,7 @@ Deno.test('Keyword parsing #integration', async (t) => {
         code: 'let spinach = 13; // in',
 
         parser,
+        startAt: 'statement',
         precedenceHandler,
         printer,
         typeAnalyzer,
@@ -139,7 +145,10 @@ Deno.test('Keyword parsing #integration', async (t) => {
 
       assert(parser.errors.length === 0, 'Parser should not error');
 
-      v.file(parserOutput, [['declaration', ['spinach', v.none, [['constant', ['INT', '13']]]]]]);
+      v.statement(parserOutput as StatementCstNode, [
+        'declaration',
+        ['spinach', v.none, [['constant', ['INT', '13']]]],
+      ]);
     });
   });
 });

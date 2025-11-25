@@ -2,6 +2,7 @@ import * as TestSubject from '@encode/parser/lib';
 import { v } from '@encode/parser/lib';
 import { assertEquals } from '@std/assert';
 import { performParsingTestCase, useGlobalSettings } from '@/test/utils/mod.ts';
+import type { FileCstNode, StatementCstNode } from '../../generated/cst-types.ts';
 
 Deno.test('Comment parsing #integration', async (t) => {
   using _globalSettings = useGlobalSettings({ debugTrees: true });
@@ -26,7 +27,8 @@ Deno.test('Comment parsing #integration', async (t) => {
 
     assertEquals(parser.errors.length, 0, 'Parser should not error');
 
-    v.file(parserOutput, v.none);
+    // TODO use dependent types so cast is unnecessary
+    v.file(parserOutput as FileCstNode, v.none);
   });
 
   await t.step('collapsed multiline comment', () => {
@@ -51,7 +53,7 @@ Deno.test('Comment parsing #integration', async (t) => {
 
     assertEquals(parser.errors.length, 0, 'Parser should not error');
 
-    v.file(parserOutput, v.none);
+    v.file(parserOutput as FileCstNode, v.none);
   });
 
   await t.step('comments embedded in a string', () => {
@@ -59,6 +61,7 @@ Deno.test('Comment parsing #integration', async (t) => {
       code: "let str = '/*****/  //'; // comments embedded in a string",
 
       parser,
+      startAt: 'statement',
       precedenceHandler,
       printer,
       typeAnalyzer,
@@ -66,8 +69,9 @@ Deno.test('Comment parsing #integration', async (t) => {
 
     assertEquals(parser.errors.length, 0, 'Parser should not error');
 
-    v.file(parserOutput, [
-      ['declaration', ['str', v.none, [['constant', ['STRING', "'/*****/  //'"]]]]],
+    v.statement(parserOutput as StatementCstNode, [
+      'declaration',
+      ['str', v.none, [['constant', ['STRING', "'/*****/  //'"]]]],
     ]);
   });
 });

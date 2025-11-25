@@ -103,7 +103,11 @@ export const binopTokens: TokenType[] = [
   IN,
 ];
 /* Compound Assignment Tokens */
-export const CmpAsgn: TokenType = createToken({ name: 'CmpAsgn', pattern: Lexer.NA });
+export const CmpAsgn: TokenType = createToken({
+  name: 'CmpAsgn',
+  pattern: Lexer.NA,
+  categories: BinOp,
+});
 export const PL_EQU: TokenType = createToken({
   name: 'PL_EQU',
   pattern: '+=',

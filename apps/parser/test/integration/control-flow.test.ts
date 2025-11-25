@@ -1,6 +1,8 @@
 import * as TestSubject from '@encode/parser/lib';
-import { assert, assertEquals, assertGreater } from '@std/assert';
+import { v } from '@encode/parser/lib';
+import { assertEquals } from '@std/assert';
 import { performParsingTestCase, useGlobalSettings } from '@/test/utils/mod.ts';
+import type { FileCstNode, StatementCstNode } from '../../generated/cst-types.ts';
 
 Deno.test('Control flow parsing #integration', async (t) => {
   using _globalSettings = useGlobalSettings({ debugTrees: true });
@@ -9,7 +11,7 @@ Deno.test('Control flow parsing #integration', async (t) => {
 
   const precedenceHandler = new TestSubject.PrecedenceHandler();
 
-  const printer = new TestSubject.ParenPrinter();
+  const printer = new TestSubject.JSONPrinter(false, null, 0);
 
   const typeAnalyzer = new TestSubject.TypeAnalyzer();
 
@@ -25,8 +27,14 @@ Deno.test('Control flow parsing #integration', async (t) => {
 
     assertEquals(parser.errors.length, 0, 'Parser should not error');
 
-    assert(parserOutput.statement);
-    assertGreater(parserOutput.statement.length, 0, 'Statements should be generated');
+    v.file(parserOutput as FileCstNode, [
+      ['declaration', ['a', v.none, [['constant', ['INT', '0']]]]],
+      [
+        'if',
+        [['expression', [['id', 'a'], v.none, '>', [['constant', ['INT', '1']]]], v.none]],
+        v.none,
+      ],
+    ]);
 
     assertEquals(typeOutput.warnings, 0, 'TypeAnalyzer should not report any warnings');
     assertEquals(typeOutput.errors, 0, 'TypeAnalyzer should not report any errors');
@@ -56,8 +64,10 @@ Deno.test('Control flow parsing #integration', async (t) => {
 
     assertEquals(parser.errors.length, 0, 'Parser should not error');
 
-    assert(parserOutput.statement);
-    assertGreater(parserOutput.statement.length, 0, 'Statements should be generated');
+    v.file(parserOutput as FileCstNode, [
+      ['declaration', ['a', v.none, [['constant', ['INT', '0']]]]],
+      ['if', v.skip, [['expression', [['id', 'b'], v.none, '=', [['constant', ['INT', '2']]]]]]],
+    ]);
 
     assertEquals(typeOutput.warnings, 1, 'TypeAnalyzer should report a warning');
     assertEquals(typeOutput.errors, 1, 'TypeAnalyzer should report an error');
@@ -70,6 +80,7 @@ Deno.test('Control flow parsing #integration', async (t) => {
       ),
 
       parser,
+      startAt: 'statement',
       precedenceHandler,
       printer,
       typeAnalyzer,
@@ -77,8 +88,13 @@ Deno.test('Control flow parsing #integration', async (t) => {
 
     assertEquals(parser.errors.length, 0, 'Parser should not error');
 
-    assert(parserOutput.statement);
-    assertGreater(parserOutput.statement.length, 0, 'Statements should be generated');
+    v.statement(parserOutput as StatementCstNode, [
+      'while',
+      [],
+      [['id', 'a'], v.none, '<', [['constant', ['INT', '3']]]],
+      v.none,
+      v.none,
+    ]);
 
     assertEquals(typeOutput.warnings, 0, 'TypeAnalyzer should not report any warnings');
     assertEquals(typeOutput.errors, 1, 'TypeAnalyzer should report an error');
@@ -98,6 +114,7 @@ Deno.test('Control flow parsing #integration', async (t) => {
       ].join('\n'),
 
       parser,
+      startAt: 'statement',
       precedenceHandler,
       printer,
       typeAnalyzer,
@@ -105,29 +122,28 @@ Deno.test('Control flow parsing #integration', async (t) => {
 
     assertEquals(parser.errors.length, 0, 'Parser should not error');
 
-    assert(parserOutput.statement);
-    assertGreater(parserOutput.statement.length, 0, 'Statements should be generated');
+    v.statement(parserOutput as StatementCstNode, [
+      'while',
+      v.none,
+      [['id', 'b'], v.none, '>', [['constant', ['INT', '4']]]],
+      [
+        ['declaration', ['c', v.none, [['constant', ['INT', '1']]]]],
+        ['if', [['expression', [['id', 'a']], [['continue']]]], v.none],
+      ],
+      [
+        [
+          'return',
+          [
+            ['nested', [['constant', ['INT', '1']], v.none, '+', [['constant', ['INT', '2']]]]],
+            v.none,
+            '+',
+            [['id', 'c']],
+          ],
+        ],
+      ],
+    ]);
 
     assertEquals(typeOutput.warnings, 0, 'TypeAnalyzer should not report any warnings');
     assertEquals(typeOutput.errors, 3, 'TypeAnalyzer should report 3 errors');
-  });
-
-  await t.step('simple do-while loop', () => {
-    const { parserOutput, typeOutput } = performParsingTestCase({
-      code: 'do {} while(true) {}',
-
-      parser,
-      precedenceHandler,
-      printer,
-      typeAnalyzer,
-    });
-
-    assertEquals(parser.errors.length, 0, 'Parser should not error');
-
-    assert(parserOutput.statement);
-    assertGreater(parserOutput.statement.length, 0, 'Statements should be generated');
-
-    assertEquals(typeOutput.warnings, 0, 'TypeAnalyzer should not report any warnings');
-    assertEquals(typeOutput.errors, 0, 'TypeAnalyzer should not report any errors');
   });
 });

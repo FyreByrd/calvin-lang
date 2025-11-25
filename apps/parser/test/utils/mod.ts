@@ -3,12 +3,12 @@ import {
   debug,
   EncodeLexer,
   type EncodeParser,
+  type EncodeRule,
   Globals,
   type PrecedenceHandler,
   type TypeAnalyzer,
 } from '@encode/parser/lib';
-import type { ILexingResult } from 'chevrotain';
-import type { FileCstChildren } from '@/generated/cst-types.ts';
+import type { CstNode, ILexingResult } from 'chevrotain';
 
 export interface TestCaseParameters {
   /**
@@ -17,6 +17,7 @@ export interface TestCaseParameters {
    * **Note:** We choose not to instantiate this ourselves in case we want to inject something else, e.g. a shim or an experimental impl
    */
   parser: EncodeParser;
+  startAt?: EncodeRule;
   /**
    * The parser to use for parsing Encode code.
    *
@@ -43,7 +44,7 @@ export interface TestCaseParameters {
 
 export interface TestCaseOutputs {
   lexingResult: ILexingResult;
-  parserOutput: FileCstChildren;
+  parserOutput: CstNode;
   beforeReorder: string;
   afterReorder: string;
   precOutput: number;
@@ -64,11 +65,11 @@ export interface TestCaseOutputs {
  * @returns the results of executing the test procedure to be examined by assertions
  */
 export function performParsingTestCase(params: TestCaseParameters): TestCaseOutputs {
-  const { code, parser, printer, typeAnalyzer, precedenceHandler } = params;
+  const { code, parser, startAt = 'file', printer, typeAnalyzer, precedenceHandler } = params;
 
   const lexingResult = EncodeLexer.tokenize(code);
   parser.input = lexingResult.tokens;
-  const parserOutput = parser.file();
+  const parserOutput = parser[startAt]();
 
   // cache printer.output
   const printerOutput = printer.output;
@@ -101,7 +102,7 @@ export function performParsingTestCase(params: TestCaseParameters): TestCaseOutp
 
   const testCaseOutputs: TestCaseOutputs = {
     lexingResult,
-    parserOutput: parserOutput.children,
+    parserOutput,
     beforeReorder,
     afterReorder,
     precOutput: precedenceHandler.reordered,

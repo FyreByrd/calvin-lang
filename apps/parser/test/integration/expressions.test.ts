@@ -1,6 +1,8 @@
 import * as TestSubject from '@encode/parser/lib';
-import { assert, assertEquals, assertGreater } from '@std/assert';
+import { v } from '@encode/parser/lib';
+import { assert, assertEquals } from '@std/assert';
 import { performParsingTestCase, useGlobalSettings } from '@/test/utils/mod.ts';
+import type { StatementCstNode } from '../../generated/cst-types.ts';
 
 Deno.test('Expression parsing #integration', async (t) => {
   using _globalSettings = useGlobalSettings({ debugTrees: true });
@@ -18,6 +20,7 @@ Deno.test('Expression parsing #integration', async (t) => {
       code: 'let a = 1 * 2 + 3;',
 
       parser,
+      startAt: 'statement',
       precedenceHandler,
       printer,
       typeAnalyzer,
@@ -25,8 +28,19 @@ Deno.test('Expression parsing #integration', async (t) => {
 
     assert(parser.errors.length === 0, 'Parser should not error');
 
-    assert(parserOutput.statement);
-    assertGreater(parserOutput.statement.length, 0, 'Statements should be generated');
+    v.statement(parserOutput as StatementCstNode, [
+      'declaration',
+      [
+        'a',
+        v.none,
+        [
+          ['nested', [['constant', ['INT', '1']], v.none, '*', [['constant', ['INT', '2']]]]],
+          v.none,
+          '+',
+          [['constant', ['INT', '3']]],
+        ],
+      ],
+    ]);
 
     assertEquals(precOutput, 1, 'Expression should be reordered');
   });

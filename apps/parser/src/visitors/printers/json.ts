@@ -158,10 +158,16 @@ export class JSONPrinter extends BasePrinter implements ICstNodeVisitor<number, 
   }
 
   expression(expr: ExpressionCstChildren, indent: number, trail: boolean = false) {
-    const op = Object.values(expr).find((e) => 'tokenType' in e[0]) as IToken[] | undefined;
+    const op = expr.BinOp;
+    const pf = expr.PostFix;
     this.tree(`"expression":${this.pretty}{`, indent);
-    this.tree(`"op":${this.pretty}"${op?.[0].image ?? ''}"`, indent + 1, true);
+    if (op) {
+      this.tree(`"op":${this.pretty}"${op[0].image}"`, indent + 1, true);
+    }
     this.value(expr.value[0].children, indent + 1, !!expr.expression);
+    if (pf) {
+      this.tree(`"postfix":${this.pretty}"${pf[0].image}"`, indent + 1, true);
+    }
     if (expr.expression) {
       this.expression(expr.expression[0].children, indent + 1);
     }

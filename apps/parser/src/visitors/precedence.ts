@@ -21,7 +21,7 @@ enum Prec {
   Mult = 0, // * / %
   Add, // + -
   Shift, // << >> >>>
-  Order, // < > <= >=
+  Relation, // < > <= >= in
   Equal, // == !=
   BinXor, // ^
   BinAnd, // &
@@ -48,7 +48,8 @@ function tok2Prec(tok: TokenType) {
     case Tokens.GT:
     case Tokens.LE:
     case Tokens.GE:
-      return Prec.Order;
+    case Tokens.IN:
+      return Prec.Relation;
     case Tokens.EE:
     case Tokens.NE:
       return Prec.Equal;

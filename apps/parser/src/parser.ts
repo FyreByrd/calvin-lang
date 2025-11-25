@@ -11,7 +11,7 @@ export class EncodeParser extends CstParser {
     this.MANY(() => this.SUBRULE(this.statement));
   });
 
-  private statement = this.RULE('statement', () => {
+  public statement: ParserMethod<[], CstNode> = this.RULE('statement', () => {
     this.OR([
       {
         ALT: () => {
@@ -68,7 +68,9 @@ export class EncodeParser extends CstParser {
           });
 
           this.CONSUME(Tokens.WHILE);
+          this.CONSUME(Tokens.LPAREN);
           this.SUBRULE3(this.expression);
+          this.CONSUME(Tokens.RPAREN);
           this.OR2([
             {
               ALT: () => {
@@ -92,7 +94,7 @@ export class EncodeParser extends CstParser {
     ]);
   });
 
-  private ifPredBody = this.RULE('ifPredBody', () => {
+  public ifPredBody: ParserMethod<[], CstNode> = this.RULE('ifPredBody', () => {
     this.CONSUME(Tokens.LPAREN);
     this.OR([
       {
@@ -110,13 +112,13 @@ export class EncodeParser extends CstParser {
     this.SUBRULE(this.body);
   });
 
-  private body = this.RULE('body', () => {
+  public body: ParserMethod<[], CstNode> = this.RULE('body', () => {
     this.CONSUME(Tokens.LCURLY);
     this.MANY(() => this.SUBRULE(this.statement));
     this.CONSUME(Tokens.RCURLY);
   });
 
-  private declaration = this.RULE('declaration', () => {
+  public declaration: ParserMethod<[], CstNode> = this.RULE('declaration', () => {
     this.CONSUME(Tokens.ID);
     this.OPTION(() => {
       this.CONSUME(Tokens.COLON);
@@ -128,32 +130,17 @@ export class EncodeParser extends CstParser {
     });
   });
 
-  private expression = this.RULE('expression', () => {
+  public expression: ParserMethod<[], CstNode> = this.RULE('expression', () => {
     this.SUBRULE(this.value);
-    this.OR([
-      {
-        ALT: () => this.CONSUME(Tokens.PostFix),
-      },
-      {
-        ALT: () => {
-          this.OPTION(() => {
-            this.OR2([
-              {
-                ALT: () => this.CONSUME(Tokens.CmpAsgn),
-              },
-              {
-                ALT: () => this.CONSUME(Tokens.BinOp),
-              },
-            ]);
-            this.SUBRULE(this.expression);
-            // TODO reorder based on precedence
-          });
-        },
-      },
-    ]);
+    this.OPTION(() => this.CONSUME(Tokens.PostFix));
+
+    this.OPTION1(() => {
+      this.CONSUME(Tokens.BinOp); // Compound assignment is categorized as a Binary operation by the lexer now
+      this.SUBRULE(this.expression);
+    });
   });
 
-  private value = this.RULE('value', () => {
+  public value: ParserMethod<[], CstNode> = this.RULE('value', () => {
     this.OR([
       {
         ALT: () => {
@@ -177,12 +164,18 @@ export class EncodeParser extends CstParser {
     ]);
   });
 
-  private constant = this.RULE('constant', () =>
+  public constant: ParserMethod<[], CstNode> = this.RULE('constant', () =>
     this.OR(Tokens.literals.map((t) => ({ ALT: () => this.CONSUME(t) }))),
   );
 
-  private type = this.RULE('type', () => this.CONSUME(Tokens.BASIC_TYPE));
+  public type: ParserMethod<[], CstNode> = this.RULE('type', () => this.CONSUME(Tokens.BASIC_TYPE));
 }
+
+export type EncodeRule = {
+  [Property in keyof EncodeParser]: EncodeParser[Property] extends ParserMethod<[], CstNode>
+    ? Property
+    : never;
+}[keyof EncodeParser];
 
 export const parser: EncodeParser = new EncodeParser();
 export const BaseCstVisitor: ReturnType<typeof parser.getBaseCstVisitorConstructor> =

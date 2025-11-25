@@ -1,6 +1,8 @@
 import * as TestSubject from '@encode/parser/lib';
+import { v } from '@encode/parser/lib';
 import { assert } from '@std/assert';
 import { performParsingTestCase, useGlobalSettings } from '@/test/utils/mod.ts';
+import type { FileCstNode, StatementCstNode } from '../../generated/cst-types.ts';
 
 Deno.test('Keyword parsing #integration', async (t) => {
   using _globalSettings = useGlobalSettings({ debugTrees: true });
@@ -34,7 +36,25 @@ Deno.test('Keyword parsing #integration', async (t) => {
 
     assert(parser.errors.length === 0, 'Parser should not error');
 
-    assert(parserOutput.statement, 'Parser should generate statements');
+    v.file(parserOutput as FileCstNode, [
+      ['declaration', ['lettuce', v.none, [['constant', ['INT', '1']]]]],
+      [
+        'if',
+        [
+          [
+            'expression',
+            [['id', 'lettuce']],
+            [['declaration', ['spiffy', v.none, [['constant', ['INT', '2']]]]]],
+          ],
+          [
+            'expression',
+            [['id', 'lettuce']],
+            [['declaration', ['elifShmelif', v.none, [['constant', ['INT', '3']]]]]],
+          ],
+        ],
+        [['declaration', ['elsevier', v.none, [['constant', ['INT', '4']]]]]],
+      ],
+    ]);
   });
 
   await t.step('false positive keyword snippets', async (t) => {
@@ -43,6 +63,7 @@ Deno.test('Keyword parsing #integration', async (t) => {
         code: 'let coffeebreak = 8; // break',
 
         parser,
+        startAt: 'statement',
         precedenceHandler,
         printer,
         typeAnalyzer,
@@ -50,7 +71,10 @@ Deno.test('Keyword parsing #integration', async (t) => {
 
       assert(parser.errors.length === 0, 'Parser should not error');
 
-      assert(parserOutput.statement, 'Parser should generate statements');
+      v.statement(parserOutput as StatementCstNode, [
+        'declaration',
+        ['coffeebreak', v.none, [['constant', ['INT', '8']]]],
+      ]);
     });
 
     await t.step('continue', () => {
@@ -58,6 +82,7 @@ Deno.test('Keyword parsing #integration', async (t) => {
         code: 'let dareIcontinue = 9; // continue',
 
         parser,
+        startAt: 'statement',
         precedenceHandler,
         printer,
         typeAnalyzer,
@@ -65,7 +90,10 @@ Deno.test('Keyword parsing #integration', async (t) => {
 
       assert(parser.errors.length === 0, 'Parser should not error');
 
-      assert(parserOutput.statement, 'Parser should generate statements');
+      v.statement(parserOutput as StatementCstNode, [
+        'declaration',
+        ['dareIcontinue', v.none, [['constant', ['INT', '9']]]],
+      ]);
     });
 
     await t.step('return', () => {
@@ -80,7 +108,10 @@ Deno.test('Keyword parsing #integration', async (t) => {
 
       assert(parser.errors.length === 0, 'Parser should not error');
 
-      assert(parserOutput.statement, 'Parser should generate statements');
+      v.file(parserOutput as FileCstNode, [
+        ['declaration', ['returnOfTheJedi', v.none, [['constant', ['INT', '10']]]]],
+        ['return', [['id', 'OfTheJedi']]],
+      ]);
     });
 
     await t.step('and, or, & not', () => {
@@ -95,7 +126,10 @@ Deno.test('Keyword parsing #integration', async (t) => {
 
       assert(parser.errors.length === 0, 'Parser should not error');
 
-      assert(parserOutput.statement, 'Parser should generate statements');
+      v.file(parserOutput as FileCstNode, [
+        ['declaration', ['andor', v.none, [['constant', ['INT', '11']]]]],
+        ['declaration', ['notInNottingham', v.none, [['prefix', 'not', ['id', 'andor']]]]],
+      ]);
     });
 
     await t.step('in', () => {
@@ -103,6 +137,7 @@ Deno.test('Keyword parsing #integration', async (t) => {
         code: 'let spinach = 13; // in',
 
         parser,
+        startAt: 'statement',
         precedenceHandler,
         printer,
         typeAnalyzer,
@@ -110,7 +145,10 @@ Deno.test('Keyword parsing #integration', async (t) => {
 
       assert(parser.errors.length === 0, 'Parser should not error');
 
-      assert(parserOutput.statement, 'Parser should generate statements');
+      v.statement(parserOutput as StatementCstNode, [
+        'declaration',
+        ['spinach', v.none, [['constant', ['INT', '13']]]],
+      ]);
     });
   });
 });

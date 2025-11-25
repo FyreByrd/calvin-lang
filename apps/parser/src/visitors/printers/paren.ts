@@ -136,13 +136,16 @@ export class ParenPrinter extends BasePrinter implements ICstNodeVisitor<number,
   }
 
   expression(expr: ExpressionCstChildren, indent: number) {
-    const op = Object.values(expr).find((e) => 'tokenType' in e[0]) as IToken[] | undefined;
+    const op = expr.BinOp;
     if (op) {
       this.tree(`(${op[0].image}`, indent);
     } else {
       this.tree('(', indent);
     }
     this.value(expr.value[0].children, indent + 2);
+    if (expr.PostFix) {
+      this.tree(expr.PostFix[0].image, indent);
+    }
     if (expr.expression) {
       this.expression(expr.expression[0].children, indent + 2);
     }
